@@ -2,7 +2,7 @@
 #include "lcd_init.h"
 #include "lcdfont.h"
 #include "spi.h"
-#include "dma.h"
+// #include "dma.h"
 
 /******************************************************************************
       函数说明：在指定区域填充颜色
@@ -11,46 +11,46 @@
 								color       要填充的颜色
       返回值：  无
 ******************************************************************************/
-void LCD_Fill(uint16_t xsta,uint16_t ysta,uint16_t xend,uint16_t yend,uint16_t color)
-{          
-	uint16_t color1[1],t=1;
-	uint32_t num,num1;
-	color1[0]=color;
-	num=(xend-xsta)*(yend-ysta);
-	LCD_Address_Set(xsta,ysta,xend-1,yend-1);//设置显示范围
-	LCD_CS_Clr();
-	SPI1->CR1|=1<<11;//设置SPI16位传输模式
-	SPI_Cmd(SPI1, ENABLE);//使能SPI
-	while(t)
-	{
-		if(num>65534)
-		{
-			num-=65534;
-			num1=65534;
-		}
-		else
-		{
-			t=0;
-			num1=num;
-		}
-		MYDMA_Config1(DMA1_Channel3,(uint32_t)&SPI1->DR,(uint32_t)color1,num1);
-		SPI_I2S_DMACmd(SPI1,SPI_I2S_DMAReq_Tx,ENABLE);
-		MYDMA_Enable(DMA1_Channel3);
-		while(1)
-		{
-			if(DMA_GetFlagStatus(DMA1_FLAG_TC3)!=RESET)//等待通道4传输完成
-			{
-				DMA_ClearFlag(DMA1_FLAG_TC3);//清除通道3传输完成标志
-				break;
-			}
-		}
-  }
-	LCD_CS_Set();
-	SPI1->CR1=~SPI1->CR1;
-	SPI1->CR1|=1<<11;
-	SPI1->CR1=~SPI1->CR1;//设置SPI8位传输模式
-	SPI_Cmd(SPI1, ENABLE);//使能SPI
-}
+// void LCD_Fill(uint16_t xsta,uint16_t ysta,uint16_t xend,uint16_t yend,uint16_t color)
+// {          
+// 	uint16_t color1[1],t=1;
+// 	uint32_t num,num1;
+// 	color1[0]=color;
+// 	num=(xend-xsta)*(yend-ysta);
+// 	LCD_Address_Set(xsta,ysta,xend-1,yend-1);//设置显示范围
+// 	LCD_CS_Clr();
+// 	SPI1->CR1|=1<<11;//设置SPI16位传输模式
+// 	SPI_Cmd(SPI1, ENABLE);//使能SPI
+// 	while(t)
+// 	{
+// 		if(num>65534)
+// 		{
+// 			num-=65534;
+// 			num1=65534;
+// 		}
+// 		else
+// 		{
+// 			t=0;
+// 			num1=num;
+// 		}
+// 		MYDMA_Config1(DMA1_Channel3,(uint32_t)&SPI1->DR,(uint32_t)color1,num1);
+// 		SPI_I2S_DMACmd(SPI1,SPI_I2S_DMAReq_Tx,ENABLE);
+// 		MYDMA_Enable(DMA1_Channel3);
+// 		while(1)
+// 		{
+// 			if(DMA_GetFlagStatus(DMA1_FLAG_TC3)!=RESET)//等待通道4传输完成
+// 			{
+// 				DMA_ClearFlag(DMA1_FLAG_TC3);//清除通道3传输完成标志
+// 				break;
+// 			}
+// 		}
+//   }
+// 	LCD_CS_Set();
+// 	SPI1->CR1=~SPI1->CR1;
+// 	SPI1->CR1|=1<<11;
+// 	SPI1->CR1=~SPI1->CR1;//设置SPI8位传输模式
+// 	SPI_Cmd(SPI1, ENABLE);//使能SPI
+// }
 
 /******************************************************************************
       函数说明：在指定位置画点
@@ -568,38 +568,38 @@ void LCD_ShowFloatNum1(uint16_t x,uint16_t y,float num,uint8_t len,uint16_t fc,u
                 pic[]  图片数组    
       返回值：  无
 ******************************************************************************/
-void LCD_ShowPicture(uint16_t x,uint16_t y,uint16_t length,uint16_t width,const uint8_t pic[])
-{
-	uint8_t t=1;
-	uint32_t num=length*width*2,num1;
-	LCD_Address_Set(x,y,x+length-1,y+width-1);
-	LCD_CS_Clr();
-	while(t)
-	{
-	  if(num>65534)
-		{
-			num-=65534;
-			num1=65534;
-		}
-		else
-		{
-			t=0;
-			num1=num;
-		}
-		MYDMA_Config(DMA1_Channel3,(uint32_t)&SPI1->DR,(uint32_t)pic,num1);
-		SPI_I2S_DMACmd(SPI1,SPI_I2S_DMAReq_Tx,ENABLE);
-		MYDMA_Enable(DMA1_Channel3);
-		while(1)
-		{
-			if(DMA_GetFlagStatus(DMA1_FLAG_TC3)!=RESET)//等待通道4传输完成
-			{
-				DMA_ClearFlag(DMA1_FLAG_TC3);//清除通道4传输完成标志
-				break; 
-			}
-		}
-		pic+=65534;
-	}
-	LCD_CS_Set();
-}
+// void LCD_ShowPicture(uint16_t x,uint16_t y,uint16_t length,uint16_t width,const uint8_t pic[])
+// {
+// 	uint8_t t=1;
+// 	uint32_t num=length*width*2,num1;
+// 	LCD_Address_Set(x,y,x+length-1,y+width-1);
+// 	LCD_CS_Clr();
+// 	while(t)
+// 	{
+// 	  if(num>65534)
+// 		{
+// 			num-=65534;
+// 			num1=65534;
+// 		}
+// 		else
+// 		{
+// 			t=0;
+// 			num1=num;
+// 		}
+// 		MYDMA_Config(DMA1_Channel3,(uint32_t)&SPI1->DR,(uint32_t)pic,num1);
+// 		SPI_I2S_DMACmd(SPI1,SPI_I2S_DMAReq_Tx,ENABLE);
+// 		MYDMA_Enable(DMA1_Channel3);
+// 		while(1)
+// 		{
+// 			if(DMA_GetFlagStatus(DMA1_FLAG_TC3)!=RESET)//等待通道4传输完成
+// 			{
+// 				DMA_ClearFlag(DMA1_FLAG_TC3);//清除通道4传输完成标志
+// 				break; 
+// 			}
+// 		}
+// 		pic+=65534;
+// 	}
+// 	LCD_CS_Set();
+// }
 
 

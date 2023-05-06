@@ -94,9 +94,11 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
+  LL_SPI_Enable(SPI1);
   LCD_Init();
+  HAL_Delay(200);
   /* USER CODE END 2 */
-
+  // LCD_ShowChinese(0,0,"中景园电子",RED,WHITE,32,0);
   /* Init scheduler */
   osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();

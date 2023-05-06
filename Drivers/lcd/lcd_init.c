@@ -16,6 +16,10 @@ void LCD_Writ_Bus(uint8_t dat)
 	LCD_CS_Clr();
 //   while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);//检查接收标志位
 // 	SPI_I2S_SendData(SPI1,dat);
+  	// while (LL_SPI_IsActiveFlag_TXP(SPI1) == RESET);
+  	// LL_SPI_TransmitData8(SPI1, dat);
+	while((SPI1->SR & 1<<1) == 0);//wait for tx buf empty
+	SPI1->TXDR = dat;
 	delay(1);
 	LCD_CS_Set();
 }

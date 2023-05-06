@@ -188,7 +188,7 @@ void StartLvglTimerTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    lv_timer_handler();
+    // lv_timer_handler();
     osDelay(5);
   }
   /* USER CODE END StartLvglTimerTask */
@@ -207,7 +207,8 @@ void StartLVGLTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    // LCD_ShowChinese(0,0,"中景园电子",RED,WHITE,32,0);
+    osDelay(1000);
   }
   /* USER CODE END StartLVGLTask */
 }
@@ -216,7 +217,7 @@ void StartLVGLTask(void *argument)
 /* USER CODE BEGIN Application */
 void vApplicationTickHook(void)
 {
-  lv_tick_inc(1);
+  // lv_tick_inc(1);
 }
 /* USER CODE END Application */
 

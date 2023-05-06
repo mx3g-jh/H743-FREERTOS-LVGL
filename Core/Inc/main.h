@@ -46,6 +46,7 @@ extern "C" {
 #include "cmsis_os2.h"
 #include "lvgl.h"
 #include "lcd_init.h"
+#include "lcd.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
