@@ -272,6 +272,8 @@ Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
 Core/Src/dma.c
+# Drivers/lcd/lcd_init.c \
+# Drivers/lcd/lcd.c \
 
 # ASM sources
 ASM_SOURCES =  \
@@ -341,7 +343,7 @@ C_INCLUDES =  \
 -IDrivers/lvgl/drivers \
 -IDrivers/lvgl/lvgl
 # -IDrivers/lcd \
-# -IDrivers/lcd \
+
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
