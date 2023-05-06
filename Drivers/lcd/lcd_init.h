@@ -2,6 +2,7 @@
 #define __LCD_INIT_H
 
 #include "main.h"
+#include "gpio.h"
 
 #define USE_HORIZONTAL 0  //设置横屏或者竖屏显示 0或1为竖屏 2或3为横屏
 
@@ -13,22 +14,21 @@
 
 //-----------------LCD端口定义---------------- 
 
-#define LCD_RES_Clr()  GPIO_ResetBits(GPIOA,GPIO_Pin_1)//RES
-#define LCD_RES_Set()  GPIO_SetBits(GPIOA,GPIO_Pin_1)
+#define LCD_RES_Clr()  LL_GPIO_ResetOutputPin(RES_GPIO_Port,RES_Pin)//RES
+#define LCD_RES_Set()  LL_GPIO_SetOutputPin(RES_GPIO_Port,RES_Pin)
 
-#define LCD_DC_Clr()   GPIO_ResetBits(GPIOA,GPIO_Pin_2)//DC
-#define LCD_DC_Set()   GPIO_SetBits(GPIOA,GPIO_Pin_2)
- 		     
-#define LCD_CS_Clr()   GPIO_ResetBits(GPIOA,GPIO_Pin_3)//CS
-#define LCD_CS_Set()   GPIO_SetBits(GPIOA,GPIO_Pin_3)
+#define LCD_DC_Clr()   LL_GPIO_ResetOutputPin(DC_GPIO_Port,DC_Pin)//DC
+#define LCD_DC_Set()   LL_GPIO_SetOutputPin(DC_GPIO_Port,DC_Pin)
 
-#define LCD_BLK_Clr()  GPIO_ResetBits(GPIOA,GPIO_Pin_4)//BLK
-#define LCD_BLK_Set()  GPIO_SetBits(GPIOA,GPIO_Pin_4)
+#define LCD_CS_Clr()   LL_GPIO_ResetOutputPin(CS_GPIO_Port,CS_Pin)//CS
+#define LCD_CS_Set()   LL_GPIO_SetOutputPin(CS_GPIO_Port,CS_Pin)
 
-
+#define LCD_BLK_Clr()  LL_GPIO_ResetOutputPin(BLK_GPIO_Port,BLK_Pin)//BLK
+#define LCD_BLK_Set()  LL_GPIO_SetOutputPin(BLK_GPIO_Port,BLK_Pin)
 
 
-void LCD_GPIO_Init(void);//初始化GPIO
+
+
 void LCD_Writ_Bus(uint8_t dat);//模拟SPI时序
 void LCD_WR_DATA8(uint8_t dat);//写入一个字节
 void LCD_WR_DATA(uint16_t dat);//写入两个字节

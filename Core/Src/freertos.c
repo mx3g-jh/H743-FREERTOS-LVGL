@@ -168,9 +168,9 @@ void StartLEDTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(100);
-    HAL_GPIO_TogglePin(BLUE_LED_GPIO_Port,BLUE_LED_Pin);
-    osDelay(100);
+    osDelay(50);
+    LL_GPIO_TogglePin(BLUE_LED_GPIO_Port,BLUE_LED_Pin);
+    osDelay(50);
   }
   /* USER CODE END StartLEDTask */
 }

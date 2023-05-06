@@ -2,17 +2,6 @@
 
 #include "spi.h"
 
-void LCD_GPIO_Init(void)
-{
-	GPIO_InitTypeDef  GPIO_InitStructure;
- 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);	 //使能A端口时钟
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4;	 
- 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		 //推挽输出
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;//速度50MHz
- 	GPIO_Init(GPIOA, &GPIO_InitStructure);	  //初始化GPIOA
- 	GPIO_SetBits(GPIOA,GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4);
-}
-
 void delay(int t)
 {
 	while(t--);
@@ -25,8 +14,8 @@ void delay(int t)
 void LCD_Writ_Bus(uint8_t dat) 
 {	
 	LCD_CS_Clr();
-  while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);//检查接收标志位
-	SPI_I2S_SendData(SPI1,dat);
+//   while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);//检查接收标志位
+// 	SPI_I2S_SendData(SPI1,dat);
 	delay(1);
 	LCD_CS_Set();
 }
@@ -119,20 +108,19 @@ void LCD_Address_Set(uint16_t x1,uint16_t y1,uint16_t x2,uint16_t y2)
 
 void LCD_Init(void)
 {
-	SPI1_Init();
-	LCD_GPIO_Init();//初始化GPIO
 	
 	LCD_RES_Clr();//复位
-	delay_ms(100);
+	HAL_Delay(100);
 	LCD_RES_Set();
-	delay_ms(100);
+	HAL_Delay(100);
 	
 	LCD_BLK_Set();//打开背光
-  delay_ms(100);
-	
+	// LCD_BLK_Clr();//关闭背光
+  	HAL_Delay(100);
+
 	//************* Start Initial Sequence **********//
 	LCD_WR_REG(0x11); //Sleep out 
-	delay_ms(120);              //Delay 120ms 
+	HAL_Delay(120);              //Delay 120ms 
 	//************* Start Initial Sequence **********// 
 	LCD_WR_REG(0x36);
 	if(USE_HORIZONTAL==0)LCD_WR_DATA8(0x00);

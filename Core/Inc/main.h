@@ -29,10 +29,23 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal.h"
 
+#include "stm32h7xx_ll_rcc.h"
+#include "stm32h7xx_ll_crs.h"
+#include "stm32h7xx_ll_bus.h"
+#include "stm32h7xx_ll_system.h"
+#include "stm32h7xx_ll_exti.h"
+#include "stm32h7xx_ll_cortex.h"
+#include "stm32h7xx_ll_utils.h"
+#include "stm32h7xx_ll_pwr.h"
+#include "stm32h7xx_ll_dma.h"
+#include "stm32h7xx_ll_spi.h"
+#include "stm32h7xx_ll_gpio.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "cmsis_os2.h"
 #include "lvgl.h"
+#include "lcd_init.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -58,15 +71,15 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define BLUE_LED_Pin GPIO_PIN_13
+#define BLUE_LED_Pin LL_GPIO_PIN_13
 #define BLUE_LED_GPIO_Port GPIOC
-#define RES_Pin GPIO_PIN_0
+#define RES_Pin LL_GPIO_PIN_0
 #define RES_GPIO_Port GPIOA
-#define DC_Pin GPIO_PIN_1
+#define DC_Pin LL_GPIO_PIN_1
 #define DC_GPIO_Port GPIOA
-#define CS_Pin GPIO_PIN_2
+#define CS_Pin LL_GPIO_PIN_2
 #define CS_GPIO_Port GPIOA
-#define BLK_Pin GPIO_PIN_3
+#define BLK_Pin LL_GPIO_PIN_3
 #define BLK_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
