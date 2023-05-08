@@ -1,0 +1,402 @@
+ARM GAS  /tmp/ccI12pGz.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_draw_layer.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.lv_draw_layer_create,"ax",%progbits
+  17              		.align	1
+  18              		.global	lv_draw_layer_create
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu fpv5-d16
+  24              	lv_draw_layer_create:
+  25              	.LFB159:
+  26              		.file 1 "Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c"
+   1:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** /**
+   2:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  * @file lv_draw_layer.c
+   3:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  *
+   4:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  */
+   5:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+   6:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** /*********************
+   7:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  *      INCLUDES
+   8:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  *********************/
+   9:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** #include "lv_draw.h"
+  10:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** #include "lv_draw_arc.h"
+  11:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** #include "../core/lv_refr.h"
+  12:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  13:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** /*********************
+  14:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  *      DEFINES
+  15:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  *********************/
+  16:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  17:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** /**********************
+  18:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  *      TYPEDEFS
+  19:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  **********************/
+  20:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  21:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** /**********************
+  22:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  *  STATIC PROTOTYPES
+  23:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  **********************/
+  24:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  25:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** /**********************
+  26:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  *  STATIC VARIABLES
+  27:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  **********************/
+  28:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  29:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** /**********************
+  30:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  *      MACROS
+  31:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  **********************/
+  32:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+ARM GAS  /tmp/ccI12pGz.s 			page 2
+
+
+  33:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** /**********************
+  34:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  *   GLOBAL FUNCTIONS
+  35:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****  **********************/
+  36:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  37:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** lv_draw_layer_ctx_t * lv_draw_layer_create(lv_draw_ctx_t * draw_ctx, const lv_area_t * layer_area,
+  38:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****                                            lv_draw_layer_flags_t flags)
+  39:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** {
+  27              		.loc 1 39 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              	.LVL0:
+  32 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 24
+  35              		.cfi_offset 3, -24
+  36              		.cfi_offset 4, -20
+  37              		.cfi_offset 5, -16
+  38              		.cfi_offset 6, -12
+  39              		.cfi_offset 7, -8
+  40              		.cfi_offset 14, -4
+  40:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     if(draw_ctx->layer_init == NULL) return NULL;
+  41              		.loc 1 40 0
+  42 0002 C36B     		ldr	r3, [r0, #60]
+  43 0004 53B3     		cbz	r3, .L5
+  44 0006 1746     		mov	r7, r2
+  45 0008 0E46     		mov	r6, r1
+  46 000a 0446     		mov	r4, r0
+  41:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  42:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     lv_draw_layer_ctx_t * layer_ctx = lv_mem_alloc(draw_ctx->layer_instance_size);
+  47              		.loc 1 42 0
+  48 000c C06C     		ldr	r0, [r0, #76]
+  49              	.LVL1:
+  50 000e FFF7FEFF 		bl	lv_mem_alloc
+  51              	.LVL2:
+  43:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     LV_ASSERT_MALLOC(layer_ctx);
+  52              		.loc 1 43 0
+  53 0012 0546     		mov	r5, r0
+  54 0014 00B9     		cbnz	r0, .L3
+  55              	.L4:
+  56 0016 FEE7     		b	.L4
+  57              	.L3:
+  44:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     if(layer_ctx == NULL) {
+  45:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****         LV_LOG_WARN("Couldn't allocate a new layer context");
+  46:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****         return NULL;
+  47:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     }
+  48:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  49:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     lv_memset_00(layer_ctx, draw_ctx->layer_instance_size);
+  58              		.loc 1 49 0
+  59 0018 E16C     		ldr	r1, [r4, #76]
+  60 001a FFF7FEFF 		bl	lv_memset_00
+  61              	.LVL3:
+  50:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  51:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     lv_disp_t * disp_refr = _lv_refr_get_disp_refreshing();
+  62              		.loc 1 51 0
+  63 001e FFF7FEFF 		bl	_lv_refr_get_disp_refreshing
+  64              	.LVL4:
+ARM GAS  /tmp/ccI12pGz.s 			page 3
+
+
+  52:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     layer_ctx->original.buf = draw_ctx->buf;
+  65              		.loc 1 52 0
+  66 0022 2368     		ldr	r3, [r4]
+  67 0024 2B62     		str	r3, [r5, #32]
+  53:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     layer_ctx->original.buf_area = draw_ctx->buf_area;
+  68              		.loc 1 53 0
+  69 0026 6368     		ldr	r3, [r4, #4]
+  70 0028 EB61     		str	r3, [r5, #28]
+  54:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     layer_ctx->original.clip_area = draw_ctx->clip_area;
+  71              		.loc 1 54 0
+  72 002a A368     		ldr	r3, [r4, #8]
+  73 002c AB61     		str	r3, [r5, #24]
+  55:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     layer_ctx->original.screen_transp = disp_refr->driver->screen_transp;
+  74              		.loc 1 55 0
+  75 002e 0368     		ldr	r3, [r0]
+  76 0030 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+  77 0032 C3F38013 		ubfx	r3, r3, #6, #1
+  78 0036 85F82430 		strb	r3, [r5, #36]
+  56:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     layer_ctx->area_full = *layer_area;
+  79              		.loc 1 56 0
+  80 003a 2B46     		mov	r3, r5
+  81 003c 3068     		ldr	r0, [r6]	@ unaligned
+  82              	.LVL5:
+  83 003e 7168     		ldr	r1, [r6, #4]	@ unaligned
+  84 0040 03C3     		stmia	r3!, {r0, r1}
+  57:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  58:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     lv_draw_layer_ctx_t * init_layer_ctx =  draw_ctx->layer_init(draw_ctx, layer_ctx, flags);
+  85              		.loc 1 58 0
+  86 0042 E36B     		ldr	r3, [r4, #60]
+  87 0044 3A46     		mov	r2, r7
+  88 0046 2946     		mov	r1, r5
+  89 0048 2046     		mov	r0, r4
+  90 004a 9847     		blx	r3
+  91              	.LVL6:
+  59:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     if(NULL == init_layer_ctx) {
+  92              		.loc 1 59 0
+  93 004c 0446     		mov	r4, r0
+  94              	.LVL7:
+  95 004e 08B1     		cbz	r0, .L7
+  96              	.LVL8:
+  97              	.L1:
+  60:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****         lv_mem_free(layer_ctx);
+  61:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     }
+  62:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     return init_layer_ctx;
+  63:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** }
+  98              		.loc 1 63 0
+  99 0050 2046     		mov	r0, r4
+ 100 0052 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 101              	.LVL9:
+ 102              	.L7:
+  60:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****         lv_mem_free(layer_ctx);
+ 103              		.loc 1 60 0
+ 104 0054 2846     		mov	r0, r5
+ 105              	.LVL10:
+ 106 0056 FFF7FEFF 		bl	lv_mem_free
+ 107              	.LVL11:
+ 108 005a F9E7     		b	.L1
+ARM GAS  /tmp/ccI12pGz.s 			page 4
+
+
+ 109              	.LVL12:
+ 110              	.L5:
+  40:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+ 111              		.loc 1 40 0
+ 112 005c 0024     		movs	r4, #0
+ 113 005e F7E7     		b	.L1
+ 114              		.cfi_endproc
+ 115              	.LFE159:
+ 117              		.section	.text.lv_draw_layer_adjust,"ax",%progbits
+ 118              		.align	1
+ 119              		.global	lv_draw_layer_adjust
+ 120              		.syntax unified
+ 121              		.thumb
+ 122              		.thumb_func
+ 123              		.fpu fpv5-d16
+ 125              	lv_draw_layer_adjust:
+ 126              	.LFB160:
+  64:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  65:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** void lv_draw_layer_adjust(struct _lv_draw_ctx_t * draw_ctx, struct _lv_draw_layer_ctx_t * layer_ctx
+  66:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****                           lv_draw_layer_flags_t flags)
+  67:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** {
+ 127              		.loc 1 67 0
+ 128              		.cfi_startproc
+ 129              		@ args = 0, pretend = 0, frame = 0
+ 130              		@ frame_needed = 0, uses_anonymous_args = 0
+ 131              	.LVL13:
+ 132 0000 08B5     		push	{r3, lr}
+ 133              	.LCFI1:
+ 134              		.cfi_def_cfa_offset 8
+ 135              		.cfi_offset 3, -8
+ 136              		.cfi_offset 14, -4
+  68:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     if(draw_ctx->layer_adjust) draw_ctx->layer_adjust(draw_ctx, layer_ctx, flags);
+ 137              		.loc 1 68 0
+ 138 0002 036C     		ldr	r3, [r0, #64]
+ 139 0004 03B1     		cbz	r3, .L8
+ 140              		.loc 1 68 0 is_stmt 0 discriminator 1
+ 141 0006 9847     		blx	r3
+ 142              	.LVL14:
+ 143              	.L8:
+  69:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** }
+ 144              		.loc 1 69 0 is_stmt 1
+ 145 0008 08BD     		pop	{r3, pc}
+ 146              		.cfi_endproc
+ 147              	.LFE160:
+ 149              		.section	.text.lv_draw_layer_blend,"ax",%progbits
+ 150              		.align	1
+ 151              		.global	lv_draw_layer_blend
+ 152              		.syntax unified
+ 153              		.thumb
+ 154              		.thumb_func
+ 155              		.fpu fpv5-d16
+ 157              	lv_draw_layer_blend:
+ 158              	.LFB161:
+  70:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  71:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** void lv_draw_layer_blend(struct _lv_draw_ctx_t * draw_ctx, struct _lv_draw_layer_ctx_t * layer_ctx,
+  72:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****                          lv_draw_img_dsc_t * draw_dsc)
+  73:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** {
+ARM GAS  /tmp/ccI12pGz.s 			page 5
+
+
+ 159              		.loc 1 73 0
+ 160              		.cfi_startproc
+ 161              		@ args = 0, pretend = 0, frame = 0
+ 162              		@ frame_needed = 0, uses_anonymous_args = 0
+ 163              	.LVL15:
+ 164 0000 08B5     		push	{r3, lr}
+ 165              	.LCFI2:
+ 166              		.cfi_def_cfa_offset 8
+ 167              		.cfi_offset 3, -8
+ 168              		.cfi_offset 14, -4
+  74:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     if(draw_ctx->layer_blend) draw_ctx->layer_blend(draw_ctx, layer_ctx, draw_dsc);
+ 169              		.loc 1 74 0
+ 170 0002 436C     		ldr	r3, [r0, #68]
+ 171 0004 03B1     		cbz	r3, .L11
+ 172              		.loc 1 74 0 is_stmt 0 discriminator 1
+ 173 0006 9847     		blx	r3
+ 174              	.LVL16:
+ 175              	.L11:
+  75:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** }
+ 176              		.loc 1 75 0 is_stmt 1
+ 177 0008 08BD     		pop	{r3, pc}
+ 178              		.cfi_endproc
+ 179              	.LFE161:
+ 181              		.section	.text.lv_draw_layer_destroy,"ax",%progbits
+ 182              		.align	1
+ 183              		.global	lv_draw_layer_destroy
+ 184              		.syntax unified
+ 185              		.thumb
+ 186              		.thumb_func
+ 187              		.fpu fpv5-d16
+ 189              	lv_draw_layer_destroy:
+ 190              	.LFB162:
+  76:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  77:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** void lv_draw_layer_destroy(lv_draw_ctx_t * draw_ctx, lv_draw_layer_ctx_t * layer_ctx)
+  78:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** {
+ 191              		.loc 1 78 0
+ 192              		.cfi_startproc
+ 193              		@ args = 0, pretend = 0, frame = 0
+ 194              		@ frame_needed = 0, uses_anonymous_args = 0
+ 195              	.LVL17:
+ 196 0000 38B5     		push	{r3, r4, r5, lr}
+ 197              	.LCFI3:
+ 198              		.cfi_def_cfa_offset 16
+ 199              		.cfi_offset 3, -16
+ 200              		.cfi_offset 4, -12
+ 201              		.cfi_offset 5, -8
+ 202              		.cfi_offset 14, -4
+ 203 0002 0546     		mov	r5, r0
+ 204 0004 0C46     		mov	r4, r1
+  79:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  80:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     lv_draw_wait_for_finish(draw_ctx);
+ 205              		.loc 1 80 0
+ 206 0006 FFF7FEFF 		bl	lv_draw_wait_for_finish
+ 207              	.LVL18:
+  81:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     draw_ctx->buf = layer_ctx->original.buf;
+ 208              		.loc 1 81 0
+ 209 000a 236A     		ldr	r3, [r4, #32]
+ARM GAS  /tmp/ccI12pGz.s 			page 6
+
+
+ 210 000c 2B60     		str	r3, [r5]
+  82:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     draw_ctx->buf_area = layer_ctx->original.buf_area;
+ 211              		.loc 1 82 0
+ 212 000e E369     		ldr	r3, [r4, #28]
+ 213 0010 6B60     		str	r3, [r5, #4]
+  83:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     draw_ctx->clip_area = layer_ctx->original.clip_area;
+ 214              		.loc 1 83 0
+ 215 0012 A369     		ldr	r3, [r4, #24]
+ 216 0014 AB60     		str	r3, [r5, #8]
+  84:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     lv_disp_t * disp_refr = _lv_refr_get_disp_refreshing();
+ 217              		.loc 1 84 0
+ 218 0016 FFF7FEFF 		bl	_lv_refr_get_disp_refreshing
+ 219              	.LVL19:
+  85:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     disp_refr->driver->screen_transp = layer_ctx->original.screen_transp;
+ 220              		.loc 1 85 0
+ 221 001a 0368     		ldr	r3, [r0]
+ 222 001c 94F82410 		ldrb	r1, [r4, #36]	@ zero_extendqisi2
+ 223 0020 1A7C     		ldrb	r2, [r3, #16]	@ zero_extendqisi2
+ 224 0022 61F38612 		bfi	r2, r1, #6, #1
+ 225 0026 1A74     		strb	r2, [r3, #16]
+  86:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** 
+  87:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     if(draw_ctx->layer_destroy) draw_ctx->layer_destroy(draw_ctx, layer_ctx);
+ 226              		.loc 1 87 0
+ 227 0028 AB6C     		ldr	r3, [r5, #72]
+ 228 002a 13B1     		cbz	r3, .L15
+ 229              		.loc 1 87 0 is_stmt 0 discriminator 1
+ 230 002c 2146     		mov	r1, r4
+ 231 002e 2846     		mov	r0, r5
+ 232              	.LVL20:
+ 233 0030 9847     		blx	r3
+ 234              	.LVL21:
+ 235              	.L15:
+  88:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c ****     lv_mem_free(layer_ctx);
+ 236              		.loc 1 88 0 is_stmt 1
+ 237 0032 2046     		mov	r0, r4
+ 238 0034 FFF7FEFF 		bl	lv_mem_free
+ 239              	.LVL22:
+  89:Drivers/lvgl/lvgl/src/draw/lv_draw_layer.c **** }
+ 240              		.loc 1 89 0
+ 241 0038 38BD     		pop	{r3, r4, r5, pc}
+ 242              		.cfi_endproc
+ 243              	.LFE162:
+ 245              		.text
+ 246              	.Letext0:
+ 247              		.file 2 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 248              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ 249              		.file 4 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 250              		.file 5 "Drivers/lvgl/lvgl/src/draw/../misc/../font/../misc/lv_area.h"
+ 251              		.file 6 "Drivers/lvgl/lvgl/src/draw/../misc/../font/lv_font.h"
+ 252              		.file 7 "Drivers/lvgl/lvgl/src/draw/../misc/lv_types.h"
+ 253              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+ 254              		.file 9 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+ 255              		.file 10 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+ 256              		.file 11 "Drivers/lvgl/lvgl/src/draw/../misc/lv_color.h"
+ 257              		.file 12 "Drivers/lvgl/lvgl/src/draw/../misc/lv_txt.h"
+ 258              		.file 13 "Drivers/lvgl/lvgl/src/draw/../misc/lv_bidi.h"
+ 259              		.file 14 "Drivers/lvgl/lvgl/src/draw/../misc/lv_style.h"
+ARM GAS  /tmp/ccI12pGz.s 			page 7
+
+
+ 260              		.file 15 "Drivers/lvgl/lvgl/src/draw/lv_img_buf.h"
+ 261              		.file 16 "Drivers/lvgl/lvgl/src/draw/../core/lv_obj.h"
+ 262              		.file 17 "Drivers/lvgl/lvgl/src/draw/lv_draw_rect.h"
+ 263              		.file 18 "Drivers/lvgl/lvgl/src/draw/lv_draw_label.h"
+ 264              		.file 19 "Drivers/lvgl/lvgl/src/draw/lv_draw_img.h"
+ 265              		.file 20 "Drivers/lvgl/lvgl/src/draw/lv_draw_line.h"
+ 266              		.file 21 "Drivers/lvgl/lvgl/src/draw/lv_draw_arc.h"
+ 267              		.file 22 "Drivers/lvgl/lvgl/src/draw/lv_draw_layer.h"
+ 268              		.file 23 "Drivers/lvgl/lvgl/src/draw/lv_draw.h"
+ 269              		.file 24 "Drivers/lvgl/lvgl/src/draw/../core/../hal/../misc/lv_ll.h"
+ 270              		.file 25 "Drivers/lvgl/lvgl/src/draw/../core/../hal/../misc/lv_timer.h"
+ 271              		.file 26 "Drivers/lvgl/lvgl/src/draw/../core/../hal/lv_hal_disp.h"
+ 272              		.file 27 "Drivers/lvgl/lvgl/src/draw/../core/lv_group.h"
+ 273              		.file 28 "Drivers/lvgl/lvgl/src/draw/../core/lv_obj_scroll.h"
+ 274              		.file 29 "Drivers/lvgl/lvgl/src/draw/../core/lv_obj_style.h"
+ 275              		.file 30 "Drivers/lvgl/lvgl/src/draw/../core/lv_obj_class.h"
+ 276              		.file 31 "Drivers/lvgl/lvgl/src/draw/../core/lv_event.h"
+ 277              		.file 32 "Drivers/lvgl/lvgl/src/draw/../core/lv_refr.h"
+ 278              		.file 33 "Drivers/lvgl/lvgl/src/draw/../misc/lv_mem.h"
+ARM GAS  /tmp/ccI12pGz.s 			page 8
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_draw_layer.c
+     /tmp/ccI12pGz.s:17     .text.lv_draw_layer_create:0000000000000000 $t
+     /tmp/ccI12pGz.s:24     .text.lv_draw_layer_create:0000000000000000 lv_draw_layer_create
+     /tmp/ccI12pGz.s:118    .text.lv_draw_layer_adjust:0000000000000000 $t
+     /tmp/ccI12pGz.s:125    .text.lv_draw_layer_adjust:0000000000000000 lv_draw_layer_adjust
+     /tmp/ccI12pGz.s:150    .text.lv_draw_layer_blend:0000000000000000 $t
+     /tmp/ccI12pGz.s:157    .text.lv_draw_layer_blend:0000000000000000 lv_draw_layer_blend
+     /tmp/ccI12pGz.s:182    .text.lv_draw_layer_destroy:0000000000000000 $t
+     /tmp/ccI12pGz.s:189    .text.lv_draw_layer_destroy:0000000000000000 lv_draw_layer_destroy
+
+UNDEFINED SYMBOLS
+lv_mem_alloc
+lv_memset_00
+_lv_refr_get_disp_refreshing
+lv_mem_free
+lv_draw_wait_for_finish

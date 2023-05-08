@@ -1,0 +1,582 @@
+ARM GAS  /tmp/ccPnlKQX.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_port_disp.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.disp_flush,"ax",%progbits
+  17              		.align	1
+  18              		.syntax unified
+  19              		.thumb
+  20              		.thumb_func
+  21              		.fpu fpv5-d16
+  23              	disp_flush:
+  24              	.LFB354:
+  25              		.file 1 "Drivers/lvgl/drivers/lv_port_disp.c"
+   1:Drivers/lvgl/drivers/lv_port_disp.c **** /**
+   2:Drivers/lvgl/drivers/lv_port_disp.c ****  * @file lv_port_disp_templ.c
+   3:Drivers/lvgl/drivers/lv_port_disp.c ****  *
+   4:Drivers/lvgl/drivers/lv_port_disp.c ****  */
+   5:Drivers/lvgl/drivers/lv_port_disp.c **** 
+   6:Drivers/lvgl/drivers/lv_port_disp.c **** /*Copy this file as "lv_port_disp.c" and set this value to "1" to enable content*/
+   7:Drivers/lvgl/drivers/lv_port_disp.c **** #if 1
+   8:Drivers/lvgl/drivers/lv_port_disp.c **** 
+   9:Drivers/lvgl/drivers/lv_port_disp.c **** /*********************
+  10:Drivers/lvgl/drivers/lv_port_disp.c ****  *      INCLUDES
+  11:Drivers/lvgl/drivers/lv_port_disp.c ****  *********************/
+  12:Drivers/lvgl/drivers/lv_port_disp.c **** #include "lv_port_disp.h"
+  13:Drivers/lvgl/drivers/lv_port_disp.c **** #include <stdbool.h>
+  14:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  15:Drivers/lvgl/drivers/lv_port_disp.c **** /*********************
+  16:Drivers/lvgl/drivers/lv_port_disp.c ****  *      DEFINES
+  17:Drivers/lvgl/drivers/lv_port_disp.c ****  *********************/
+  18:Drivers/lvgl/drivers/lv_port_disp.c **** #define MY_DISP_HOR_RES    240
+  19:Drivers/lvgl/drivers/lv_port_disp.c **** #define MY_DISP_VER_RES    240
+  20:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  21:Drivers/lvgl/drivers/lv_port_disp.c **** #ifndef MY_DISP_HOR_RES
+  22:Drivers/lvgl/drivers/lv_port_disp.c ****     #warning Please define or replace the macro MY_DISP_HOR_RES with the actual screen width, defau
+  23:Drivers/lvgl/drivers/lv_port_disp.c ****     #define MY_DISP_HOR_RES    240
+  24:Drivers/lvgl/drivers/lv_port_disp.c **** #endif
+  25:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  26:Drivers/lvgl/drivers/lv_port_disp.c **** #ifndef MY_DISP_VER_RES
+  27:Drivers/lvgl/drivers/lv_port_disp.c ****     #warning Please define or replace the macro MY_DISP_HOR_RES with the actual screen height, defa
+  28:Drivers/lvgl/drivers/lv_port_disp.c ****     #define MY_DISP_VER_RES    240
+  29:Drivers/lvgl/drivers/lv_port_disp.c **** #endif
+  30:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  31:Drivers/lvgl/drivers/lv_port_disp.c **** /**********************
+  32:Drivers/lvgl/drivers/lv_port_disp.c ****  *      TYPEDEFS
+  33:Drivers/lvgl/drivers/lv_port_disp.c ****  **********************/
+ARM GAS  /tmp/ccPnlKQX.s 			page 2
+
+
+  34:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  35:Drivers/lvgl/drivers/lv_port_disp.c **** /**********************
+  36:Drivers/lvgl/drivers/lv_port_disp.c ****  *  STATIC PROTOTYPES
+  37:Drivers/lvgl/drivers/lv_port_disp.c ****  **********************/
+  38:Drivers/lvgl/drivers/lv_port_disp.c **** static void disp_init(void);
+  39:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  40:Drivers/lvgl/drivers/lv_port_disp.c **** static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
+  41:Drivers/lvgl/drivers/lv_port_disp.c **** //static void gpu_fill(lv_disp_drv_t * disp_drv, lv_color_t * dest_buf, lv_coord_t dest_width,
+  42:Drivers/lvgl/drivers/lv_port_disp.c **** //        const lv_area_t * fill_area, lv_color_t color);
+  43:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  44:Drivers/lvgl/drivers/lv_port_disp.c **** /**********************
+  45:Drivers/lvgl/drivers/lv_port_disp.c ****  *  STATIC VARIABLES
+  46:Drivers/lvgl/drivers/lv_port_disp.c ****  **********************/
+  47:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  48:Drivers/lvgl/drivers/lv_port_disp.c **** /**********************
+  49:Drivers/lvgl/drivers/lv_port_disp.c ****  *      MACROS
+  50:Drivers/lvgl/drivers/lv_port_disp.c ****  **********************/
+  51:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  52:Drivers/lvgl/drivers/lv_port_disp.c **** /**********************
+  53:Drivers/lvgl/drivers/lv_port_disp.c ****  *   GLOBAL FUNCTIONS
+  54:Drivers/lvgl/drivers/lv_port_disp.c ****  **********************/
+  55:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  56:Drivers/lvgl/drivers/lv_port_disp.c **** void lv_port_disp_init(void)
+  57:Drivers/lvgl/drivers/lv_port_disp.c **** {
+  58:Drivers/lvgl/drivers/lv_port_disp.c ****     /*-------------------------
+  59:Drivers/lvgl/drivers/lv_port_disp.c ****      * Initialize your display
+  60:Drivers/lvgl/drivers/lv_port_disp.c ****      * -----------------------*/
+  61:Drivers/lvgl/drivers/lv_port_disp.c ****     disp_init();
+  62:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  63:Drivers/lvgl/drivers/lv_port_disp.c ****     /*-----------------------------
+  64:Drivers/lvgl/drivers/lv_port_disp.c ****      * Create a buffer for drawing
+  65:Drivers/lvgl/drivers/lv_port_disp.c ****      *----------------------------*/
+  66:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  67:Drivers/lvgl/drivers/lv_port_disp.c ****     /**
+  68:Drivers/lvgl/drivers/lv_port_disp.c ****      * LVGL requires a buffer where it internally draws the widgets.
+  69:Drivers/lvgl/drivers/lv_port_disp.c ****      * Later this buffer will passed to your display driver's `flush_cb` to copy its content to you
+  70:Drivers/lvgl/drivers/lv_port_disp.c ****      * The buffer has to be greater than 1 display row
+  71:Drivers/lvgl/drivers/lv_port_disp.c ****      *
+  72:Drivers/lvgl/drivers/lv_port_disp.c ****      * There are 3 buffering configurations:
+  73:Drivers/lvgl/drivers/lv_port_disp.c ****      * 1. Create ONE buffer:
+  74:Drivers/lvgl/drivers/lv_port_disp.c ****      *      LVGL will draw the display's content here and writes it to your display
+  75:Drivers/lvgl/drivers/lv_port_disp.c ****      *
+  76:Drivers/lvgl/drivers/lv_port_disp.c ****      * 2. Create TWO buffer:
+  77:Drivers/lvgl/drivers/lv_port_disp.c ****      *      LVGL will draw the display's content to a buffer and writes it your display.
+  78:Drivers/lvgl/drivers/lv_port_disp.c ****      *      You should use DMA to write the buffer's content to the display.
+  79:Drivers/lvgl/drivers/lv_port_disp.c ****      *      It will enable LVGL to draw the next part of the screen to the other buffer while
+  80:Drivers/lvgl/drivers/lv_port_disp.c ****      *      the data is being sent form the first buffer. It makes rendering and flushing parallel.
+  81:Drivers/lvgl/drivers/lv_port_disp.c ****      *
+  82:Drivers/lvgl/drivers/lv_port_disp.c ****      * 3. Double buffering
+  83:Drivers/lvgl/drivers/lv_port_disp.c ****      *      Set 2 screens sized buffers and set disp_drv.full_refresh = 1.
+  84:Drivers/lvgl/drivers/lv_port_disp.c ****      *      This way LVGL will always provide the whole rendered screen in `flush_cb`
+  85:Drivers/lvgl/drivers/lv_port_disp.c ****      *      and you only need to change the frame buffer's address.
+  86:Drivers/lvgl/drivers/lv_port_disp.c ****      */
+  87:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  88:Drivers/lvgl/drivers/lv_port_disp.c ****     /* Example for 1) */
+  89:Drivers/lvgl/drivers/lv_port_disp.c ****     static lv_disp_draw_buf_t draw_buf_dsc_1;
+  90:Drivers/lvgl/drivers/lv_port_disp.c ****     static lv_color_t buf_1[MY_DISP_HOR_RES * 10];                          /*A buffer for 10 rows*
+ARM GAS  /tmp/ccPnlKQX.s 			page 3
+
+
+  91:Drivers/lvgl/drivers/lv_port_disp.c ****     lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_1, NULL, MY_DISP_HOR_RES * 10);   /*Initialize the d
+  92:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  93:Drivers/lvgl/drivers/lv_port_disp.c ****     /* Example for 2) */
+  94:Drivers/lvgl/drivers/lv_port_disp.c ****     // static lv_disp_draw_buf_t draw_buf_dsc_2;
+  95:Drivers/lvgl/drivers/lv_port_disp.c ****     // static lv_color_t buf_2_1[MY_DISP_HOR_RES * 10];                        /*A buffer for 10 ro
+  96:Drivers/lvgl/drivers/lv_port_disp.c ****     // static lv_color_t buf_2_2[MY_DISP_HOR_RES * 10];                        /*An other buffer fo
+  97:Drivers/lvgl/drivers/lv_port_disp.c ****     // lv_disp_draw_buf_init(&draw_buf_dsc_2, buf_2_1, buf_2_2, MY_DISP_HOR_RES * 10);   /*Initiali
+  98:Drivers/lvgl/drivers/lv_port_disp.c **** 
+  99:Drivers/lvgl/drivers/lv_port_disp.c ****     /* Example for 3) also set disp_drv.full_refresh = 1 below*/
+ 100:Drivers/lvgl/drivers/lv_port_disp.c ****     // static lv_disp_draw_buf_t draw_buf_dsc_3;
+ 101:Drivers/lvgl/drivers/lv_port_disp.c ****     // static lv_color_t buf_3_1[MY_DISP_HOR_RES * MY_DISP_VER_RES];            /*A screen sized bu
+ 102:Drivers/lvgl/drivers/lv_port_disp.c ****     // static lv_color_t buf_3_2[MY_DISP_HOR_RES * MY_DISP_VER_RES];            /*Another screen si
+ 103:Drivers/lvgl/drivers/lv_port_disp.c ****     // lv_disp_draw_buf_init(&draw_buf_dsc_3, buf_3_1, buf_3_2,
+ 104:Drivers/lvgl/drivers/lv_port_disp.c ****     //                       MY_DISP_VER_RES * MY_DISP_HOR_RES);   /*Initialize the display buffer*
+ 105:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 106:Drivers/lvgl/drivers/lv_port_disp.c ****     /*-----------------------------------
+ 107:Drivers/lvgl/drivers/lv_port_disp.c ****      * Register the display in LVGL
+ 108:Drivers/lvgl/drivers/lv_port_disp.c ****      *----------------------------------*/
+ 109:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 110:Drivers/lvgl/drivers/lv_port_disp.c ****     static lv_disp_drv_t disp_drv;                         /*Descriptor of a display driver*/
+ 111:Drivers/lvgl/drivers/lv_port_disp.c ****     lv_disp_drv_init(&disp_drv);                    /*Basic initialization*/
+ 112:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 113:Drivers/lvgl/drivers/lv_port_disp.c ****     /*Set up the functions to access to your display*/
+ 114:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 115:Drivers/lvgl/drivers/lv_port_disp.c ****     /*Set the resolution of the display*/
+ 116:Drivers/lvgl/drivers/lv_port_disp.c ****     disp_drv.hor_res = MY_DISP_HOR_RES;
+ 117:Drivers/lvgl/drivers/lv_port_disp.c ****     disp_drv.ver_res = MY_DISP_VER_RES;
+ 118:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 119:Drivers/lvgl/drivers/lv_port_disp.c ****     /*Used to copy the buffer's content to the display*/
+ 120:Drivers/lvgl/drivers/lv_port_disp.c ****     disp_drv.flush_cb = disp_flush;
+ 121:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 122:Drivers/lvgl/drivers/lv_port_disp.c ****     /*Set a display buffer*/
+ 123:Drivers/lvgl/drivers/lv_port_disp.c ****     disp_drv.draw_buf = &draw_buf_dsc_1;
+ 124:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 125:Drivers/lvgl/drivers/lv_port_disp.c ****     /*Required for Example 3)*/
+ 126:Drivers/lvgl/drivers/lv_port_disp.c ****     //disp_drv.full_refresh = 1;
+ 127:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 128:Drivers/lvgl/drivers/lv_port_disp.c ****     /* Fill a memory array with a color if you have GPU.
+ 129:Drivers/lvgl/drivers/lv_port_disp.c ****      * Note that, in lv_conf.h you can enable GPUs that has built-in support in LVGL.
+ 130:Drivers/lvgl/drivers/lv_port_disp.c ****      * But if you have a different GPU you can use with this callback.*/
+ 131:Drivers/lvgl/drivers/lv_port_disp.c ****     //disp_drv.gpu_fill_cb = gpu_fill;
+ 132:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 133:Drivers/lvgl/drivers/lv_port_disp.c ****     /*Finally register the driver*/
+ 134:Drivers/lvgl/drivers/lv_port_disp.c ****     lv_disp_drv_register(&disp_drv);
+ 135:Drivers/lvgl/drivers/lv_port_disp.c **** }
+ 136:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 137:Drivers/lvgl/drivers/lv_port_disp.c **** /**********************
+ 138:Drivers/lvgl/drivers/lv_port_disp.c ****  *   STATIC FUNCTIONS
+ 139:Drivers/lvgl/drivers/lv_port_disp.c ****  **********************/
+ 140:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 141:Drivers/lvgl/drivers/lv_port_disp.c **** /*Initialize your display and the required peripherals.*/
+ 142:Drivers/lvgl/drivers/lv_port_disp.c **** static void disp_init(void)
+ 143:Drivers/lvgl/drivers/lv_port_disp.c **** {
+ 144:Drivers/lvgl/drivers/lv_port_disp.c ****     /*You code here*/
+ 145:Drivers/lvgl/drivers/lv_port_disp.c ****     //   ST7789_Init();
+ 146:Drivers/lvgl/drivers/lv_port_disp.c **** }
+ 147:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ARM GAS  /tmp/ccPnlKQX.s 			page 4
+
+
+ 148:Drivers/lvgl/drivers/lv_port_disp.c **** volatile bool disp_flush_enabled = true;
+ 149:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 150:Drivers/lvgl/drivers/lv_port_disp.c **** /* Enable updating the screen (the flushing process) when disp_flush() is called by LVGL
+ 151:Drivers/lvgl/drivers/lv_port_disp.c ****  */
+ 152:Drivers/lvgl/drivers/lv_port_disp.c **** void disp_enable_update(void)
+ 153:Drivers/lvgl/drivers/lv_port_disp.c **** {
+ 154:Drivers/lvgl/drivers/lv_port_disp.c ****     disp_flush_enabled = true;
+ 155:Drivers/lvgl/drivers/lv_port_disp.c **** }
+ 156:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 157:Drivers/lvgl/drivers/lv_port_disp.c **** /* Disable updating the screen (the flushing process) when disp_flush() is called by LVGL
+ 158:Drivers/lvgl/drivers/lv_port_disp.c ****  */
+ 159:Drivers/lvgl/drivers/lv_port_disp.c **** void disp_disable_update(void)
+ 160:Drivers/lvgl/drivers/lv_port_disp.c **** {
+ 161:Drivers/lvgl/drivers/lv_port_disp.c ****     disp_flush_enabled = false;
+ 162:Drivers/lvgl/drivers/lv_port_disp.c **** }
+ 163:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 164:Drivers/lvgl/drivers/lv_port_disp.c **** /*Flush the content of the internal buffer the specific area on the display
+ 165:Drivers/lvgl/drivers/lv_port_disp.c ****  *You can use DMA or any hardware acceleration to do this operation in the background but
+ 166:Drivers/lvgl/drivers/lv_port_disp.c ****  *'lv_disp_flush_ready()' has to be called when finished.*/
+ 167:Drivers/lvgl/drivers/lv_port_disp.c **** static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
+ 168:Drivers/lvgl/drivers/lv_port_disp.c **** {
+  26              		.loc 1 168 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 24
+  34              		.cfi_offset 4, -24
+  35              		.cfi_offset 5, -20
+  36              		.cfi_offset 6, -16
+  37              		.cfi_offset 7, -12
+  38              		.cfi_offset 8, -8
+  39              		.cfi_offset 14, -4
+  40 0004 8046     		mov	r8, r0
+ 169:Drivers/lvgl/drivers/lv_port_disp.c ****     if(disp_flush_enabled) {
+  41              		.loc 1 169 0
+  42 0006 104B     		ldr	r3, .L8
+  43 0008 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  44 000a BBB1     		cbz	r3, .L2
+  45 000c 0E46     		mov	r6, r1
+  46 000e 1546     		mov	r5, r2
+  47              	.LBB2:
+ 170:Drivers/lvgl/drivers/lv_port_disp.c ****         /*The most simple case (but also the slowest) to put all pixels to the screen one-by-one*/
+ 171:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 172:Drivers/lvgl/drivers/lv_port_disp.c ****         int32_t x;
+ 173:Drivers/lvgl/drivers/lv_port_disp.c ****         int32_t y;
+ 174:Drivers/lvgl/drivers/lv_port_disp.c ****         for(y = area->y1; y <= area->y2; y++) {
+  48              		.loc 1 174 0
+  49 0010 B1F90270 		ldrsh	r7, [r1, #2]
+  50              	.LVL1:
+  51 0014 0BE0     		b	.L3
+  52              	.LVL2:
+  53              	.L5:
+ 175:Drivers/lvgl/drivers/lv_port_disp.c ****             for(x = area->x1; x <= area->x2; x++) {
+ 176:Drivers/lvgl/drivers/lv_port_disp.c ****                 /*Put a pixel to the display. For example:*/
+ARM GAS  /tmp/ccPnlKQX.s 			page 5
+
+
+ 177:Drivers/lvgl/drivers/lv_port_disp.c ****                 /*put_px(x, y, *color_p)*/
+ 178:Drivers/lvgl/drivers/lv_port_disp.c ****                ST7789_DrawPixel(x, y, color_p->full);
+  54              		.loc 1 178 0 discriminator 3
+  55 0016 35F8022B 		ldrh	r2, [r5], #2
+  56              	.LVL3:
+  57 001a B9B2     		uxth	r1, r7
+  58 001c A0B2     		uxth	r0, r4
+  59 001e FFF7FEFF 		bl	ST7789_DrawPixel
+  60              	.LVL4:
+ 175:Drivers/lvgl/drivers/lv_port_disp.c ****             for(x = area->x1; x <= area->x2; x++) {
+  61              		.loc 1 175 0 discriminator 3
+  62 0022 0134     		adds	r4, r4, #1
+  63              	.LVL5:
+  64              	.L4:
+ 175:Drivers/lvgl/drivers/lv_port_disp.c ****             for(x = area->x1; x <= area->x2; x++) {
+  65              		.loc 1 175 0 is_stmt 0 discriminator 1
+  66 0024 B6F90430 		ldrsh	r3, [r6, #4]
+  67 0028 A342     		cmp	r3, r4
+  68 002a F4DA     		bge	.L5
+ 174:Drivers/lvgl/drivers/lv_port_disp.c ****             for(x = area->x1; x <= area->x2; x++) {
+  69              		.loc 1 174 0 is_stmt 1 discriminator 2
+  70 002c 0137     		adds	r7, r7, #1
+  71              	.LVL6:
+  72              	.L3:
+ 174:Drivers/lvgl/drivers/lv_port_disp.c ****             for(x = area->x1; x <= area->x2; x++) {
+  73              		.loc 1 174 0 is_stmt 0 discriminator 1
+  74 002e B6F90630 		ldrsh	r3, [r6, #6]
+  75 0032 BB42     		cmp	r3, r7
+  76 0034 02DB     		blt	.L2
+ 175:Drivers/lvgl/drivers/lv_port_disp.c ****             for(x = area->x1; x <= area->x2; x++) {
+  77              		.loc 1 175 0 is_stmt 1
+  78 0036 B6F90040 		ldrsh	r4, [r6]
+  79              	.LVL7:
+  80 003a F3E7     		b	.L4
+  81              	.LVL8:
+  82              	.L2:
+  83              	.LBE2:
+ 179:Drivers/lvgl/drivers/lv_port_disp.c ****                 color_p++;
+ 180:Drivers/lvgl/drivers/lv_port_disp.c ****             }
+ 181:Drivers/lvgl/drivers/lv_port_disp.c ****         }
+ 182:Drivers/lvgl/drivers/lv_port_disp.c ****     }
+ 183:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 184:Drivers/lvgl/drivers/lv_port_disp.c ****     /*IMPORTANT!!!
+ 185:Drivers/lvgl/drivers/lv_port_disp.c ****      *Inform the graphics library that you are ready with the flushing*/
+ 186:Drivers/lvgl/drivers/lv_port_disp.c ****     lv_disp_flush_ready(disp_drv);
+  84              		.loc 1 186 0
+  85 003c 4046     		mov	r0, r8
+  86 003e FFF7FEFF 		bl	lv_disp_flush_ready
+  87              	.LVL9:
+ 187:Drivers/lvgl/drivers/lv_port_disp.c **** }
+  88              		.loc 1 187 0
+  89 0042 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+  90              	.LVL10:
+  91              	.L9:
+  92 0046 00BF     		.align	2
+  93              	.L8:
+  94 0048 00000000 		.word	.LANCHOR0
+ARM GAS  /tmp/ccPnlKQX.s 			page 6
+
+
+  95              		.cfi_endproc
+  96              	.LFE354:
+  98              		.section	.text.lv_port_disp_init,"ax",%progbits
+  99              		.align	1
+ 100              		.global	lv_port_disp_init
+ 101              		.syntax unified
+ 102              		.thumb
+ 103              		.thumb_func
+ 104              		.fpu fpv5-d16
+ 106              	lv_port_disp_init:
+ 107              	.LFB350:
+  57:Drivers/lvgl/drivers/lv_port_disp.c ****     /*-------------------------
+ 108              		.loc 1 57 0
+ 109              		.cfi_startproc
+ 110              		@ args = 0, pretend = 0, frame = 0
+ 111              		@ frame_needed = 0, uses_anonymous_args = 0
+ 112 0000 38B5     		push	{r3, r4, r5, lr}
+ 113              	.LCFI1:
+ 114              		.cfi_def_cfa_offset 16
+ 115              		.cfi_offset 3, -16
+ 116              		.cfi_offset 4, -12
+ 117              		.cfi_offset 5, -8
+ 118              		.cfi_offset 14, -4
+  91:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 119              		.loc 1 91 0
+ 120 0002 0B4D     		ldr	r5, .L12
+ 121 0004 4FF41663 		mov	r3, #2400
+ 122 0008 0022     		movs	r2, #0
+ 123 000a 0A49     		ldr	r1, .L12+4
+ 124 000c 2846     		mov	r0, r5
+ 125 000e FFF7FEFF 		bl	lv_disp_draw_buf_init
+ 126              	.LVL11:
+ 111:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 127              		.loc 1 111 0
+ 128 0012 094C     		ldr	r4, .L12+8
+ 129 0014 2046     		mov	r0, r4
+ 130 0016 FFF7FEFF 		bl	lv_disp_drv_init
+ 131              	.LVL12:
+ 116:Drivers/lvgl/drivers/lv_port_disp.c ****     disp_drv.ver_res = MY_DISP_VER_RES;
+ 132              		.loc 1 116 0
+ 133 001a F023     		movs	r3, #240
+ 134 001c 2380     		strh	r3, [r4]	@ movhi
+ 117:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 135              		.loc 1 117 0
+ 136 001e 6380     		strh	r3, [r4, #2]	@ movhi
+ 120:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 137              		.loc 1 120 0
+ 138 0020 064B     		ldr	r3, .L12+12
+ 139 0022 6361     		str	r3, [r4, #20]
+ 123:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 140              		.loc 1 123 0
+ 141 0024 E560     		str	r5, [r4, #12]
+ 134:Drivers/lvgl/drivers/lv_port_disp.c **** }
+ 142              		.loc 1 134 0
+ 143 0026 2046     		mov	r0, r4
+ 144 0028 FFF7FEFF 		bl	lv_disp_drv_register
+ 145              	.LVL13:
+ARM GAS  /tmp/ccPnlKQX.s 			page 7
+
+
+ 135:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 146              		.loc 1 135 0
+ 147 002c 38BD     		pop	{r3, r4, r5, pc}
+ 148              	.L13:
+ 149 002e 00BF     		.align	2
+ 150              	.L12:
+ 151 0030 00000000 		.word	.LANCHOR1
+ 152 0034 00000000 		.word	buf_1.18131
+ 153 0038 00000000 		.word	.LANCHOR2
+ 154 003c 00000000 		.word	disp_flush
+ 155              		.cfi_endproc
+ 156              	.LFE350:
+ 158              		.section	.text.disp_enable_update,"ax",%progbits
+ 159              		.align	1
+ 160              		.global	disp_enable_update
+ 161              		.syntax unified
+ 162              		.thumb
+ 163              		.thumb_func
+ 164              		.fpu fpv5-d16
+ 166              	disp_enable_update:
+ 167              	.LFB352:
+ 153:Drivers/lvgl/drivers/lv_port_disp.c ****     disp_flush_enabled = true;
+ 168              		.loc 1 153 0
+ 169              		.cfi_startproc
+ 170              		@ args = 0, pretend = 0, frame = 0
+ 171              		@ frame_needed = 0, uses_anonymous_args = 0
+ 172              		@ link register save eliminated.
+ 154:Drivers/lvgl/drivers/lv_port_disp.c **** }
+ 173              		.loc 1 154 0
+ 174 0000 014B     		ldr	r3, .L15
+ 175 0002 0122     		movs	r2, #1
+ 176 0004 1A70     		strb	r2, [r3]
+ 155:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 177              		.loc 1 155 0
+ 178 0006 7047     		bx	lr
+ 179              	.L16:
+ 180              		.align	2
+ 181              	.L15:
+ 182 0008 00000000 		.word	.LANCHOR0
+ 183              		.cfi_endproc
+ 184              	.LFE352:
+ 186              		.section	.text.disp_disable_update,"ax",%progbits
+ 187              		.align	1
+ 188              		.global	disp_disable_update
+ 189              		.syntax unified
+ 190              		.thumb
+ 191              		.thumb_func
+ 192              		.fpu fpv5-d16
+ 194              	disp_disable_update:
+ 195              	.LFB353:
+ 160:Drivers/lvgl/drivers/lv_port_disp.c ****     disp_flush_enabled = false;
+ 196              		.loc 1 160 0
+ 197              		.cfi_startproc
+ 198              		@ args = 0, pretend = 0, frame = 0
+ 199              		@ frame_needed = 0, uses_anonymous_args = 0
+ 200              		@ link register save eliminated.
+ 161:Drivers/lvgl/drivers/lv_port_disp.c **** }
+ARM GAS  /tmp/ccPnlKQX.s 			page 8
+
+
+ 201              		.loc 1 161 0
+ 202 0000 014B     		ldr	r3, .L18
+ 203 0002 0022     		movs	r2, #0
+ 204 0004 1A70     		strb	r2, [r3]
+ 162:Drivers/lvgl/drivers/lv_port_disp.c **** 
+ 205              		.loc 1 162 0
+ 206 0006 7047     		bx	lr
+ 207              	.L19:
+ 208              		.align	2
+ 209              	.L18:
+ 210 0008 00000000 		.word	.LANCHOR0
+ 211              		.cfi_endproc
+ 212              	.LFE353:
+ 214              		.global	disp_flush_enabled
+ 215              		.section	.bss.buf_1.18131,"aw",%nobits
+ 216              		.align	2
+ 219              	buf_1.18131:
+ 220 0000 00000000 		.space	4800
+ 220      00000000 
+ 220      00000000 
+ 220      00000000 
+ 220      00000000 
+ 221              		.section	.bss.disp_drv.18132,"aw",%nobits
+ 222              		.align	2
+ 223              		.set	.LANCHOR2,. + 0
+ 226              	disp_drv.18132:
+ 227 0000 00000000 		.space	80
+ 227      00000000 
+ 227      00000000 
+ 227      00000000 
+ 227      00000000 
+ 228              		.section	.bss.draw_buf_dsc_1.18130,"aw",%nobits
+ 229              		.align	2
+ 230              		.set	.LANCHOR1,. + 0
+ 233              	draw_buf_dsc_1.18130:
+ 234 0000 00000000 		.space	28
+ 234      00000000 
+ 234      00000000 
+ 234      00000000 
+ 234      00000000 
+ 235              		.section	.data.disp_flush_enabled,"aw",%progbits
+ 236              		.set	.LANCHOR0,. + 0
+ 239              	disp_flush_enabled:
+ 240 0000 01       		.byte	1
+ 241              		.text
+ 242              	.Letext0:
+ 243              		.file 2 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 244              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ 245              		.file 4 "Drivers/lvgl/lvgl/src/misc/lv_types.h"
+ 246              		.file 5 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 247              		.file 6 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+ 248              		.file 7 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+ 249              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+ 250              		.file 9 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/../font/../misc/lv_area.h"
+ 251              		.file 10 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/../font/lv_font.h"
+ 252              		.file 11 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/lv_color.h"
+ 253              		.file 12 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/lv_txt.h"
+ARM GAS  /tmp/ccPnlKQX.s 			page 9
+
+
+ 254              		.file 13 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/lv_bidi.h"
+ 255              		.file 14 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/lv_style.h"
+ 256              		.file 15 "Drivers/lvgl/lvgl/src/hal/../draw/lv_img_buf.h"
+ 257              		.file 16 "Drivers/lvgl/lvgl/src/core/lv_obj.h"
+ 258              		.file 17 "Drivers/lvgl/lvgl/src/hal/../draw/lv_draw_rect.h"
+ 259              		.file 18 "Drivers/lvgl/lvgl/src/hal/../draw/lv_draw_label.h"
+ 260              		.file 19 "Drivers/lvgl/lvgl/src/hal/../draw/lv_draw_img.h"
+ 261              		.file 20 "Drivers/lvgl/lvgl/src/hal/../draw/lv_draw_line.h"
+ 262              		.file 21 "Drivers/lvgl/lvgl/src/hal/../draw/lv_draw_arc.h"
+ 263              		.file 22 "Drivers/lvgl/lvgl/src/hal/../draw/lv_draw_layer.h"
+ 264              		.file 23 "Drivers/lvgl/lvgl/src/hal/../draw/lv_draw.h"
+ 265              		.file 24 "Drivers/lvgl/lvgl/src/hal/../misc/lv_ll.h"
+ 266              		.file 25 "Drivers/lvgl/lvgl/src/hal/lv_hal_disp.h"
+ 267              		.file 26 "Drivers/lvgl/lvgl/src/core/lv_group.h"
+ 268              		.file 27 "Drivers/lvgl/lvgl/src/core/lv_obj_scroll.h"
+ 269              		.file 28 "Drivers/lvgl/lvgl/src/core/lv_obj_style.h"
+ 270              		.file 29 "Drivers/lvgl/lvgl/src/core/lv_obj_class.h"
+ 271              		.file 30 "Drivers/lvgl/lvgl/src/core/lv_event.h"
+ 272              		.file 31 "Drivers/lvgl/lvgl/src/widgets/lv_arc.h"
+ 273              		.file 32 "Drivers/lvgl/lvgl/src/widgets/lv_btn.h"
+ 274              		.file 33 "Drivers/lvgl/lvgl/src/widgets/lv_img.h"
+ 275              		.file 34 "Drivers/lvgl/lvgl/src/widgets/lv_label.h"
+ 276              		.file 35 "Drivers/lvgl/lvgl/src/widgets/lv_line.h"
+ 277              		.file 36 "Drivers/lvgl/lvgl/src/widgets/lv_table.h"
+ 278              		.file 37 "Drivers/lvgl/lvgl/src/widgets/lv_checkbox.h"
+ 279              		.file 38 "Drivers/lvgl/lvgl/src/widgets/lv_bar.h"
+ 280              		.file 39 "Drivers/lvgl/lvgl/src/widgets/lv_slider.h"
+ 281              		.file 40 "Drivers/lvgl/lvgl/src/widgets/lv_btnmatrix.h"
+ 282              		.file 41 "Drivers/lvgl/lvgl/src/widgets/lv_dropdown.h"
+ 283              		.file 42 "Drivers/lvgl/lvgl/src/widgets/lv_roller.h"
+ 284              		.file 43 "Drivers/lvgl/lvgl/src/widgets/lv_textarea.h"
+ 285              		.file 44 "Drivers/lvgl/lvgl/src/widgets/lv_canvas.h"
+ 286              		.file 45 "Drivers/lvgl/lvgl/src/widgets/lv_switch.h"
+ 287              		.file 46 "Drivers/lvgl/lvgl/src/extra/layouts/flex/lv_flex.h"
+ 288              		.file 47 "Drivers/lvgl/lvgl/src/extra/layouts/grid/lv_grid.h"
+ 289              		.file 48 "Drivers/lvgl/lvgl/src/extra/widgets/animimg/lv_animimg.h"
+ 290              		.file 49 "Drivers/lvgl/lvgl/src/extra/widgets/calendar/lv_calendar.h"
+ 291              		.file 50 "Drivers/lvgl/lvgl/src/extra/widgets/calendar/lv_calendar_header_arrow.h"
+ 292              		.file 51 "Drivers/lvgl/lvgl/src/extra/widgets/calendar/lv_calendar_header_dropdown.h"
+ 293              		.file 52 "Drivers/lvgl/lvgl/src/extra/widgets/chart/lv_chart.h"
+ 294              		.file 53 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.h"
+ 295              		.file 54 "Drivers/lvgl/lvgl/src/extra/widgets/list/lv_list.h"
+ 296              		.file 55 "Drivers/lvgl/lvgl/src/extra/widgets/menu/lv_menu.h"
+ 297              		.file 56 "Drivers/lvgl/lvgl/src/extra/widgets/msgbox/lv_msgbox.h"
+ 298              		.file 57 "Drivers/lvgl/lvgl/src/extra/widgets/meter/lv_meter.h"
+ 299              		.file 58 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.h"
+ 300              		.file 59 "Drivers/lvgl/lvgl/src/extra/widgets/spinner/lv_spinner.h"
+ 301              		.file 60 "Drivers/lvgl/lvgl/src/extra/widgets/tabview/lv_tabview.h"
+ 302              		.file 61 "Drivers/lvgl/lvgl/src/extra/widgets/tileview/lv_tileview.h"
+ 303              		.file 62 "Drivers/lvgl/lvgl/src/extra/widgets/win/lv_win.h"
+ 304              		.file 63 "Drivers/lvgl/lvgl/src/extra/widgets/colorwheel/lv_colorwheel.h"
+ 305              		.file 64 "Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.h"
+ 306              		.file 65 "Drivers/lvgl/lvgl/src/extra/widgets/imgbtn/lv_imgbtn.h"
+ 307              		.file 66 "Drivers/lvgl/lvgl/src/extra/widgets/span/lv_span.h"
+ 308              		.file 67 "Drivers/ST7789/fonts.h"
+ 309              		.file 68 "Drivers/CMSIS/Include/core_cm7.h"
+ 310              		.file 69 "Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h"
+ARM GAS  /tmp/ccPnlKQX.s 			page 10
+
+
+ 311              		.file 70 "Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h743xx.h"
+ 312              		.file 71 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/math.h"
+ 313              		.file 72 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_def.h"
+ 314              		.file 73 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_dma.h"
+ 315              		.file 74 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_flash.h"
+ 316              		.file 75 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_spi.h"
+ 317              		.file 76 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h"
+ 318              		.file 77 "Drivers/ST7789/st7789.h"
+ARM GAS  /tmp/ccPnlKQX.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_port_disp.c
+     /tmp/ccPnlKQX.s:17     .text.disp_flush:0000000000000000 $t
+     /tmp/ccPnlKQX.s:23     .text.disp_flush:0000000000000000 disp_flush
+     /tmp/ccPnlKQX.s:94     .text.disp_flush:0000000000000048 $d
+     /tmp/ccPnlKQX.s:99     .text.lv_port_disp_init:0000000000000000 $t
+     /tmp/ccPnlKQX.s:106    .text.lv_port_disp_init:0000000000000000 lv_port_disp_init
+     /tmp/ccPnlKQX.s:151    .text.lv_port_disp_init:0000000000000030 $d
+     /tmp/ccPnlKQX.s:219    .bss.buf_1.18131:0000000000000000 buf_1.18131
+     /tmp/ccPnlKQX.s:159    .text.disp_enable_update:0000000000000000 $t
+     /tmp/ccPnlKQX.s:166    .text.disp_enable_update:0000000000000000 disp_enable_update
+     /tmp/ccPnlKQX.s:182    .text.disp_enable_update:0000000000000008 $d
+     /tmp/ccPnlKQX.s:187    .text.disp_disable_update:0000000000000000 $t
+     /tmp/ccPnlKQX.s:194    .text.disp_disable_update:0000000000000000 disp_disable_update
+     /tmp/ccPnlKQX.s:210    .text.disp_disable_update:0000000000000008 $d
+     /tmp/ccPnlKQX.s:239    .data.disp_flush_enabled:0000000000000000 disp_flush_enabled
+     /tmp/ccPnlKQX.s:216    .bss.buf_1.18131:0000000000000000 $d
+     /tmp/ccPnlKQX.s:222    .bss.disp_drv.18132:0000000000000000 $d
+     /tmp/ccPnlKQX.s:226    .bss.disp_drv.18132:0000000000000000 disp_drv.18132
+     /tmp/ccPnlKQX.s:229    .bss.draw_buf_dsc_1.18130:0000000000000000 $d
+     /tmp/ccPnlKQX.s:233    .bss.draw_buf_dsc_1.18130:0000000000000000 draw_buf_dsc_1.18130
+
+UNDEFINED SYMBOLS
+ST7789_DrawPixel
+lv_disp_flush_ready
+lv_disp_draw_buf_init
+lv_disp_drv_init
+lv_disp_drv_register

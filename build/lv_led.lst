@@ -1,0 +1,2149 @@
+ARM GAS  /tmp/ccYvFakt.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_led.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.lv_led_constructor,"ax",%progbits
+  17              		.align	1
+  18              		.syntax unified
+  19              		.thumb
+  20              		.thumb_func
+  21              		.fpu fpv5-d16
+  23              	lv_led_constructor:
+  24              	.LFB209:
+  25              		.file 1 "Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c"
+   1:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**
+   2:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * @file lv_led.c
+   3:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  *
+   4:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  */
+   5:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+   6:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /*********************
+   7:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  *      INCLUDES
+   8:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  *********************/
+   9:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** #include "lv_led.h"
+  10:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** #if LV_USE_LED
+  11:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  12:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** #include "../../../misc/lv_assert.h"
+  13:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  14:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /*********************
+  15:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  *      DEFINES
+  16:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  *********************/
+  17:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** #define MY_CLASS &lv_led_class
+  18:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  19:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**********************
+  20:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  *      TYPEDEFS
+  21:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  **********************/
+  22:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  23:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**********************
+  24:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  *  STATIC PROTOTYPES
+  25:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  **********************/
+  26:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** static void lv_led_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj);
+  27:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** static void lv_led_event(const lv_obj_class_t * class_p, lv_event_t * e);
+  28:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  29:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**********************
+  30:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  *  STATIC VARIABLES
+  31:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  **********************/
+  32:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** const lv_obj_class_t lv_led_class  = {
+  33:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     .base_class = &lv_obj_class,
+ARM GAS  /tmp/ccYvFakt.s 			page 2
+
+
+  34:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     .constructor_cb = lv_led_constructor,
+  35:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     .width_def = LV_DPI_DEF / 5,
+  36:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     .height_def = LV_DPI_DEF / 5,
+  37:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     .event_cb = lv_led_event,
+  38:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     .instance_size = sizeof(lv_led_t),
+  39:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** };
+  40:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  41:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**********************
+  42:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  *      MACROS
+  43:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  **********************/
+  44:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  45:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**********************
+  46:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  *   GLOBAL FUNCTIONS
+  47:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  **********************/
+  48:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  49:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**
+  50:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * Create a led object
+  51:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * @param parent pointer to an object, it will be the parent of the new led
+  52:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * @return pointer to the created led
+  53:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  */
+  54:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** lv_obj_t * lv_led_create(lv_obj_t * parent)
+  55:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** {
+  56:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     LV_LOG_INFO("begin");
+  57:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
+  58:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_obj_class_init_obj(obj);
+  59:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     return obj;
+  60:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+  61:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  62:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /*=====================
+  63:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * Setter functions
+  64:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  *====================*/
+  65:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  66:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**
+  67:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * Set the color of the LED
+  68:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * @param led       pointer to a LED object
+  69:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * @param color     the color of the LED
+  70:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  */
+  71:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** void lv_led_set_color(lv_obj_t * obj, lv_color_t color)
+  72:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** {
+  73:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+  74:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  75:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_led_t * led = (lv_led_t *)obj;
+  76:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     led->color = color;
+  77:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_obj_invalidate(obj);
+  78:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+  79:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  80:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**
+  81:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * Set the brightness of a LED object
+  82:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * @param led pointer to a LED object
+  83:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * @param bright LV_LED_BRIGHT_MIN (max. dark) ... LV_LED_BRIGHT_MAX (max. light)
+  84:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  */
+  85:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** void lv_led_set_brightness(lv_obj_t * obj, uint8_t bright)
+  86:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** {
+  87:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+  88:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  89:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_led_t * led = (lv_led_t *)obj;
+  90:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     if(led->bright == bright) return;
+ARM GAS  /tmp/ccYvFakt.s 			page 3
+
+
+  91:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  92:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     led->bright = LV_CLAMP(LV_LED_BRIGHT_MIN, bright, LV_LED_BRIGHT_MAX);
+  93:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  94:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     /*Invalidate the object there fore it will be redrawn*/
+  95:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_obj_invalidate(obj);
+  96:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+  97:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+  98:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**
+  99:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * Light on a LED
+ 100:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * @param led pointer to a LED object
+ 101:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  */
+ 102:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** void lv_led_on(lv_obj_t * led)
+ 103:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** {
+ 104:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_led_set_brightness(led, LV_LED_BRIGHT_MAX);
+ 105:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+ 106:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 107:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**
+ 108:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * Light off a LED
+ 109:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * @param led pointer to a LED object
+ 110:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  */
+ 111:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** void lv_led_off(lv_obj_t * led)
+ 112:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** {
+ 113:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_led_set_brightness(led, LV_LED_BRIGHT_MIN);
+ 114:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+ 115:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 116:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**
+ 117:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * Toggle the state of a LED
+ 118:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * @param led pointer to a LED object
+ 119:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  */
+ 120:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** void lv_led_toggle(lv_obj_t * obj)
+ 121:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** {
+ 122:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     uint8_t bright = lv_led_get_brightness(obj);
+ 123:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     if(bright > (LV_LED_BRIGHT_MIN + LV_LED_BRIGHT_MAX) >> 1)
+ 124:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_led_off(obj);
+ 125:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     else
+ 126:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_led_on(obj);
+ 127:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+ 128:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 129:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /*=====================
+ 130:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * Getter functions
+ 131:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  *====================*/
+ 132:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 133:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**
+ 134:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * Get the brightness of a LEd object
+ 135:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * @param led pointer to LED object
+ 136:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  * @return bright 0 (max. dark) ... 255 (max. light)
+ 137:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  */
+ 138:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** uint8_t lv_led_get_brightness(const lv_obj_t * obj)
+ 139:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** {
+ 140:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 141:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 142:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_led_t * led = (lv_led_t *)obj;
+ 143:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     return led->bright;
+ 144:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+ 145:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 146:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** /**********************
+ 147:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  *   STATIC FUNCTIONS
+ARM GAS  /tmp/ccYvFakt.s 			page 4
+
+
+ 148:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****  **********************/
+ 149:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 150:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** static void lv_led_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+ 151:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** {
+  26              		.loc 1 151 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 10B5     		push	{r4, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 4, -8
+  35              		.cfi_offset 14, -4
+  36 0002 0C46     		mov	r4, r1
+  37              	.LVL1:
+ 152:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     LV_UNUSED(class_p);
+ 153:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_led_t * led = (lv_led_t *)obj;
+ 154:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     led->color = lv_theme_get_color_primary(obj);
+  38              		.loc 1 154 0
+  39 0004 0846     		mov	r0, r1
+  40              	.LVL2:
+  41 0006 FFF7FEFF 		bl	lv_theme_get_color_primary
+  42              	.LVL3:
+  43 000a A084     		strh	r0, [r4, #36]	@ movhi
+ 155:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     led->bright = LV_LED_BRIGHT_MAX;
+  44              		.loc 1 155 0
+  45 000c FF23     		movs	r3, #255
+  46 000e 84F82630 		strb	r3, [r4, #38]
+ 156:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+  47              		.loc 1 156 0
+  48 0012 10BD     		pop	{r4, pc}
+  49              		.cfi_endproc
+  50              	.LFE209:
+  52              		.section	.text.lv_led_event,"ax",%progbits
+  53              		.align	1
+  54              		.syntax unified
+  55              		.thumb
+  56              		.thumb_func
+  57              		.fpu fpv5-d16
+  59              	lv_led_event:
+  60              	.LFB210:
+ 157:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 158:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** static void lv_led_event(const lv_obj_class_t * class_p, lv_event_t * e)
+ 159:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** {
+  61              		.loc 1 159 0
+  62              		.cfi_startproc
+  63              		@ args = 0, pretend = 0, frame = 128
+  64              		@ frame_needed = 0, uses_anonymous_args = 0
+  65              	.LVL4:
+  66 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+  67              	.LCFI1:
+  68              		.cfi_def_cfa_offset 32
+  69              		.cfi_offset 4, -32
+  70              		.cfi_offset 5, -28
+  71              		.cfi_offset 6, -24
+  72              		.cfi_offset 7, -20
+ARM GAS  /tmp/ccYvFakt.s 			page 5
+
+
+  73              		.cfi_offset 8, -16
+  74              		.cfi_offset 9, -12
+  75              		.cfi_offset 10, -8
+  76              		.cfi_offset 14, -4
+  77 0004 A0B0     		sub	sp, sp, #128
+  78              	.LCFI2:
+  79              		.cfi_def_cfa_offset 160
+  80 0006 0C46     		mov	r4, r1
+ 160:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     LV_UNUSED(class_p);
+ 161:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 162:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_res_t res;
+ 163:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 164:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     /* Call the ancestor's event handler */
+ 165:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_event_code_t code = lv_event_get_code(e);
+  81              		.loc 1 165 0
+  82 0008 0846     		mov	r0, r1
+  83              	.LVL5:
+  84 000a FFF7FEFF 		bl	lv_event_get_code
+  85              	.LVL6:
+  86 000e 0646     		mov	r6, r0
+  87              	.LVL7:
+ 166:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     if(code != LV_EVENT_DRAW_MAIN && code != LV_EVENT_DRAW_MAIN_END) {
+  88              		.loc 1 166 0
+  89 0010 A0F11503 		sub	r3, r0, #21
+  90 0014 DBB2     		uxtb	r3, r3
+  91 0016 012B     		cmp	r3, #1
+  92 0018 05D9     		bls	.L4
+ 167:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         res = lv_obj_event_base(MY_CLASS, e);
+  93              		.loc 1 167 0
+  94 001a 2146     		mov	r1, r4
+  95 001c 0648     		ldr	r0, .L8
+  96              	.LVL8:
+  97 001e FFF7FEFF 		bl	lv_obj_event_base
+  98              	.LVL9:
+ 168:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         if(res != LV_RES_OK) return;
+  99              		.loc 1 168 0
+ 100 0022 0128     		cmp	r0, #1
+ 101 0024 05D1     		bne	.L3
+ 102              	.LVL10:
+ 103              	.L4:
+ 169:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     }
+ 170:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 171:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_obj_t * obj = lv_event_get_target(e);
+ 104              		.loc 1 171 0
+ 105 0026 2046     		mov	r0, r4
+ 106 0028 FFF7FEFF 		bl	lv_event_get_target
+ 107              	.LVL11:
+ 108 002c 0546     		mov	r5, r0
+ 109              	.LVL12:
+ 172:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     if(code == LV_EVENT_DRAW_MAIN) {
+ 110              		.loc 1 172 0
+ 111 002e 152E     		cmp	r6, #21
+ 112 0030 04D0     		beq	.L7
+ 113              	.LVL13:
+ 114              	.L3:
+ 173:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         /*Make darker colors in a temporary style according to the brightness*/
+ 174:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_led_t * led = (lv_led_t *)obj;
+ARM GAS  /tmp/ccYvFakt.s 			page 6
+
+
+ 175:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 176:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_draw_rect_dsc_t rect_dsc;
+ 177:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_draw_rect_dsc_init(&rect_dsc);
+ 178:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_obj_init_draw_rect_dsc(obj, LV_PART_MAIN, &rect_dsc);
+ 179:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 180:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         /*Use the original colors brightness to modify color->led*/
+ 181:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.bg_color = lv_color_mix(led->color, lv_color_black(), lv_color_brightness(rect_dsc
+ 182:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.bg_grad.stops[0].color = lv_color_mix(led->color, lv_color_black(),
+ 183:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****                                                        lv_color_brightness(rect_dsc.bg_grad.stops[0
+ 184:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.bg_grad.stops[1].color = lv_color_mix(led->color, lv_color_black(),
+ 185:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****                                                        lv_color_brightness(rect_dsc.bg_grad.stops[1
+ 186:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.shadow_color = lv_color_mix(led->color, lv_color_black(), lv_color_brightness(rect
+ 187:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.border_color = lv_color_mix(led->color, lv_color_black(), lv_color_brightness(rect
+ 188:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.outline_color = lv_color_mix(led->color, lv_color_black(), lv_color_brightness(rec
+ 189:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 190:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         /*Mix. the color with black proportionally with brightness*/
+ 191:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.bg_color = lv_color_mix(rect_dsc.bg_color, lv_color_black(), led->bright);
+ 192:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.bg_grad.stops[0].color   = lv_color_mix(rect_dsc.bg_grad.stops[0].color, lv_color_
+ 193:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.bg_grad.stops[1].color   = lv_color_mix(rect_dsc.bg_grad.stops[1].color, lv_color_
+ 194:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.border_color = lv_color_mix(rect_dsc.border_color, lv_color_black(), led->bright);
+ 195:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.shadow_color = lv_color_mix(rect_dsc.shadow_color, lv_color_black(), led->bright);
+ 196:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.outline_color = lv_color_mix(rect_dsc.outline_color, lv_color_black(), led->bright
+ 197:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 198:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         /*Set the current shadow width according to brightness proportionally between LV_LED_BRIGHT
+ 199:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****          * and LV_LED_BRIGHT_ON*/
+ 200:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.shadow_width = ((led->bright - LV_LED_BRIGHT_MIN) * rect_dsc.shadow_width) /
+ 201:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****                                 (LV_LED_BRIGHT_MAX - LV_LED_BRIGHT_MIN);
+ 202:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.shadow_spread = ((led->bright - LV_LED_BRIGHT_MIN) * rect_dsc.shadow_spread) /
+ 203:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****                                  (LV_LED_BRIGHT_MAX - LV_LED_BRIGHT_MIN);
+ 204:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 205:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_draw_ctx_t * draw_ctx = lv_event_get_draw_ctx(e);
+ 206:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 207:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_obj_draw_part_dsc_t  part_draw_dsc;
+ 208:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_obj_draw_dsc_init(&part_draw_dsc, draw_ctx);
+ 209:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         part_draw_dsc.draw_area = &obj->coords;
+ 210:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         part_draw_dsc.class_p = MY_CLASS;
+ 211:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         part_draw_dsc.type = LV_LED_DRAW_PART_RECTANGLE;
+ 212:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         part_draw_dsc.rect_dsc = &rect_dsc;
+ 213:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         part_draw_dsc.part = LV_PART_MAIN;
+ 214:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 215:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_event_send(obj, LV_EVENT_DRAW_PART_BEGIN, &part_draw_dsc);
+ 216:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_draw_rect(draw_ctx, &rect_dsc, &obj->coords);
+ 217:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_event_send(obj, LV_EVENT_DRAW_PART_END, &part_draw_dsc);
+ 218:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     }
+ 219:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+ 115              		.loc 1 219 0
+ 116 0032 20B0     		add	sp, sp, #128
+ 117              	.LCFI3:
+ 118              		.cfi_remember_state
+ 119              		.cfi_def_cfa_offset 32
+ 120              		@ sp needed
+ 121 0034 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 122              	.L9:
+ 123              		.align	2
+ 124              	.L8:
+ 125 0038 00000000 		.word	.LANCHOR0
+ 126              	.LVL14:
+ARM GAS  /tmp/ccYvFakt.s 			page 7
+
+
+ 127              	.L7:
+ 128              	.LCFI4:
+ 129              		.cfi_restore_state
+ 130              	.LBB164:
+ 177:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_obj_init_draw_rect_dsc(obj, LV_PART_MAIN, &rect_dsc);
+ 131              		.loc 1 177 0 discriminator 2
+ 132 003c 6846     		mov	r0, sp
+ 133              	.LVL15:
+ 134 003e FFF7FEFF 		bl	lv_draw_rect_dsc_init
+ 135              	.LVL16:
+ 178:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 136              		.loc 1 178 0 discriminator 2
+ 137 0042 6A46     		mov	r2, sp
+ 138 0044 0021     		movs	r1, #0
+ 139 0046 2846     		mov	r0, r5
+ 140 0048 FFF7FEFF 		bl	lv_obj_init_draw_rect_dsc
+ 141              	.LVL17:
+ 142 004c BDF80420 		ldrh	r2, [sp, #4]
+ 143              	.LVL18:
+ 144              	.LBB165:
+ 145              	.LBB166:
+ 146              	.LBB167:
+ 147              	.LBB168:
+ 148              		.file 2 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h"
+   1:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /**
+   2:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @file lv_color.h
+   3:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *
+   4:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  */
+   5:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+   6:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #ifndef LV_COLOR_H
+   7:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_H
+   8:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+   9:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #ifdef __cplusplus
+  10:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** extern "C" {
+  11:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+  12:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+  13:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /*********************
+  14:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *      INCLUDES
+  15:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *********************/
+  16:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #include "../lv_conf_internal.h"
+  17:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #include "lv_assert.h"
+  18:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #include "lv_math.h"
+  19:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #include "lv_types.h"
+  20:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+  21:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /*Error checking*/
+  22:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_DEPTH == 24
+  23:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #error "LV_COLOR_DEPTH 24 is deprecated. Use LV_COLOR_DEPTH 32 instead (lv_conf.h)"
+  24:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+  25:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+  26:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_DEPTH != 16 && LV_COLOR_16_SWAP != 0
+  27:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #error "LV_COLOR_16_SWAP requires LV_COLOR_DEPTH == 16. Set it in lv_conf.h"
+  28:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+  29:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+  30:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #include <stdint.h>
+  31:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+  32:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /*********************
+  33:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *      DEFINES
+ARM GAS  /tmp/ccYvFakt.s 			page 8
+
+
+  34:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *********************/
+  35:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** LV_EXPORT_CONST_INT(LV_COLOR_DEPTH);
+  36:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** LV_EXPORT_CONST_INT(LV_COLOR_16_SWAP);
+  37:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+  38:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /**
+  39:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * Opacity percentages.
+  40:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  */
+  41:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** enum {
+  42:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_OPA_TRANSP = 0,
+  43:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_OPA_0      = 0,
+  44:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_OPA_10     = 25,
+  45:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_OPA_20     = 51,
+  46:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_OPA_30     = 76,
+  47:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_OPA_40     = 102,
+  48:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_OPA_50     = 127,
+  49:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_OPA_60     = 153,
+  50:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_OPA_70     = 178,
+  51:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_OPA_80     = 204,
+  52:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_OPA_90     = 229,
+  53:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_OPA_100    = 255,
+  54:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_OPA_COVER  = 255,
+  55:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** };
+  56:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+  57:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_OPA_MIN 2    /*Opacities below this will be transparent*/
+  58:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_OPA_MAX 253  /*Opacities above this will fully cover*/
+  59:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+  60:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+  61:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_SIZE 8
+  62:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+  63:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_SIZE 8
+  64:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+  65:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_SIZE 16
+  66:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+  67:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_SIZE 32
+  68:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #else
+  69:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #error "Invalid LV_COLOR_DEPTH in lv_conf.h! Set it to 1, 8, 16 or 32!"
+  70:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+  71:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+  72:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if defined(__cplusplus) && !defined(_LV_COLOR_HAS_MODERN_CPP)
+  73:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /**
+  74:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** * MSVC compiler's definition of the __cplusplus indicating 199711L regardless to C++ standard versi
+  75:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** * see https://devblogs.microsoft.com/cppblog/msvc-now-correctly-reports-cplusplus
+  76:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** * so we use _MSC_VER macro instead of __cplusplus
+  77:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** */
+  78:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #ifdef _MSC_VER
+  79:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if _MSC_VER >= 1900 /*Visual Studio 2015*/
+  80:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define _LV_COLOR_HAS_MODERN_CPP 1
+  81:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+  82:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #else
+  83:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if __cplusplus >= 201103L
+  84:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define _LV_COLOR_HAS_MODERN_CPP 1
+  85:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+  86:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+  87:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif /*__cplusplus*/
+  88:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+  89:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #ifndef _LV_COLOR_HAS_MODERN_CPP
+  90:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define _LV_COLOR_HAS_MODERN_CPP 0
+ARM GAS  /tmp/ccYvFakt.s 			page 9
+
+
+  91:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+  92:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+  93:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if _LV_COLOR_HAS_MODERN_CPP
+  94:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /*Fix msvc compiler error C4576 inside C++ code*/
+  95:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define _LV_COLOR_MAKE_TYPE_HELPER lv_color_t
+  96:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #else
+  97:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define _LV_COLOR_MAKE_TYPE_HELPER (lv_color_t)
+  98:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+  99:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 100:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /*---------------------------------------
+ 101:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * Macros for all existing color depths
+ 102:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * to set/get values of the color channels
+ 103:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *------------------------------------------*/
+ 104:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_R1(c, v) (c).ch.red = (uint8_t)((v) & 0x1)
+ 105:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_G1(c, v) (c).ch.green = (uint8_t)((v) & 0x1)
+ 106:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_B1(c, v) (c).ch.blue = (uint8_t)((v) & 0x1)
+ 107:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_A1(c, v) do {} while(0)
+ 108:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 109:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_R1(c) (c).ch.red
+ 110:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_G1(c) (c).ch.green
+ 111:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_B1(c) (c).ch.blue
+ 112:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_A1(c) 0xFF
+ 113:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 114:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER1 {0x00}
+ 115:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_MAKE1(r8, g8, b8)  {(uint8_t)((b8 >> 7) | (g8 >> 7) | (r8 >> 7))}
+ 116:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 117:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_R8(c, v) (c).ch.red = (uint8_t)((v) & 0x7U)
+ 118:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_G8(c, v) (c).ch.green = (uint8_t)((v) & 0x7U)
+ 119:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_B8(c, v) (c).ch.blue = (uint8_t)((v) & 0x3U)
+ 120:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_A8(c, v) do {} while(0)
+ 121:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 122:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_R8(c) (c).ch.red
+ 123:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_G8(c) (c).ch.green
+ 124:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_B8(c) (c).ch.blue
+ 125:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_A8(c) 0xFF
+ 126:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 127:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER8 {{0x00, 0x00, 0x00}}
+ 128:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_MAKE8(r8, g8, b8) {{(uint8_t)((b8 >> 6) & 0x3U), (uint8_t)((g8 >> 5) & 0x7U), (ui
+ 129:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 130:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_R16(c, v) (c).ch.red = (uint8_t)((v) & 0x1FU)
+ 131:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 132:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_G16(c, v) (c).ch.green = (uint8_t)((v) & 0x3FU)
+ 133:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #else
+ 134:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_G16(c, v) {(c).ch.green_h = (uint8_t)(((v) >> 3) & 0x7); (c).ch.green_l = (ui
+ 135:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+ 136:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_B16(c, v) (c).ch.blue = (uint8_t)((v) & 0x1FU)
+ 137:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_A16(c, v) do {} while(0)
+ 138:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 139:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_R16(c) (c).ch.red
+ 140:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 141:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_G16(c) (c).ch.green
+ 142:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #else
+ 143:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_G16(c) (((c).ch.green_h << 3) + (c).ch.green_l)
+ 144:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+ 145:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_B16(c) (c).ch.blue
+ 146:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_A16(c) 0xFF
+ 147:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ARM GAS  /tmp/ccYvFakt.s 			page 10
+
+
+ 148:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 149:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER16  {{0x00, 0x00, 0x00}}
+ 150:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_MAKE16(r8, g8, b8) {{(uint8_t)((b8 >> 3) & 0x1FU), (uint8_t)((g8 >> 2) & 0x3FU), 
+ 151:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #else
+ 152:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER16 {{0x00, 0x00, 0x00, 0x00}}
+ 153:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_MAKE16(r8, g8, b8) {{(uint8_t)((g8 >> 5) & 0x7U), (uint8_t)((r8 >> 3) & 0x1FU), (
+ 154:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+ 155:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 156:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_R32(c, v) (c).ch.red = (uint8_t)((v) & 0xFF)
+ 157:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_G32(c, v) (c).ch.green = (uint8_t)((v) & 0xFF)
+ 158:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_B32(c, v) (c).ch.blue = (uint8_t)((v) & 0xFF)
+ 159:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_SET_A32(c, v) (c).ch.alpha = (uint8_t)((v) & 0xFF)
+ 160:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 161:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_R32(c) (c).ch.red
+ 162:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_G32(c) (c).ch.green
+ 163:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_B32(c) (c).ch.blue
+ 164:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_GET_A32(c) (c).ch.alpha
+ 165:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 166:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER32  {{0x00, 0x00, 0x00, 0x00}}
+ 167:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** # define LV_COLOR_MAKE32(r8, g8, b8) {{b8, g8, r8, 0xff}} /*Fix 0xff alpha*/
+ 168:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 169:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /*---------------------------------------
+ 170:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * Macros for the current color depth
+ 171:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * to set/get values of the color channels
+ 172:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *------------------------------------------*/
+ 173:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_SET_R(c, v) LV_CONCAT(LV_COLOR_SET_R, LV_COLOR_DEPTH)(c, v)
+ 174:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_SET_G(c, v) LV_CONCAT(LV_COLOR_SET_G, LV_COLOR_DEPTH)(c, v)
+ 175:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_SET_B(c, v) LV_CONCAT(LV_COLOR_SET_B, LV_COLOR_DEPTH)(c, v)
+ 176:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_SET_A(c, v) LV_CONCAT(LV_COLOR_SET_A, LV_COLOR_DEPTH)(c, v)
+ 177:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 178:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_GET_R(c) LV_CONCAT(LV_COLOR_GET_R, LV_COLOR_DEPTH)(c)
+ 179:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_GET_G(c) LV_CONCAT(LV_COLOR_GET_G, LV_COLOR_DEPTH)(c)
+ 180:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_GET_B(c) LV_CONCAT(LV_COLOR_GET_B, LV_COLOR_DEPTH)(c)
+ 181:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_GET_A(c) LV_CONCAT(LV_COLOR_GET_A, LV_COLOR_DEPTH)(c)
+ 182:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 183:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define _LV_COLOR_ZERO_INITIALIZER LV_CONCAT(_LV_COLOR_ZERO_INITIALIZER, LV_COLOR_DEPTH)
+ 184:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #define LV_COLOR_MAKE(r8, g8, b8) LV_CONCAT(LV_COLOR_MAKE, LV_COLOR_DEPTH)(r8, g8, b8)
+ 185:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 186:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /**********************
+ 187:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *      TYPEDEFS
+ 188:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  **********************/
+ 189:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 190:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** typedef union {
+ 191:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint8_t full; /*must be declared first to set all bits of byte via initializer list*/
+ 192:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     union {
+ 193:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint8_t blue : 1;
+ 194:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint8_t green : 1;
+ 195:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint8_t red : 1;
+ 196:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     } ch;
+ 197:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** } lv_color1_t;
+ 198:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 199:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** typedef union {
+ 200:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     struct {
+ 201:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint8_t blue : 2;
+ 202:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint8_t green : 3;
+ 203:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint8_t red : 3;
+ 204:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     } ch;
+ARM GAS  /tmp/ccYvFakt.s 			page 11
+
+
+ 205:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint8_t full;
+ 206:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** } lv_color8_t;
+ 207:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 208:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** typedef union {
+ 209:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     struct {
+ 210:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 211:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint16_t blue : 5;
+ 212:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint16_t green : 6;
+ 213:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint16_t red : 5;
+ 214:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #else
+ 215:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint16_t green_h : 3;
+ 216:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint16_t red : 5;
+ 217:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint16_t blue : 5;
+ 218:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint16_t green_l : 3;
+ 219:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+ 220:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     } ch;
+ 221:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint16_t full;
+ 222:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** } lv_color16_t;
+ 223:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 224:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** typedef union {
+ 225:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     struct {
+ 226:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint8_t blue;
+ 227:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint8_t green;
+ 228:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint8_t red;
+ 229:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         uint8_t alpha;
+ 230:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     } ch;
+ 231:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t full;
+ 232:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** } lv_color32_t;
+ 233:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 234:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** typedef LV_CONCAT3(uint, LV_COLOR_SIZE, _t) lv_color_int_t;
+ 235:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** typedef LV_CONCAT3(lv_color, LV_COLOR_DEPTH, _t) lv_color_t;
+ 236:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 237:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** typedef struct {
+ 238:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint16_t h;
+ 239:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint8_t s;
+ 240:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint8_t v;
+ 241:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** } lv_color_hsv_t;
+ 242:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 243:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** //! @cond Doxygen_Suppress
+ 244:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /*No idea where the guard is required but else throws warnings in the docs*/
+ 245:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** typedef uint8_t lv_opa_t;
+ 246:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** //! @endcond
+ 247:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 248:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** struct _lv_color_filter_dsc_t;
+ 249:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 250:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** typedef lv_color_t (*lv_color_filter_cb_t)(const struct _lv_color_filter_dsc_t *, lv_color_t, lv_op
+ 251:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 252:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** typedef struct _lv_color_filter_dsc_t {
+ 253:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     lv_color_filter_cb_t filter_cb;
+ 254:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     void * user_data;
+ 255:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** } lv_color_filter_dsc_t;
+ 256:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 257:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 258:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** typedef enum {
+ 259:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_RED,
+ 260:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_PINK,
+ 261:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_PURPLE,
+ARM GAS  /tmp/ccYvFakt.s 			page 12
+
+
+ 262:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_DEEP_PURPLE,
+ 263:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_INDIGO,
+ 264:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_BLUE,
+ 265:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_LIGHT_BLUE,
+ 266:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_CYAN,
+ 267:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_TEAL,
+ 268:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_GREEN,
+ 269:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_LIGHT_GREEN,
+ 270:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_LIME,
+ 271:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_YELLOW,
+ 272:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_AMBER,
+ 273:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_ORANGE,
+ 274:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_DEEP_ORANGE,
+ 275:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_BROWN,
+ 276:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_BLUE_GREY,
+ 277:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_GREY,
+ 278:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     _LV_PALETTE_LAST,
+ 279:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_PALETTE_NONE = 0xff,
+ 280:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** } lv_palette_t;
+ 281:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 282:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /**********************
+ 283:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * GLOBAL PROTOTYPES
+ 284:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  **********************/
+ 285:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 286:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /*In color conversations:
+ 287:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * - When converting to bigger color type the LSB weight of 1 LSB is calculated
+ 288:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *   E.g. 16 bit Red has 5 bits
+ 289:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *         8 bit Red has 3 bits
+ 290:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *        ----------------------
+ 291:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *        8 bit red LSB = (2^5 - 1) / (2^3 - 1) = 31 / 7 = 4
+ 292:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *
+ 293:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * - When calculating to smaller color type simply shift out the LSBs
+ 294:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *   E.g.  8 bit Red has 3 bits
+ 295:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *        16 bit Red has 5 bits
+ 296:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *        ----------------------
+ 297:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *         Shift right with 5 - 3 = 2
+ 298:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  */
+ 299:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** static inline uint8_t lv_color_to1(lv_color_t color)
+ 300:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** {
+ 301:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 302:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return color.full;
+ 303:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 304:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     if((LV_COLOR_GET_R(color) & 0x4) || (LV_COLOR_GET_G(color) & 0x4) || (LV_COLOR_GET_B(color) & 0
+ 305:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         return 1;
+ 306:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     }
+ 307:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     else {
+ 308:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         return 0;
+ 309:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     }
+ 310:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 311:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     if((LV_COLOR_GET_R(color) & 0x10) || (LV_COLOR_GET_G(color) & 0x20) || (LV_COLOR_GET_B(color) &
+ 312:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         return 1;
+ 313:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     }
+ 314:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     else {
+ 315:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         return 0;
+ 316:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     }
+ 317:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 318:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     if((LV_COLOR_GET_R(color) & 0x80) || (LV_COLOR_GET_G(color) & 0x80) || (LV_COLOR_GET_B(color) &
+ARM GAS  /tmp/ccYvFakt.s 			page 13
+
+
+ 319:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         return 1;
+ 320:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     }
+ 321:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     else {
+ 322:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         return 0;
+ 323:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     }
+ 324:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+ 325:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** }
+ 326:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 327:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** static inline uint8_t lv_color_to8(lv_color_t color)
+ 328:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** {
+ 329:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 330:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     if(color.full == 0)
+ 331:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         return 0;
+ 332:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     else
+ 333:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         return 0xFF;
+ 334:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 335:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return color.full;
+ 336:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 337:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     lv_color8_t ret;
+ 338:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_R8(ret, LV_COLOR_GET_R(color) >> 2); /*5 - 3  = 2*/
+ 339:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G8(ret, LV_COLOR_GET_G(color) >> 3); /*6 - 3  = 3*/
+ 340:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B8(ret, LV_COLOR_GET_B(color) >> 3); /*5 - 2  = 3*/
+ 341:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return ret.full;
+ 342:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 343:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     lv_color8_t ret;
+ 344:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_R8(ret, LV_COLOR_GET_R(color) >> 5); /*8 - 3  = 5*/
+ 345:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G8(ret, LV_COLOR_GET_G(color) >> 5); /*8 - 3  = 5*/
+ 346:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B8(ret, LV_COLOR_GET_B(color) >> 6); /*8 - 2  = 6*/
+ 347:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return ret.full;
+ 348:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+ 349:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** }
+ 350:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 351:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** static inline uint16_t lv_color_to16(lv_color_t color)
+ 352:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** {
+ 353:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 354:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     if(color.full == 0)
+ 355:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         return 0;
+ 356:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     else
+ 357:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         return 0xFFFF;
+ 358:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 359:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     lv_color16_t ret;
+ 360:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_R16(ret, LV_COLOR_GET_R(color) * 4);  /*(2^5 - 1)/(2^3 - 1) = 31/7 = 4*/
+ 361:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G16(ret, LV_COLOR_GET_G(color) * 9);  /*(2^6 - 1)/(2^3 - 1) = 63/7 = 9*/
+ 362:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B16(ret, LV_COLOR_GET_B(color) * 10); /*(2^5 - 1)/(2^2 - 1) = 31/3 = 10*/
+ 363:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return ret.full;
+ 364:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 365:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return color.full;
+ 366:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 367:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     lv_color16_t ret;
+ 368:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_R16(ret, LV_COLOR_GET_R(color) >> 3); /*8 - 5  = 3*/
+ 369:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G16(ret, LV_COLOR_GET_G(color) >> 2); /*8 - 6  = 2*/
+ 370:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B16(ret, LV_COLOR_GET_B(color) >> 3); /*8 - 5  = 3*/
+ 371:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return ret.full;
+ 372:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+ 373:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** }
+ 374:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 375:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** static inline uint32_t lv_color_to32(lv_color_t color)
+ARM GAS  /tmp/ccYvFakt.s 			page 14
+
+
+ 376:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** {
+ 377:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 378:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     if(color.full == 0)
+ 379:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         return 0xFF000000;
+ 380:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     else
+ 381:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         return 0xFFFFFFFF;
+ 382:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 383:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     lv_color32_t ret;
+ 384:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_R32(ret, LV_COLOR_GET_R(color) * 36); /*(2^8 - 1)/(2^3 - 1) = 255/7 = 36*/
+ 385:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G32(ret, LV_COLOR_GET_G(color) * 36); /*(2^8 - 1)/(2^3 - 1) = 255/7 = 36*/
+ 386:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B32(ret, LV_COLOR_GET_B(color) * 85); /*(2^8 - 1)/(2^2 - 1) = 255/3 = 85*/
+ 387:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_A32(ret, 0xFF);
+ 388:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return ret.full;
+ 389:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 390:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     /**
+ 391:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      * The floating point math for conversion is:
+ 392:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *  valueto = valuefrom * ( (2^bitsto - 1) / (float)(2^bitsfrom - 1) )
+ 393:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      * The faster integer math for conversion is:
+ 394:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *  valueto = ( valuefrom * multiplier + adder ) >> divisor
+ 395:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *   multiplier = FLOOR( ( (2^bitsto - 1) << divisor ) / (float)(2^bitsfrom - 1) )
+ 396:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *
+ 397:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      * Find the first divisor where ( adder >> divisor ) <= 0
+ 398:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *
+ 399:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      * 5-bit to 8-bit: ( 31 * multiplier + adder ) >> divisor = 255
+ 400:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      * divisor  multiplier  adder  min (0)  max (31)
+ 401:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *       0           8      7        7       255
+ 402:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *       1          16     14        7       255
+ 403:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *       2          32     28        7       255
+ 404:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *       3          65     25        3       255
+ 405:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *       4         131     19        1       255
+ 406:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *       5         263      7        0       255
+ 407:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *
+ 408:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      * 6-bit to 8-bit: 255 = ( 63 * multiplier + adder ) >> divisor
+ 409:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      * divisor  multiplier  adder  min (0)  max (63)
+ 410:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *       0           4      3        3       255
+ 411:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *       1           8      6        3       255
+ 412:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *       2          16     12        3       255
+ 413:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *       3          32     24        3       255
+ 414:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *       4          64     48        3       255
+ 415:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *       5         129     33        1       255
+ 416:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      *       6         259      3        0       255
+ 417:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****      */
+ 418:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 419:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     lv_color32_t ret;
+ 420:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_R32(ret, (LV_COLOR_GET_R(color) * 263 + 7) >> 5);
+ 149              		.loc 2 420 0 discriminator 2
+ 150 0050 D30A     		lsrs	r3, r2, #11
+ 151 0052 03EB4311 		add	r1, r3, r3, lsl #5
+ 152 0056 C3EBC101 		rsb	r1, r3, r1, lsl #3
+ 153 005a 0731     		adds	r1, r1, #7
+ 154 005c C1F34711 		ubfx	r1, r1, #5, #8
+ 155 0060 0023     		movs	r3, #0
+ 156              	.LVL19:
+ 157 0062 61F31743 		bfi	r3, r1, #16, #8
+ 158              	.LVL20:
+ 421:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G32(ret, (LV_COLOR_GET_G(color) * 259 + 3) >> 6);
+ 159              		.loc 2 421 0 discriminator 2
+ARM GAS  /tmp/ccYvFakt.s 			page 15
+
+
+ 160 0066 C2F34511 		ubfx	r1, r2, #5, #6
+ 161 006a 01EBC110 		add	r0, r1, r1, lsl #7
+ 162 006e 01EB4001 		add	r1, r1, r0, lsl #1
+ 163 0072 0331     		adds	r1, r1, #3
+ 164 0074 C1F38711 		ubfx	r1, r1, #6, #8
+ 165 0078 61F30F23 		bfi	r3, r1, #8, #8
+ 422:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B32(ret, (LV_COLOR_GET_B(color) * 263 + 7) >> 5);
+ 166              		.loc 2 422 0 discriminator 2
+ 167 007c 02F01F02 		and	r2, r2, #31
+ 168              	.LVL21:
+ 169 0080 02EB4211 		add	r1, r2, r2, lsl #5
+ 170 0084 C2EBC102 		rsb	r2, r2, r1, lsl #3
+ 171 0088 0732     		adds	r2, r2, #7
+ 172 008a C2F34712 		ubfx	r2, r2, #5, #8
+ 173 008e 62F30703 		bfi	r3, r2, #0, #8
+ 423:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_A32(ret, 0xFF);
+ 174              		.loc 2 423 0 discriminator 2
+ 175 0092 43F07F43 		orr	r3, r3, #-16777216
+ 176              	.LVL22:
+ 177              	.LBE168:
+ 178              	.LBE167:
+ 424:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return ret.full;
+ 425:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 426:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return color.full;
+ 427:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+ 428:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** }
+ 429:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 430:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** //! @cond Doxygen_Suppress
+ 431:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 432:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /**
+ 433:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * Mix two colors with a given ratio.
+ 434:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @param c1 the first color to mix (usually the foreground)
+ 435:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @param c2 the second color to mix (usually the background)
+ 436:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @param mix The ratio of the colors. 0: full `c2`, 255: full `c1`, 127: half `c1` and half`c2`
+ 437:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @return the mixed color
+ 438:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  */
+ 439:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** LV_ATTRIBUTE_FAST_MEM static inline lv_color_t lv_color_mix(lv_color_t c1, lv_color_t c2, uint8_t m
+ 440:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** {
+ 441:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     lv_color_t ret;
+ 442:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 443:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_DEPTH == 16 && LV_COLOR_MIX_ROUND_OFS == 0
+ 444:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 445:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     c1.full = c1.full << 8 | c1.full >> 8;
+ 446:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     c2.full = c2.full << 8 | c2.full >> 8;
+ 447:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+ 448:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     /*Source: https://stackoverflow.com/a/50012418/1999969*/
+ 449:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     mix = (uint32_t)((uint32_t)mix + 4) >> 3;
+ 450:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t bg = (uint32_t)((uint32_t)c2.full | ((uint32_t)c2.full << 16)) &
+ 451:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****                   0x7E0F81F; /*0b00000111111000001111100000011111*/
+ 452:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t fg = (uint32_t)((uint32_t)c1.full | ((uint32_t)c1.full << 16)) & 0x7E0F81F;
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t result = ((((fg - bg) * mix) >> 5) + bg) & 0x7E0F81F;
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 455:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 456:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = ret.full << 8 | ret.full >> 8;
+ 457:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+ 458:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #elif LV_COLOR_DEPTH != 1
+ 459:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     /*LV_COLOR_DEPTH == 8, 16 or 32*/
+ARM GAS  /tmp/ccYvFakt.s 			page 16
+
+
+ 460:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_R(ret, LV_UDIV255((uint16_t)LV_COLOR_GET_R(c1) * mix + LV_COLOR_GET_R(c2) *
+ 461:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****                                    (255 - mix) + LV_COLOR_MIX_ROUND_OFS));
+ 462:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G(ret, LV_UDIV255((uint16_t)LV_COLOR_GET_G(c1) * mix + LV_COLOR_GET_G(c2) *
+ 463:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****                                    (255 - mix) + LV_COLOR_MIX_ROUND_OFS));
+ 464:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B(ret, LV_UDIV255((uint16_t)LV_COLOR_GET_B(c1) * mix + LV_COLOR_GET_B(c2) *
+ 465:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****                                    (255 - mix) + LV_COLOR_MIX_ROUND_OFS));
+ 466:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_A(ret, 0xFF);
+ 467:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #else
+ 468:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     /*LV_COLOR_DEPTH == 1*/
+ 469:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = mix > LV_OPA_50 ? c1.full : c2.full;
+ 470:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+ 471:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 472:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return ret;
+ 473:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** }
+ 474:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 475:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** LV_ATTRIBUTE_FAST_MEM static inline void lv_color_premult(lv_color_t c, uint8_t mix, uint16_t * out
+ 476:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** {
+ 477:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_DEPTH != 1
+ 478:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     out[0] = (uint16_t)LV_COLOR_GET_R(c) * mix;
+ 479:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     out[1] = (uint16_t)LV_COLOR_GET_G(c) * mix;
+ 480:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     out[2] = (uint16_t)LV_COLOR_GET_B(c) * mix;
+ 481:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #else
+ 482:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     (void) mix;
+ 483:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     /*Pre-multiplication can't be used with 1 bpp*/
+ 484:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     out[0] = LV_COLOR_GET_R(c);
+ 485:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     out[1] = LV_COLOR_GET_G(c);
+ 486:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     out[2] = LV_COLOR_GET_B(c);
+ 487:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+ 488:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 489:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** }
+ 490:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 491:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /**
+ 492:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * Mix two colors with a given ratio. It runs faster then `lv_color_mix` but requires some pre comp
+ 493:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @param premult_c1 The first color. Should be preprocessed with `lv_color_premult(c1)`
+ 494:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @param c2 The second color. As it is no pre computation required on it
+ 495:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @param mix The ratio of the colors. 0: full `c1`, 255: full `c2`, 127: half `c1` and half `c2`.
+ 496:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  *            Should be modified like mix = `255 - mix`
+ 497:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @return the mixed color
+ 498:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @note 255 won't give clearly `c1`.
+ 499:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  */
+ 500:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** LV_ATTRIBUTE_FAST_MEM static inline lv_color_t lv_color_mix_premult(uint16_t * premult_c1, lv_color
+ 501:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** {
+ 502:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     lv_color_t ret;
+ 503:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_DEPTH != 1
+ 504:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     /*LV_COLOR_DEPTH == 8 or 32*/
+ 505:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_R(ret, LV_UDIV255(premult_c1[0] + LV_COLOR_GET_R(c2) * mix + LV_COLOR_MIX_ROUND_OF
+ 506:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G(ret, LV_UDIV255(premult_c1[1] + LV_COLOR_GET_G(c2) * mix + LV_COLOR_MIX_ROUND_OF
+ 507:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B(ret, LV_UDIV255(premult_c1[2] + LV_COLOR_GET_B(c2) * mix + LV_COLOR_MIX_ROUND_OF
+ 508:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_A(ret, 0xFF);
+ 509:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #else
+ 510:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     /*LV_COLOR_DEPTH == 1*/
+ 511:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     /*Restore color1*/
+ 512:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     lv_color_t c1;
+ 513:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_R(c1, premult_c1[0]);
+ 514:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G(c1, premult_c1[1]);
+ 515:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B(c1, premult_c1[2]);
+ 516:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = mix > LV_OPA_50 ? c2.full : c1.full;
+ARM GAS  /tmp/ccYvFakt.s 			page 17
+
+
+ 517:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #endif
+ 518:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 519:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return ret;
+ 520:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** }
+ 521:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 522:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /**
+ 523:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * Mix two colors. Both color can have alpha value.
+ 524:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @param bg_color background color
+ 525:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @param bg_opa alpha of the background color
+ 526:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @param fg_color foreground color
+ 527:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @param fg_opa alpha of the foreground color
+ 528:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @param res_color the result color
+ 529:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @param res_opa the result opacity
+ 530:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  */
+ 531:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** LV_ATTRIBUTE_FAST_MEM static inline void lv_color_mix_with_alpha(lv_color_t bg_color, lv_opa_t bg_o
+ 532:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****                                                                  lv_color_t fg_color, lv_opa_t fg_o
+ 533:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****                                                                  lv_color_t * res_color, lv_opa_t *
+ 534:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** {
+ 535:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     /*Pick the foreground if it's fully opaque or the Background is fully transparent*/
+ 536:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     if(fg_opa >= LV_OPA_MAX || bg_opa <= LV_OPA_MIN) {
+ 537:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         res_color->full = fg_color.full;
+ 538:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         *res_opa = fg_opa;
+ 539:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     }
+ 540:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     /*Transparent foreground: use the Background*/
+ 541:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     else if(fg_opa <= LV_OPA_MIN) {
+ 542:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         res_color->full = bg_color.full;
+ 543:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         *res_opa = bg_opa;
+ 544:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     }
+ 545:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     /*Opaque background: use simple mix*/
+ 546:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     else if(bg_opa >= LV_OPA_MAX) {
+ 547:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         *res_color = lv_color_mix(fg_color, bg_color, fg_opa);
+ 548:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         *res_opa = LV_OPA_COVER;
+ 549:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     }
+ 550:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     /*Both colors have alpha. Expensive calculation need to be applied*/
+ 551:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     else {
+ 552:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         /*Save the parameters and the result. If they will be asked again don't compute again*/
+ 553:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         static lv_opa_t fg_opa_save     = 0;
+ 554:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         static lv_opa_t bg_opa_save     = 0;
+ 555:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         static lv_color_t fg_color_save = _LV_COLOR_ZERO_INITIALIZER;
+ 556:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         static lv_color_t bg_color_save = _LV_COLOR_ZERO_INITIALIZER;
+ 557:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         static lv_color_t res_color_saved = _LV_COLOR_ZERO_INITIALIZER;
+ 558:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         static lv_opa_t res_opa_saved = 0;
+ 559:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 560:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         if(fg_opa != fg_opa_save || bg_opa != bg_opa_save || fg_color.full != fg_color_save.full ||
+ 561:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****            bg_color.full != bg_color_save.full) {
+ 562:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****             fg_opa_save        = fg_opa;
+ 563:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****             bg_opa_save        = bg_opa;
+ 564:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****             fg_color_save.full = fg_color.full;
+ 565:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****             bg_color_save.full = bg_color.full;
+ 566:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****             /*Info:
+ 567:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****              * https://en.wikipedia.org/wiki/Alpha_compositing#Analytical_derivation_of_the_over_op
+ 568:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****             res_opa_saved = 255 - ((uint16_t)((uint16_t)(255 - fg_opa) * (255 - bg_opa)) >> 8);
+ 569:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****             LV_ASSERT(res_opa_saved != 0);
+ 570:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****             lv_opa_t ratio = (uint16_t)((uint16_t)fg_opa * 255) / res_opa_saved;
+ 571:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****             res_color_saved = lv_color_mix(fg_color, bg_color, ratio);
+ 572:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 573:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         }
+ARM GAS  /tmp/ccYvFakt.s 			page 18
+
+
+ 574:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 575:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         res_color->full = res_color_saved.full;
+ 576:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****         *res_opa = res_opa_saved;
+ 577:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     }
+ 578:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** }
+ 579:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 580:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** //! @endcond
+ 581:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** 
+ 582:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** /**
+ 583:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * Get the brightness of a color
+ 584:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @param color a color
+ 585:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  * @return the brightness [0..255]
+ 586:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****  */
+ 587:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** static inline uint8_t lv_color_brightness(lv_color_t color)
+ 588:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** {
+ 589:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     lv_color32_t c32;
+ 590:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     c32.full        = lv_color_to32(color);
+ 591:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint16_t bright = (uint16_t)(3u * LV_COLOR_GET_R32(c32) + LV_COLOR_GET_B32(c32) + 4u * LV_COLOR
+ 179              		.loc 2 591 0 discriminator 2
+ 180 0096 C3F30746 		ubfx	r6, r3, #16, #8
+ 181 009a 06EB4606 		add	r6, r6, r6, lsl #1
+ 182 009e C3F30722 		ubfx	r2, r3, #8, #8
+ 183 00a2 06EB8206 		add	r6, r6, r2, lsl #2
+ 184 00a6 56FA83F6 		uxtab	r6, r6, r3
+ 185              	.LVL23:
+ 592:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return (uint8_t)(bright >> 3);
+ 186              		.loc 2 592 0 discriminator 2
+ 187 00aa C6F3C706 		ubfx	r6, r6, #3, #8
+ 188              	.LVL24:
+ 189              	.LBE166:
+ 190              	.LBE165:
+ 191              	.LBB169:
+ 192              	.LBB170:
+ 449:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t bg = (uint32_t)((uint32_t)c2.full | ((uint32_t)c2.full << 16)) &
+ 193              		.loc 2 449 0 discriminator 2
+ 194 00ae 0436     		adds	r6, r6, #4
+ 195              	.LVL25:
+ 450:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****                   0x7E0F81F; /*0b00000111111000001111100000011111*/
+ 196              		.loc 2 450 0 discriminator 2
+ 197 00b0 EA4B     		ldr	r3, .L10
+ 198              	.LVL26:
+ 452:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t result = ((((fg - bg) * mix) >> 5) + bg) & 0x7E0F81F;
+ 199              		.loc 2 452 0 discriminator 2
+ 200 00b2 AF8C     		ldrh	r7, [r5, #36]
+ 201 00b4 47EA0747 		orr	r7, r7, r7, lsl #16
+ 202 00b8 1F40     		ands	r7, r7, r3
+ 203              	.LVL27:
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 204              		.loc 2 453 0 discriminator 2
+ 205 00ba F608     		lsrs	r6, r6, #3
+ 206              	.LVL28:
+ 207 00bc 07FB06F6 		mul	r6, r7, r6
+ 208 00c0 03EA5616 		and	r6, r3, r6, lsr #5
+ 209              	.LVL29:
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 210              		.loc 2 454 0 discriminator 2
+ 211 00c4 46EA1646 		orr	r6, r6, r6, lsr #16
+ARM GAS  /tmp/ccYvFakt.s 			page 19
+
+
+ 212              	.LVL30:
+ 213 00c8 B6B2     		uxth	r6, r6
+ 214              	.LVL31:
+ 215 00ca BDF80610 		ldrh	r1, [sp, #6]
+ 216              	.LVL32:
+ 217              	.LBE170:
+ 218              	.LBE169:
+ 219              	.LBB171:
+ 220              	.LBB172:
+ 221              	.LBB173:
+ 222              	.LBB174:
+ 420:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G32(ret, (LV_COLOR_GET_G(color) * 259 + 3) >> 6);
+ 223              		.loc 2 420 0 discriminator 2
+ 224 00ce CA0A     		lsrs	r2, r1, #11
+ 225 00d0 02EB4210 		add	r0, r2, r2, lsl #5
+ 226 00d4 C2EBC000 		rsb	r0, r2, r0, lsl #3
+ 227 00d8 0730     		adds	r0, r0, #7
+ 228 00da C0F34710 		ubfx	r0, r0, #5, #8
+ 229 00de 0022     		movs	r2, #0
+ 230              	.LVL33:
+ 231 00e0 60F31742 		bfi	r2, r0, #16, #8
+ 232              	.LVL34:
+ 421:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B32(ret, (LV_COLOR_GET_B(color) * 263 + 7) >> 5);
+ 233              		.loc 2 421 0 discriminator 2
+ 234 00e4 C1F34510 		ubfx	r0, r1, #5, #6
+ 235 00e8 00EBC01C 		add	ip, r0, r0, lsl #7
+ 236 00ec 00EB4C00 		add	r0, r0, ip, lsl #1
+ 237 00f0 0330     		adds	r0, r0, #3
+ 238 00f2 C0F38710 		ubfx	r0, r0, #6, #8
+ 239 00f6 60F30F22 		bfi	r2, r0, #8, #8
+ 422:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_A32(ret, 0xFF);
+ 240              		.loc 2 422 0 discriminator 2
+ 241 00fa 01F01F01 		and	r1, r1, #31
+ 242              	.LVL35:
+ 243 00fe 01EB4110 		add	r0, r1, r1, lsl #5
+ 244 0102 C1EBC001 		rsb	r1, r1, r0, lsl #3
+ 245 0106 0731     		adds	r1, r1, #7
+ 246 0108 C1F34711 		ubfx	r1, r1, #5, #8
+ 247 010c 61F30702 		bfi	r2, r1, #0, #8
+ 423:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return ret.full;
+ 248              		.loc 2 423 0 discriminator 2
+ 249 0110 42F07F42 		orr	r2, r2, #-16777216
+ 250              	.LVL36:
+ 251              	.LBE174:
+ 252              	.LBE173:
+ 591:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return (uint8_t)(bright >> 3);
+ 253              		.loc 2 591 0 discriminator 2
+ 254 0114 C2F30740 		ubfx	r0, r2, #16, #8
+ 255 0118 00EB4000 		add	r0, r0, r0, lsl #1
+ 256 011c C2F30721 		ubfx	r1, r2, #8, #8
+ 257 0120 00EB8100 		add	r0, r0, r1, lsl #2
+ 258 0124 50FA82F0 		uxtab	r0, r0, r2
+ 259              	.LVL37:
+ 260              		.loc 2 592 0 discriminator 2
+ 261 0128 C0F3C700 		ubfx	r0, r0, #3, #8
+ 262              	.LVL38:
+ 263              	.LBE172:
+ARM GAS  /tmp/ccYvFakt.s 			page 20
+
+
+ 264              	.LBE171:
+ 265              	.LBB175:
+ 266              	.LBB176:
+ 449:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t bg = (uint32_t)((uint32_t)c2.full | ((uint32_t)c2.full << 16)) &
+ 267              		.loc 2 449 0 discriminator 2
+ 268 012c 0430     		adds	r0, r0, #4
+ 269              	.LVL39:
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 270              		.loc 2 453 0 discriminator 2
+ 271 012e C008     		lsrs	r0, r0, #3
+ 272              	.LVL40:
+ 273 0130 07FB00F0 		mul	r0, r7, r0
+ 274 0134 03EA5010 		and	r0, r3, r0, lsr #5
+ 275              	.LVL41:
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 276              		.loc 2 454 0 discriminator 2
+ 277 0138 40EA1040 		orr	r0, r0, r0, lsr #16
+ 278              	.LVL42:
+ 279 013c 80B2     		uxth	r0, r0
+ 280              	.LVL43:
+ 281 013e BDF80A10 		ldrh	r1, [sp, #10]
+ 282              	.LVL44:
+ 283              	.LBE176:
+ 284              	.LBE175:
+ 285              	.LBB177:
+ 286              	.LBB178:
+ 287              	.LBB179:
+ 288              	.LBB180:
+ 420:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G32(ret, (LV_COLOR_GET_G(color) * 259 + 3) >> 6);
+ 289              		.loc 2 420 0 discriminator 2
+ 290 0142 CA0A     		lsrs	r2, r1, #11
+ 291              	.LVL45:
+ 292 0144 02EB421C 		add	ip, r2, r2, lsl #5
+ 293 0148 C2EBCC0C 		rsb	ip, r2, ip, lsl #3
+ 294 014c 0CF1070C 		add	ip, ip, #7
+ 295 0150 CCF3471C 		ubfx	ip, ip, #5, #8
+ 296 0154 0022     		movs	r2, #0
+ 297              	.LVL46:
+ 298 0156 6CF31742 		bfi	r2, ip, #16, #8
+ 299              	.LVL47:
+ 421:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B32(ret, (LV_COLOR_GET_B(color) * 263 + 7) >> 5);
+ 300              		.loc 2 421 0 discriminator 2
+ 301 015a C1F3451C 		ubfx	ip, r1, #5, #6
+ 302 015e 0CEBCC1E 		add	lr, ip, ip, lsl #7
+ 303 0162 0CEB4E0C 		add	ip, ip, lr, lsl #1
+ 304 0166 0CF1030C 		add	ip, ip, #3
+ 305 016a CCF3871C 		ubfx	ip, ip, #6, #8
+ 306 016e 6CF30F22 		bfi	r2, ip, #8, #8
+ 422:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_A32(ret, 0xFF);
+ 307              		.loc 2 422 0 discriminator 2
+ 308 0172 01F01F01 		and	r1, r1, #31
+ 309              	.LVL48:
+ 310 0176 01EB411C 		add	ip, r1, r1, lsl #5
+ 311 017a C1EBCC01 		rsb	r1, r1, ip, lsl #3
+ 312 017e 0731     		adds	r1, r1, #7
+ 313 0180 C1F34711 		ubfx	r1, r1, #5, #8
+ 314 0184 61F30702 		bfi	r2, r1, #0, #8
+ARM GAS  /tmp/ccYvFakt.s 			page 21
+
+
+ 423:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return ret.full;
+ 315              		.loc 2 423 0 discriminator 2
+ 316 0188 42F07F42 		orr	r2, r2, #-16777216
+ 317              	.LVL49:
+ 318              	.LBE180:
+ 319              	.LBE179:
+ 591:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return (uint8_t)(bright >> 3);
+ 320              		.loc 2 591 0 discriminator 2
+ 321 018c C2F30741 		ubfx	r1, r2, #16, #8
+ 322 0190 01EB4101 		add	r1, r1, r1, lsl #1
+ 323 0194 C2F3072C 		ubfx	ip, r2, #8, #8
+ 324 0198 01EB8C01 		add	r1, r1, ip, lsl #2
+ 325 019c 51FA82F1 		uxtab	r1, r1, r2
+ 326              	.LVL50:
+ 327              		.loc 2 592 0 discriminator 2
+ 328 01a0 C1F3C701 		ubfx	r1, r1, #3, #8
+ 329              	.LVL51:
+ 330              	.LBE178:
+ 331              	.LBE177:
+ 332              	.LBB181:
+ 333              	.LBB182:
+ 449:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t bg = (uint32_t)((uint32_t)c2.full | ((uint32_t)c2.full << 16)) &
+ 334              		.loc 2 449 0 discriminator 2
+ 335 01a4 0431     		adds	r1, r1, #4
+ 336              	.LVL52:
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 337              		.loc 2 453 0 discriminator 2
+ 338 01a6 C908     		lsrs	r1, r1, #3
+ 339              	.LVL53:
+ 340 01a8 07FB01F1 		mul	r1, r7, r1
+ 341 01ac 03EA5111 		and	r1, r3, r1, lsr #5
+ 342              	.LVL54:
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 343              		.loc 2 454 0 discriminator 2
+ 344 01b0 41EA1141 		orr	r1, r1, r1, lsr #16
+ 345              	.LVL55:
+ 346 01b4 89B2     		uxth	r1, r1
+ 347              	.LVL56:
+ 348 01b6 BDF82CC0 		ldrh	ip, [sp, #44]
+ 349              	.LVL57:
+ 350              	.LBE182:
+ 351              	.LBE181:
+ 352              	.LBB183:
+ 353              	.LBB184:
+ 354              	.LBB185:
+ 355              	.LBB186:
+ 420:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G32(ret, (LV_COLOR_GET_G(color) * 259 + 3) >> 6);
+ 356              		.loc 2 420 0 discriminator 2
+ 357 01ba 4FEADC22 		lsr	r2, ip, #11
+ 358              	.LVL58:
+ 359 01be 02EB421E 		add	lr, r2, r2, lsl #5
+ 360 01c2 C2EBCE0E 		rsb	lr, r2, lr, lsl #3
+ 361 01c6 0EF1070E 		add	lr, lr, #7
+ 362 01ca CEF3471E 		ubfx	lr, lr, #5, #8
+ 363 01ce 0022     		movs	r2, #0
+ 364              	.LVL59:
+ 365 01d0 6EF31742 		bfi	r2, lr, #16, #8
+ARM GAS  /tmp/ccYvFakt.s 			page 22
+
+
+ 366              	.LVL60:
+ 421:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B32(ret, (LV_COLOR_GET_B(color) * 263 + 7) >> 5);
+ 367              		.loc 2 421 0 discriminator 2
+ 368 01d4 CCF3451E 		ubfx	lr, ip, #5, #6
+ 369 01d8 0EEBCE18 		add	r8, lr, lr, lsl #7
+ 370 01dc 0EEB480E 		add	lr, lr, r8, lsl #1
+ 371 01e0 0EF1030E 		add	lr, lr, #3
+ 372 01e4 CEF3871E 		ubfx	lr, lr, #6, #8
+ 373 01e8 6EF30F22 		bfi	r2, lr, #8, #8
+ 422:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_A32(ret, 0xFF);
+ 374              		.loc 2 422 0 discriminator 2
+ 375 01ec 0CF01F0C 		and	ip, ip, #31
+ 376              	.LVL61:
+ 377 01f0 0CEB4C1E 		add	lr, ip, ip, lsl #5
+ 378 01f4 CCEBCE0C 		rsb	ip, ip, lr, lsl #3
+ 379 01f8 0CF1070C 		add	ip, ip, #7
+ 380 01fc CCF3471C 		ubfx	ip, ip, #5, #8
+ 381 0200 6CF30702 		bfi	r2, ip, #0, #8
+ 423:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return ret.full;
+ 382              		.loc 2 423 0 discriminator 2
+ 383 0204 42F07F42 		orr	r2, r2, #-16777216
+ 384              	.LVL62:
+ 385              	.LBE186:
+ 386              	.LBE185:
+ 591:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return (uint8_t)(bright >> 3);
+ 387              		.loc 2 591 0 discriminator 2
+ 388 0208 C2F3074C 		ubfx	ip, r2, #16, #8
+ 389 020c 0CEB4C0C 		add	ip, ip, ip, lsl #1
+ 390 0210 C2F3072E 		ubfx	lr, r2, #8, #8
+ 391 0214 0CEB8E0C 		add	ip, ip, lr, lsl #2
+ 392 0218 5CFA82F2 		uxtab	r2, ip, r2
+ 393              	.LVL63:
+ 394              		.loc 2 592 0 discriminator 2
+ 395 021c C2F3C702 		ubfx	r2, r2, #3, #8
+ 396              	.LVL64:
+ 397              	.LBE184:
+ 398              	.LBE183:
+ 399              	.LBB187:
+ 400              	.LBB188:
+ 449:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t bg = (uint32_t)((uint32_t)c2.full | ((uint32_t)c2.full << 16)) &
+ 401              		.loc 2 449 0 discriminator 2
+ 402 0220 0432     		adds	r2, r2, #4
+ 403              	.LVL65:
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 404              		.loc 2 453 0 discriminator 2
+ 405 0222 D208     		lsrs	r2, r2, #3
+ 406              	.LVL66:
+ 407 0224 07FB02F7 		mul	r7, r7, r2
+ 408              	.LVL67:
+ 409 0228 03EA5717 		and	r7, r3, r7, lsr #5
+ 410              	.LVL68:
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 411              		.loc 2 454 0 discriminator 2
+ 412 022c 47EA1747 		orr	r7, r7, r7, lsr #16
+ 413              	.LVL69:
+ 414 0230 BFB2     		uxth	r7, r7
+ 415              	.LVL70:
+ARM GAS  /tmp/ccYvFakt.s 			page 23
+
+
+ 416              	.LBE188:
+ 417              	.LBE187:
+ 186:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.border_color = lv_color_mix(led->color, lv_color_black(), lv_color_brightness(rect
+ 418              		.loc 1 186 0 discriminator 2
+ 419 0232 ADF82C70 		strh	r7, [sp, #44]	@ movhi
+ 420 0236 BDF81EC0 		ldrh	ip, [sp, #30]
+ 421              	.LVL71:
+ 422              	.LBB189:
+ 423              	.LBB190:
+ 424              	.LBB191:
+ 425              	.LBB192:
+ 420:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G32(ret, (LV_COLOR_GET_G(color) * 259 + 3) >> 6);
+ 426              		.loc 2 420 0 discriminator 2
+ 427 023a 4FEADC22 		lsr	r2, ip, #11
+ 428 023e 02EB421E 		add	lr, r2, r2, lsl #5
+ 429 0242 C2EBCE0E 		rsb	lr, r2, lr, lsl #3
+ 430 0246 0EF1070E 		add	lr, lr, #7
+ 431 024a CEF3471E 		ubfx	lr, lr, #5, #8
+ 432 024e 0022     		movs	r2, #0
+ 433              	.LVL72:
+ 434 0250 6EF31742 		bfi	r2, lr, #16, #8
+ 435              	.LVL73:
+ 421:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B32(ret, (LV_COLOR_GET_B(color) * 263 + 7) >> 5);
+ 436              		.loc 2 421 0 discriminator 2
+ 437 0254 CCF3451E 		ubfx	lr, ip, #5, #6
+ 438 0258 0EEBCE18 		add	r8, lr, lr, lsl #7
+ 439 025c 0EEB480E 		add	lr, lr, r8, lsl #1
+ 440 0260 0EF1030E 		add	lr, lr, #3
+ 441 0264 CEF3871E 		ubfx	lr, lr, #6, #8
+ 442 0268 6EF30F22 		bfi	r2, lr, #8, #8
+ 422:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_A32(ret, 0xFF);
+ 443              		.loc 2 422 0 discriminator 2
+ 444 026c 0CF01F0C 		and	ip, ip, #31
+ 445              	.LVL74:
+ 446 0270 0CEB4C1E 		add	lr, ip, ip, lsl #5
+ 447 0274 CCEBCE0C 		rsb	ip, ip, lr, lsl #3
+ 448 0278 0CF1070C 		add	ip, ip, #7
+ 449 027c CCF3471C 		ubfx	ip, ip, #5, #8
+ 450 0280 6CF30702 		bfi	r2, ip, #0, #8
+ 423:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return ret.full;
+ 451              		.loc 2 423 0 discriminator 2
+ 452 0284 42F07F42 		orr	r2, r2, #-16777216
+ 453              	.LVL75:
+ 454              	.LBE192:
+ 455              	.LBE191:
+ 591:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return (uint8_t)(bright >> 3);
+ 456              		.loc 2 591 0 discriminator 2
+ 457 0288 C2F3074C 		ubfx	ip, r2, #16, #8
+ 458 028c 0CEB4C0C 		add	ip, ip, ip, lsl #1
+ 459 0290 C2F3072E 		ubfx	lr, r2, #8, #8
+ 460 0294 0CEB8E0C 		add	ip, ip, lr, lsl #2
+ 461 0298 5CFA82F2 		uxtab	r2, ip, r2
+ 462              	.LVL76:
+ 463              		.loc 2 592 0 discriminator 2
+ 464 029c C2F3C702 		ubfx	r2, r2, #3, #8
+ 465              	.LVL77:
+ 466              	.LBE190:
+ARM GAS  /tmp/ccYvFakt.s 			page 24
+
+
+ 467              	.LBE189:
+ 468              	.LBB193:
+ 469              	.LBB194:
+ 449:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t bg = (uint32_t)((uint32_t)c2.full | ((uint32_t)c2.full << 16)) &
+ 470              		.loc 2 449 0 discriminator 2
+ 471 02a0 0432     		adds	r2, r2, #4
+ 472              	.LVL78:
+ 452:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t result = ((((fg - bg) * mix) >> 5) + bg) & 0x7E0F81F;
+ 473              		.loc 2 452 0 discriminator 2
+ 474 02a2 B5F824C0 		ldrh	ip, [r5, #36]
+ 475 02a6 4CEA0C4C 		orr	ip, ip, ip, lsl #16
+ 476 02aa 0CEA030C 		and	ip, ip, r3
+ 477              	.LVL79:
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 478              		.loc 2 453 0 discriminator 2
+ 479 02ae D208     		lsrs	r2, r2, #3
+ 480              	.LVL80:
+ 481 02b0 0CFB02F2 		mul	r2, ip, r2
+ 482 02b4 03EA5212 		and	r2, r3, r2, lsr #5
+ 483              	.LVL81:
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 484              		.loc 2 454 0 discriminator 2
+ 485 02b8 42EA1242 		orr	r2, r2, r2, lsr #16
+ 486              	.LVL82:
+ 487 02bc 92B2     		uxth	r2, r2
+ 488              	.LVL83:
+ 489 02be BDF82480 		ldrh	r8, [sp, #36]
+ 490              	.LVL84:
+ 491              	.LBE194:
+ 492              	.LBE193:
+ 493              	.LBB195:
+ 494              	.LBB196:
+ 495              	.LBB197:
+ 496              	.LBB198:
+ 420:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_G32(ret, (LV_COLOR_GET_G(color) * 259 + 3) >> 6);
+ 497              		.loc 2 420 0 discriminator 2
+ 498 02c2 4FEAD82E 		lsr	lr, r8, #11
+ 499 02c6 0EEB4E19 		add	r9, lr, lr, lsl #5
+ 500 02ca CEEBC909 		rsb	r9, lr, r9, lsl #3
+ 501 02ce 09F10709 		add	r9, r9, #7
+ 502 02d2 C9F34719 		ubfx	r9, r9, #5, #8
+ 503 02d6 4FF0000E 		mov	lr, #0
+ 504              	.LVL85:
+ 505 02da 69F3174E 		bfi	lr, r9, #16, #8
+ 506              	.LVL86:
+ 421:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_B32(ret, (LV_COLOR_GET_B(color) * 263 + 7) >> 5);
+ 507              		.loc 2 421 0 discriminator 2
+ 508 02de C8F34519 		ubfx	r9, r8, #5, #6
+ 509 02e2 09EBC91A 		add	r10, r9, r9, lsl #7
+ 510 02e6 09EB4A09 		add	r9, r9, r10, lsl #1
+ 511 02ea 09F10309 		add	r9, r9, #3
+ 512 02ee C9F38719 		ubfx	r9, r9, #6, #8
+ 513 02f2 69F30F2E 		bfi	lr, r9, #8, #8
+ 422:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     LV_COLOR_SET_A32(ret, 0xFF);
+ 514              		.loc 2 422 0 discriminator 2
+ 515 02f6 08F01F08 		and	r8, r8, #31
+ 516              	.LVL87:
+ARM GAS  /tmp/ccYvFakt.s 			page 25
+
+
+ 517 02fa 08EB4819 		add	r9, r8, r8, lsl #5
+ 518 02fe C8EBC908 		rsb	r8, r8, r9, lsl #3
+ 519 0302 08F10708 		add	r8, r8, #7
+ 520 0306 C8F34718 		ubfx	r8, r8, #5, #8
+ 521 030a 68F3070E 		bfi	lr, r8, #0, #8
+ 423:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return ret.full;
+ 522              		.loc 2 423 0 discriminator 2
+ 523 030e 4EF07F4E 		orr	lr, lr, #-16777216
+ 524              	.LVL88:
+ 525              	.LBE198:
+ 526              	.LBE197:
+ 591:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     return (uint8_t)(bright >> 3);
+ 527              		.loc 2 591 0 discriminator 2
+ 528 0312 CEF30748 		ubfx	r8, lr, #16, #8
+ 529 0316 08EB4808 		add	r8, r8, r8, lsl #1
+ 530 031a CEF30729 		ubfx	r9, lr, #8, #8
+ 531 031e 08EB8908 		add	r8, r8, r9, lsl #2
+ 532 0322 58FA8EFE 		uxtab	lr, r8, lr
+ 533              	.LVL89:
+ 534              		.loc 2 592 0 discriminator 2
+ 535 0326 CEF3C70E 		ubfx	lr, lr, #3, #8
+ 536              	.LVL90:
+ 537              	.LBE196:
+ 538              	.LBE195:
+ 539              	.LBB199:
+ 540              	.LBB200:
+ 449:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t bg = (uint32_t)((uint32_t)c2.full | ((uint32_t)c2.full << 16)) &
+ 541              		.loc 2 449 0 discriminator 2
+ 542 032a 0EF1040E 		add	lr, lr, #4
+ 543              	.LVL91:
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 544              		.loc 2 453 0 discriminator 2
+ 545 032e 4FEADE0E 		lsr	lr, lr, #3
+ 546              	.LVL92:
+ 547 0332 0CFB0EFC 		mul	ip, ip, lr
+ 548              	.LVL93:
+ 549 0336 03EA5C1C 		and	ip, r3, ip, lsr #5
+ 550              	.LVL94:
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 551              		.loc 2 454 0 discriminator 2
+ 552 033a 4CEA1C4C 		orr	ip, ip, ip, lsr #16
+ 553              	.LVL95:
+ 554 033e 1FFA8CFC 		uxth	ip, ip
+ 555              	.LVL96:
+ 556              	.LBE200:
+ 557              	.LBE199:
+ 191:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.bg_grad.stops[0].color   = lv_color_mix(rect_dsc.bg_grad.stops[0].color, lv_color_
+ 558              		.loc 1 191 0 discriminator 2
+ 559 0342 95F826E0 		ldrb	lr, [r5, #38]	@ zero_extendqisi2
+ 560              	.LVL97:
+ 561              	.LBB201:
+ 562              	.LBB202:
+ 449:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t bg = (uint32_t)((uint32_t)c2.full | ((uint32_t)c2.full << 16)) &
+ 563              		.loc 2 449 0 discriminator 2
+ 564 0346 0EF1040E 		add	lr, lr, #4
+ 565              	.LVL98:
+ 452:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t result = ((((fg - bg) * mix) >> 5) + bg) & 0x7E0F81F;
+ARM GAS  /tmp/ccYvFakt.s 			page 26
+
+
+ 566              		.loc 2 452 0 discriminator 2
+ 567 034a 46EA0646 		orr	r6, r6, r6, lsl #16
+ 568              	.LVL99:
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 569              		.loc 2 453 0 discriminator 2
+ 570 034e 1E40     		ands	r6, r6, r3
+ 571              	.LVL100:
+ 572 0350 4FEADE0E 		lsr	lr, lr, #3
+ 573              	.LVL101:
+ 574 0354 0EFB06F6 		mul	r6, lr, r6
+ 575              	.LVL102:
+ 576 0358 03EA5616 		and	r6, r3, r6, lsr #5
+ 577              	.LVL103:
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 578              		.loc 2 454 0 discriminator 2
+ 579 035c 46EA1646 		orr	r6, r6, r6, lsr #16
+ 580              	.LVL104:
+ 581              	.LBE202:
+ 582              	.LBE201:
+ 191:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.bg_grad.stops[0].color   = lv_color_mix(rect_dsc.bg_grad.stops[0].color, lv_color_
+ 583              		.loc 1 191 0 discriminator 2
+ 584 0360 ADF80460 		strh	r6, [sp, #4]	@ movhi
+ 585              	.LVL105:
+ 586              	.LBB203:
+ 587              	.LBB204:
+ 452:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t result = ((((fg - bg) * mix) >> 5) + bg) & 0x7E0F81F;
+ 588              		.loc 2 452 0 discriminator 2
+ 589 0364 40EA0040 		orr	r0, r0, r0, lsl #16
+ 590              	.LVL106:
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 591              		.loc 2 453 0 discriminator 2
+ 592 0368 1840     		ands	r0, r0, r3
+ 593              	.LVL107:
+ 594 036a 0EFB00F0 		mul	r0, lr, r0
+ 595              	.LVL108:
+ 596 036e 03EA5010 		and	r0, r3, r0, lsr #5
+ 597              	.LVL109:
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 598              		.loc 2 454 0 discriminator 2
+ 599 0372 40EA1040 		orr	r0, r0, r0, lsr #16
+ 600              	.LVL110:
+ 601              	.LBE204:
+ 602              	.LBE203:
+ 192:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.bg_grad.stops[1].color   = lv_color_mix(rect_dsc.bg_grad.stops[1].color, lv_color_
+ 603              		.loc 1 192 0 discriminator 2
+ 604 0376 ADF80600 		strh	r0, [sp, #6]	@ movhi
+ 605              	.LVL111:
+ 606              	.LBB205:
+ 607              	.LBB206:
+ 452:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t result = ((((fg - bg) * mix) >> 5) + bg) & 0x7E0F81F;
+ 608              		.loc 2 452 0 discriminator 2
+ 609 037a 41EA0141 		orr	r1, r1, r1, lsl #16
+ 610              	.LVL112:
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 611              		.loc 2 453 0 discriminator 2
+ 612 037e 1940     		ands	r1, r1, r3
+ 613              	.LVL113:
+ARM GAS  /tmp/ccYvFakt.s 			page 27
+
+
+ 614 0380 0EFB01F1 		mul	r1, lr, r1
+ 615              	.LVL114:
+ 616 0384 03EA5111 		and	r1, r3, r1, lsr #5
+ 617              	.LVL115:
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 618              		.loc 2 454 0 discriminator 2
+ 619 0388 41EA1141 		orr	r1, r1, r1, lsr #16
+ 620              	.LVL116:
+ 621              	.LBE206:
+ 622              	.LBE205:
+ 193:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.border_color = lv_color_mix(rect_dsc.border_color, lv_color_black(), led->bright);
+ 623              		.loc 1 193 0 discriminator 2
+ 624 038c ADF80A10 		strh	r1, [sp, #10]	@ movhi
+ 625              	.LVL117:
+ 626              	.LBB207:
+ 627              	.LBB208:
+ 452:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t result = ((((fg - bg) * mix) >> 5) + bg) & 0x7E0F81F;
+ 628              		.loc 2 452 0 discriminator 2
+ 629 0390 42EA0242 		orr	r2, r2, r2, lsl #16
+ 630              	.LVL118:
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 631              		.loc 2 453 0 discriminator 2
+ 632 0394 1A40     		ands	r2, r2, r3
+ 633              	.LVL119:
+ 634 0396 0EFB02F2 		mul	r2, lr, r2
+ 635              	.LVL120:
+ 636 039a 03EA5212 		and	r2, r3, r2, lsr #5
+ 637              	.LVL121:
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 638              		.loc 2 454 0 discriminator 2
+ 639 039e 42EA1242 		orr	r2, r2, r2, lsr #16
+ 640              	.LVL122:
+ 641              	.LBE208:
+ 642              	.LBE207:
+ 194:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.shadow_color = lv_color_mix(rect_dsc.shadow_color, lv_color_black(), led->bright);
+ 643              		.loc 1 194 0 discriminator 2
+ 644 03a2 ADF81E20 		strh	r2, [sp, #30]	@ movhi
+ 645              	.LVL123:
+ 646              	.LBB209:
+ 647              	.LBB210:
+ 452:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t result = ((((fg - bg) * mix) >> 5) + bg) & 0x7E0F81F;
+ 648              		.loc 2 452 0 discriminator 2
+ 649 03a6 47EA0747 		orr	r7, r7, r7, lsl #16
+ 650              	.LVL124:
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 651              		.loc 2 453 0 discriminator 2
+ 652 03aa 1F40     		ands	r7, r7, r3
+ 653              	.LVL125:
+ 654 03ac 0EFB07FE 		mul	lr, lr, r7
+ 655              	.LVL126:
+ 656 03b0 03EA5E1E 		and	lr, r3, lr, lsr #5
+ 657              	.LVL127:
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 658              		.loc 2 454 0 discriminator 2
+ 659 03b4 4EEA1E4E 		orr	lr, lr, lr, lsr #16
+ 660              	.LVL128:
+ 661              	.LBE210:
+ARM GAS  /tmp/ccYvFakt.s 			page 28
+
+
+ 662              	.LBE209:
+ 195:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         rect_dsc.outline_color = lv_color_mix(rect_dsc.outline_color, lv_color_black(), led->bright
+ 663              		.loc 1 195 0 discriminator 2
+ 664 03b8 ADF82CE0 		strh	lr, [sp, #44]	@ movhi
+ 196:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 665              		.loc 1 196 0 discriminator 2
+ 666 03bc 95F82620 		ldrb	r2, [r5, #38]	@ zero_extendqisi2
+ 667              	.LVL129:
+ 668              	.LBB211:
+ 669              	.LBB212:
+ 449:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t bg = (uint32_t)((uint32_t)c2.full | ((uint32_t)c2.full << 16)) &
+ 670              		.loc 2 449 0 discriminator 2
+ 671 03c0 111D     		adds	r1, r2, #4
+ 672              	.LVL130:
+ 452:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     uint32_t result = ((((fg - bg) * mix) >> 5) + bg) & 0x7E0F81F;
+ 673              		.loc 2 452 0 discriminator 2
+ 674 03c2 4CEA0C4C 		orr	ip, ip, ip, lsl #16
+ 675              	.LVL131:
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 676              		.loc 2 453 0 discriminator 2
+ 677 03c6 0CEA030C 		and	ip, ip, r3
+ 678              	.LVL132:
+ 679 03ca C908     		lsrs	r1, r1, #3
+ 680              	.LVL133:
+ 681 03cc 0CFB01FC 		mul	ip, ip, r1
+ 682              	.LVL134:
+ 683 03d0 03EA5C13 		and	r3, r3, ip, lsr #5
+ 684              	.LVL135:
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 685              		.loc 2 454 0 discriminator 2
+ 686 03d4 43EA1343 		orr	r3, r3, r3, lsr #16
+ 687              	.LVL136:
+ 688              	.LBE212:
+ 689              	.LBE211:
+ 196:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 690              		.loc 1 196 0 discriminator 2
+ 691 03d8 ADF82430 		strh	r3, [sp, #36]	@ movhi
+ 200:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****                                 (LV_LED_BRIGHT_MAX - LV_LED_BRIGHT_MIN);
+ 692              		.loc 1 200 0 discriminator 2
+ 693 03dc A2F15003 		sub	r3, r2, #80
+ 694 03e0 BDF92E20 		ldrsh	r2, [sp, #46]
+ 695 03e4 02FB03F2 		mul	r2, r2, r3
+ 696 03e8 1D49     		ldr	r1, .L10+4
+ 697 03ea 81FB0203 		smull	r0, r3, r1, r2
+ 698 03ee D217     		asrs	r2, r2, #31
+ 699 03f0 C2EBA312 		rsb	r2, r2, r3, asr #6
+ 700 03f4 ADF82E20 		strh	r2, [sp, #46]	@ movhi
+ 202:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****                                  (LV_LED_BRIGHT_MAX - LV_LED_BRIGHT_MIN);
+ 701              		.loc 1 202 0 discriminator 2
+ 702 03f8 95F82630 		ldrb	r3, [r5, #38]	@ zero_extendqisi2
+ 703 03fc A3F15002 		sub	r2, r3, #80
+ 704 0400 BDF93430 		ldrsh	r3, [sp, #52]
+ 705 0404 03FB02F3 		mul	r3, r3, r2
+ 706 0408 81FB0321 		smull	r2, r1, r1, r3
+ 707 040c DB17     		asrs	r3, r3, #31
+ 708 040e C3EBA113 		rsb	r3, r3, r1, asr #6
+ 709 0412 ADF83430 		strh	r3, [sp, #52]	@ movhi
+ARM GAS  /tmp/ccYvFakt.s 			page 29
+
+
+ 205:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 710              		.loc 1 205 0 discriminator 2
+ 711 0416 2046     		mov	r0, r4
+ 712 0418 FFF7FEFF 		bl	lv_event_get_draw_ctx
+ 713              	.LVL137:
+ 714 041c 0446     		mov	r4, r0
+ 715              	.LVL138:
+ 208:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         part_draw_dsc.draw_area = &obj->coords;
+ 716              		.loc 1 208 0 discriminator 2
+ 717 041e 0146     		mov	r1, r0
+ 718 0420 0EA8     		add	r0, sp, #56
+ 719              	.LVL139:
+ 720 0422 FFF7FEFF 		bl	lv_obj_draw_dsc_init
+ 721              	.LVL140:
+ 209:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         part_draw_dsc.class_p = MY_CLASS;
+ 722              		.loc 1 209 0 discriminator 2
+ 723 0426 05F11406 		add	r6, r5, #20
+ 724 042a 1196     		str	r6, [sp, #68]
+ 210:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         part_draw_dsc.type = LV_LED_DRAW_PART_RECTANGLE;
+ 725              		.loc 1 210 0 discriminator 2
+ 726 042c 0D4B     		ldr	r3, .L10+8
+ 727 042e 0F93     		str	r3, [sp, #60]
+ 211:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         part_draw_dsc.rect_dsc = &rect_dsc;
+ 728              		.loc 1 211 0 discriminator 2
+ 729 0430 0023     		movs	r3, #0
+ 730 0432 1093     		str	r3, [sp, #64]
+ 212:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         part_draw_dsc.part = LV_PART_MAIN;
+ 731              		.loc 1 212 0 discriminator 2
+ 732 0434 CDF848D0 		str	sp, [sp, #72]
+ 213:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 733              		.loc 1 213 0 discriminator 2
+ 734 0438 1B93     		str	r3, [sp, #108]
+ 215:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_draw_rect(draw_ctx, &rect_dsc, &obj->coords);
+ 735              		.loc 1 215 0 discriminator 2
+ 736 043a 0EAA     		add	r2, sp, #56
+ 737 043c 1A21     		movs	r1, #26
+ 738 043e 2846     		mov	r0, r5
+ 739 0440 FFF7FEFF 		bl	lv_event_send
+ 740              	.LVL141:
+ 216:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_event_send(obj, LV_EVENT_DRAW_PART_END, &part_draw_dsc);
+ 741              		.loc 1 216 0 discriminator 2
+ 742 0444 3246     		mov	r2, r6
+ 743 0446 6946     		mov	r1, sp
+ 744 0448 2046     		mov	r0, r4
+ 745 044a FFF7FEFF 		bl	lv_draw_rect
+ 746              	.LVL142:
+ 217:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     }
+ 747              		.loc 1 217 0 discriminator 2
+ 748 044e 0EAA     		add	r2, sp, #56
+ 749 0450 1B21     		movs	r1, #27
+ 750 0452 2846     		mov	r0, r5
+ 751 0454 FFF7FEFF 		bl	lv_event_send
+ 752              	.LVL143:
+ 753 0458 EBE5     		b	.L3
+ 754              	.L11:
+ 755 045a 00BF     		.align	2
+ 756              	.L10:
+ARM GAS  /tmp/ccYvFakt.s 			page 30
+
+
+ 757 045c 1FF8E007 		.word	132184095
+ 758 0460 91739F5D 		.word	1570730897
+ 759 0464 00000000 		.word	.LANCHOR0
+ 760              	.LBE164:
+ 761              		.cfi_endproc
+ 762              	.LFE210:
+ 764              		.section	.text.lv_led_create,"ax",%progbits
+ 765              		.align	1
+ 766              		.global	lv_led_create
+ 767              		.syntax unified
+ 768              		.thumb
+ 769              		.thumb_func
+ 770              		.fpu fpv5-d16
+ 772              	lv_led_create:
+ 773              	.LFB202:
+  55:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     LV_LOG_INFO("begin");
+ 774              		.loc 1 55 0
+ 775              		.cfi_startproc
+ 776              		@ args = 0, pretend = 0, frame = 0
+ 777              		@ frame_needed = 0, uses_anonymous_args = 0
+ 778              	.LVL144:
+ 779 0000 10B5     		push	{r4, lr}
+ 780              	.LCFI5:
+ 781              		.cfi_def_cfa_offset 8
+ 782              		.cfi_offset 4, -8
+ 783              		.cfi_offset 14, -4
+  57:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_obj_class_init_obj(obj);
+ 784              		.loc 1 57 0
+ 785 0002 0146     		mov	r1, r0
+ 786 0004 0348     		ldr	r0, .L14
+ 787              	.LVL145:
+ 788 0006 FFF7FEFF 		bl	lv_obj_class_create_obj
+ 789              	.LVL146:
+ 790 000a 0446     		mov	r4, r0
+ 791              	.LVL147:
+  58:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     return obj;
+ 792              		.loc 1 58 0
+ 793 000c FFF7FEFF 		bl	lv_obj_class_init_obj
+ 794              	.LVL148:
+  60:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 795              		.loc 1 60 0
+ 796 0010 2046     		mov	r0, r4
+ 797 0012 10BD     		pop	{r4, pc}
+ 798              	.LVL149:
+ 799              	.L15:
+ 800              		.align	2
+ 801              	.L14:
+ 802 0014 00000000 		.word	.LANCHOR0
+ 803              		.cfi_endproc
+ 804              	.LFE202:
+ 806              		.section	.text.lv_led_set_color,"ax",%progbits
+ 807              		.align	1
+ 808              		.global	lv_led_set_color
+ 809              		.syntax unified
+ 810              		.thumb
+ 811              		.thumb_func
+ 812              		.fpu fpv5-d16
+ARM GAS  /tmp/ccYvFakt.s 			page 31
+
+
+ 814              	lv_led_set_color:
+ 815              	.LFB203:
+  72:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 816              		.loc 1 72 0
+ 817              		.cfi_startproc
+ 818              		@ args = 0, pretend = 0, frame = 0
+ 819              		@ frame_needed = 0, uses_anonymous_args = 0
+ 820              	.LVL150:
+ 821 0000 08B5     		push	{r3, lr}
+ 822              	.LCFI6:
+ 823              		.cfi_def_cfa_offset 8
+ 824              		.cfi_offset 3, -8
+ 825              		.cfi_offset 14, -4
+ 826              	.LVL151:
+  76:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_obj_invalidate(obj);
+ 827              		.loc 1 76 0
+ 828 0002 8184     		strh	r1, [r0, #36]	@ movhi
+  77:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+ 829              		.loc 1 77 0
+ 830 0004 FFF7FEFF 		bl	lv_obj_invalidate
+ 831              	.LVL152:
+  78:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 832              		.loc 1 78 0
+ 833 0008 08BD     		pop	{r3, pc}
+ 834              		.cfi_endproc
+ 835              	.LFE203:
+ 837              		.section	.text.lv_led_set_brightness,"ax",%progbits
+ 838              		.align	1
+ 839              		.global	lv_led_set_brightness
+ 840              		.syntax unified
+ 841              		.thumb
+ 842              		.thumb_func
+ 843              		.fpu fpv5-d16
+ 845              	lv_led_set_brightness:
+ 846              	.LFB204:
+  86:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 847              		.loc 1 86 0
+ 848              		.cfi_startproc
+ 849              		@ args = 0, pretend = 0, frame = 0
+ 850              		@ frame_needed = 0, uses_anonymous_args = 0
+ 851              	.LVL153:
+ 852 0000 08B5     		push	{r3, lr}
+ 853              	.LCFI7:
+ 854              		.cfi_def_cfa_offset 8
+ 855              		.cfi_offset 3, -8
+ 856              		.cfi_offset 14, -4
+ 857              	.LVL154:
+  90:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 858              		.loc 1 90 0
+ 859 0002 90F82630 		ldrb	r3, [r0, #38]	@ zero_extendqisi2
+ 860 0006 8B42     		cmp	r3, r1
+ 861 0008 06D0     		beq	.L18
+  92:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 862              		.loc 1 92 0
+ 863 000a 5029     		cmp	r1, #80
+ 864 000c 38BF     		it	cc
+ 865 000e 5021     		movcc	r1, #80
+ARM GAS  /tmp/ccYvFakt.s 			page 32
+
+
+ 866              	.LVL155:
+ 867 0010 80F82610 		strb	r1, [r0, #38]
+  95:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+ 868              		.loc 1 95 0
+ 869 0014 FFF7FEFF 		bl	lv_obj_invalidate
+ 870              	.LVL156:
+ 871              	.L18:
+  96:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 872              		.loc 1 96 0
+ 873 0018 08BD     		pop	{r3, pc}
+ 874              		.cfi_endproc
+ 875              	.LFE204:
+ 877              		.section	.text.lv_led_on,"ax",%progbits
+ 878              		.align	1
+ 879              		.global	lv_led_on
+ 880              		.syntax unified
+ 881              		.thumb
+ 882              		.thumb_func
+ 883              		.fpu fpv5-d16
+ 885              	lv_led_on:
+ 886              	.LFB205:
+ 103:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_led_set_brightness(led, LV_LED_BRIGHT_MAX);
+ 887              		.loc 1 103 0
+ 888              		.cfi_startproc
+ 889              		@ args = 0, pretend = 0, frame = 0
+ 890              		@ frame_needed = 0, uses_anonymous_args = 0
+ 891              	.LVL157:
+ 892 0000 08B5     		push	{r3, lr}
+ 893              	.LCFI8:
+ 894              		.cfi_def_cfa_offset 8
+ 895              		.cfi_offset 3, -8
+ 896              		.cfi_offset 14, -4
+ 104:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+ 897              		.loc 1 104 0
+ 898 0002 FF21     		movs	r1, #255
+ 899 0004 FFF7FEFF 		bl	lv_led_set_brightness
+ 900              	.LVL158:
+ 105:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 901              		.loc 1 105 0
+ 902 0008 08BD     		pop	{r3, pc}
+ 903              		.cfi_endproc
+ 904              	.LFE205:
+ 906              		.section	.text.lv_led_off,"ax",%progbits
+ 907              		.align	1
+ 908              		.global	lv_led_off
+ 909              		.syntax unified
+ 910              		.thumb
+ 911              		.thumb_func
+ 912              		.fpu fpv5-d16
+ 914              	lv_led_off:
+ 915              	.LFB206:
+ 112:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     lv_led_set_brightness(led, LV_LED_BRIGHT_MIN);
+ 916              		.loc 1 112 0
+ 917              		.cfi_startproc
+ 918              		@ args = 0, pretend = 0, frame = 0
+ 919              		@ frame_needed = 0, uses_anonymous_args = 0
+ 920              	.LVL159:
+ARM GAS  /tmp/ccYvFakt.s 			page 33
+
+
+ 921 0000 08B5     		push	{r3, lr}
+ 922              	.LCFI9:
+ 923              		.cfi_def_cfa_offset 8
+ 924              		.cfi_offset 3, -8
+ 925              		.cfi_offset 14, -4
+ 113:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+ 926              		.loc 1 113 0
+ 927 0002 5021     		movs	r1, #80
+ 928 0004 FFF7FEFF 		bl	lv_led_set_brightness
+ 929              	.LVL160:
+ 114:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 930              		.loc 1 114 0
+ 931 0008 08BD     		pop	{r3, pc}
+ 932              		.cfi_endproc
+ 933              	.LFE206:
+ 935              		.section	.text.lv_led_get_brightness,"ax",%progbits
+ 936              		.align	1
+ 937              		.global	lv_led_get_brightness
+ 938              		.syntax unified
+ 939              		.thumb
+ 940              		.thumb_func
+ 941              		.fpu fpv5-d16
+ 943              	lv_led_get_brightness:
+ 944              	.LFB208:
+ 139:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 945              		.loc 1 139 0
+ 946              		.cfi_startproc
+ 947              		@ args = 0, pretend = 0, frame = 0
+ 948              		@ frame_needed = 0, uses_anonymous_args = 0
+ 949              		@ link register save eliminated.
+ 950              	.LVL161:
+ 144:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 951              		.loc 1 144 0
+ 952 0000 90F82600 		ldrb	r0, [r0, #38]	@ zero_extendqisi2
+ 953              	.LVL162:
+ 954 0004 7047     		bx	lr
+ 955              		.cfi_endproc
+ 956              	.LFE208:
+ 958              		.section	.text.lv_led_toggle,"ax",%progbits
+ 959              		.align	1
+ 960              		.global	lv_led_toggle
+ 961              		.syntax unified
+ 962              		.thumb
+ 963              		.thumb_func
+ 964              		.fpu fpv5-d16
+ 966              	lv_led_toggle:
+ 967              	.LFB207:
+ 121:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     uint8_t bright = lv_led_get_brightness(obj);
+ 968              		.loc 1 121 0
+ 969              		.cfi_startproc
+ 970              		@ args = 0, pretend = 0, frame = 0
+ 971              		@ frame_needed = 0, uses_anonymous_args = 0
+ 972              	.LVL163:
+ 973 0000 10B5     		push	{r4, lr}
+ 974              	.LCFI10:
+ 975              		.cfi_def_cfa_offset 8
+ 976              		.cfi_offset 4, -8
+ARM GAS  /tmp/ccYvFakt.s 			page 34
+
+
+ 977              		.cfi_offset 14, -4
+ 978 0002 0446     		mov	r4, r0
+ 122:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     if(bright > (LV_LED_BRIGHT_MIN + LV_LED_BRIGHT_MAX) >> 1)
+ 979              		.loc 1 122 0
+ 980 0004 FFF7FEFF 		bl	lv_led_get_brightness
+ 981              	.LVL164:
+ 123:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****         lv_led_off(obj);
+ 982              		.loc 1 123 0
+ 983 0008 A728     		cmp	r0, #167
+ 984 000a 03D8     		bhi	.L30
+ 126:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** }
+ 985              		.loc 1 126 0
+ 986 000c 2046     		mov	r0, r4
+ 987              	.LVL165:
+ 988 000e FFF7FEFF 		bl	lv_led_on
+ 989              	.LVL166:
+ 990              	.L26:
+ 127:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c **** 
+ 991              		.loc 1 127 0
+ 992 0012 10BD     		pop	{r4, pc}
+ 993              	.LVL167:
+ 994              	.L30:
+ 124:Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.c ****     else
+ 995              		.loc 1 124 0
+ 996 0014 2046     		mov	r0, r4
+ 997              	.LVL168:
+ 998 0016 FFF7FEFF 		bl	lv_led_off
+ 999              	.LVL169:
+ 1000 001a FAE7     		b	.L26
+ 1001              		.cfi_endproc
+ 1002              	.LFE207:
+ 1004              		.global	lv_led_class
+ 1005              		.section	.rodata.lv_led_class,"a",%progbits
+ 1006              		.align	2
+ 1007              		.set	.LANCHOR0,. + 0
+ 1010              	lv_led_class:
+ 1011 0000 00000000 		.word	lv_obj_class
+ 1012 0004 00000000 		.word	lv_led_constructor
+ 1013 0008 00000000 		.space	8
+ 1013      00000000 
+ 1014 0010 00000000 		.word	lv_led_event
+ 1015 0014 1A00     		.short	26
+ 1016 0016 1A00     		.short	26
+ 1017 0018 80       		.byte	128
+ 1018 0019 02       		.byte	2
+ 1019 001a 00       		.byte	0
+ 1020 001b 00       		.space	1
+ 1021              		.text
+ 1022              	.Letext0:
+ 1023              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 1024              		.file 4 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ 1025              		.file 5 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/misc/lv_types.h"
+ 1026              		.file 6 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 1027              		.file 7 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+ 1028              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+ 1029              		.file 9 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+ 1030              		.file 10 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/../font/../m
+ARM GAS  /tmp/ccYvFakt.s 			page 35
+
+
+ 1031              		.file 11 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/../font/lv_f
+ 1032              		.file 12 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_txt.h"
+ 1033              		.file 13 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_bidi.h"
+ 1034              		.file 14 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/../misc/lv_style.h"
+ 1035              		.file 15 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/lv_img_buf.h"
+ 1036              		.file 16 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/core/lv_obj.h"
+ 1037              		.file 17 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/lv_draw_rect.h"
+ 1038              		.file 18 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/lv_draw_label.h"
+ 1039              		.file 19 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/lv_draw_img.h"
+ 1040              		.file 20 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/lv_draw_line.h"
+ 1041              		.file 21 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/lv_draw_arc.h"
+ 1042              		.file 22 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/lv_draw_layer.h"
+ 1043              		.file 23 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/lv_draw.h"
+ 1044              		.file 24 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../misc/lv_ll.h"
+ 1045              		.file 25 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/core/lv_group.h"
+ 1046              		.file 26 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/core/lv_obj_scroll.h"
+ 1047              		.file 27 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/core/lv_obj_style.h"
+ 1048              		.file 28 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/core/lv_obj_draw.h"
+ 1049              		.file 29 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/core/lv_obj_class.h"
+ 1050              		.file 30 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/core/lv_event.h"
+ 1051              		.file 31 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_arc.h"
+ 1052              		.file 32 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_btn.h"
+ 1053              		.file 33 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_img.h"
+ 1054              		.file 34 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_label.h"
+ 1055              		.file 35 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_line.h"
+ 1056              		.file 36 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_table.h"
+ 1057              		.file 37 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_checkbox.h"
+ 1058              		.file 38 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_bar.h"
+ 1059              		.file 39 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_slider.h"
+ 1060              		.file 40 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_btnmatrix.h"
+ 1061              		.file 41 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_dropdown.h"
+ 1062              		.file 42 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_roller.h"
+ 1063              		.file 43 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_textarea.h"
+ 1064              		.file 44 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_canvas.h"
+ 1065              		.file 45 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/widgets/lv_switch.h"
+ 1066              		.file 46 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/layouts/flex/lv_flex.h"
+ 1067              		.file 47 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/layouts/grid/lv_grid.h"
+ 1068              		.file 48 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/animimg/lv_animimg
+ 1069              		.file 49 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/calendar/lv_calend
+ 1070              		.file 50 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/calendar/lv_calend
+ 1071              		.file 51 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/calendar/lv_calend
+ 1072              		.file 52 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/chart/lv_chart.h"
+ 1073              		.file 53 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/keyboard/lv_keyboa
+ 1074              		.file 54 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/list/lv_list.h"
+ 1075              		.file 55 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/menu/lv_menu.h"
+ 1076              		.file 56 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/msgbox/lv_msgbox.h
+ 1077              		.file 57 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/meter/lv_meter.h"
+ 1078              		.file 58 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/spinbox/lv_spinbox
+ 1079              		.file 59 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/spinner/lv_spinner
+ 1080              		.file 60 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/tabview/lv_tabview
+ 1081              		.file 61 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/tileview/lv_tilevi
+ 1082              		.file 62 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/win/lv_win.h"
+ 1083              		.file 63 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/colorwheel/lv_colo
+ 1084              		.file 64 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/imgbtn/lv_imgbtn.h
+ 1085              		.file 65 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/extra/widgets/span/lv_span.h"
+ 1086              		.file 66 "Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.h"
+ 1087              		.file 67 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/core/lv_theme.h"
+ARM GAS  /tmp/ccYvFakt.s 			page 36
+
+
+ 1088              		.file 68 "Drivers/lvgl/lvgl/src/extra/widgets/led/../../../../src/hal/../draw/sw/../../core/lv_obj
+ARM GAS  /tmp/ccYvFakt.s 			page 37
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_led.c
+     /tmp/ccYvFakt.s:17     .text.lv_led_constructor:0000000000000000 $t
+     /tmp/ccYvFakt.s:23     .text.lv_led_constructor:0000000000000000 lv_led_constructor
+     /tmp/ccYvFakt.s:53     .text.lv_led_event:0000000000000000 $t
+     /tmp/ccYvFakt.s:59     .text.lv_led_event:0000000000000000 lv_led_event
+     /tmp/ccYvFakt.s:125    .text.lv_led_event:0000000000000038 $d
+     /tmp/ccYvFakt.s:132    .text.lv_led_event:000000000000003c $t
+     /tmp/ccYvFakt.s:757    .text.lv_led_event:000000000000045c $d
+     /tmp/ccYvFakt.s:765    .text.lv_led_create:0000000000000000 $t
+     /tmp/ccYvFakt.s:772    .text.lv_led_create:0000000000000000 lv_led_create
+     /tmp/ccYvFakt.s:802    .text.lv_led_create:0000000000000014 $d
+     /tmp/ccYvFakt.s:807    .text.lv_led_set_color:0000000000000000 $t
+     /tmp/ccYvFakt.s:814    .text.lv_led_set_color:0000000000000000 lv_led_set_color
+     /tmp/ccYvFakt.s:838    .text.lv_led_set_brightness:0000000000000000 $t
+     /tmp/ccYvFakt.s:845    .text.lv_led_set_brightness:0000000000000000 lv_led_set_brightness
+     /tmp/ccYvFakt.s:878    .text.lv_led_on:0000000000000000 $t
+     /tmp/ccYvFakt.s:885    .text.lv_led_on:0000000000000000 lv_led_on
+     /tmp/ccYvFakt.s:907    .text.lv_led_off:0000000000000000 $t
+     /tmp/ccYvFakt.s:914    .text.lv_led_off:0000000000000000 lv_led_off
+     /tmp/ccYvFakt.s:936    .text.lv_led_get_brightness:0000000000000000 $t
+     /tmp/ccYvFakt.s:943    .text.lv_led_get_brightness:0000000000000000 lv_led_get_brightness
+     /tmp/ccYvFakt.s:959    .text.lv_led_toggle:0000000000000000 $t
+     /tmp/ccYvFakt.s:966    .text.lv_led_toggle:0000000000000000 lv_led_toggle
+     /tmp/ccYvFakt.s:1010   .rodata.lv_led_class:0000000000000000 lv_led_class
+     /tmp/ccYvFakt.s:1006   .rodata.lv_led_class:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+lv_theme_get_color_primary
+lv_event_get_code
+lv_obj_event_base
+lv_event_get_target
+lv_draw_rect_dsc_init
+lv_obj_init_draw_rect_dsc
+lv_event_get_draw_ctx
+lv_obj_draw_dsc_init
+lv_event_send
+lv_draw_rect
+lv_obj_class_create_obj
+lv_obj_class_init_obj
+lv_obj_invalidate
+lv_obj_class

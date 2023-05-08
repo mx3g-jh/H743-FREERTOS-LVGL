@@ -25,6 +25,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "lv_demo_stress.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,7 +52,6 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void PeriphCommonClock_Config(void);
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -83,9 +84,6 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
-/* Configure the peripherals common clocks */
-  PeriphCommonClock_Config();
-
   /* USER CODE BEGIN SysInit */
 
   /* USER CODE END SysInit */
@@ -94,11 +92,9 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-  LL_SPI_Enable(SPI1);
-  LCD_Init();
-  HAL_Delay(200);
+
   /* USER CODE END 2 */
-  // LCD_ShowChinese(0,0,"中景园电子",RED,WHITE,32,0);
+
   /* Init scheduler */
   osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
@@ -124,86 +120,56 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
-  LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
-  while(LL_FLASH_GetLatency()!= LL_FLASH_LATENCY_2)
-  {
-  }
-  LL_PWR_ConfigSupply(LL_PWR_LDO_SUPPLY);
-  LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE3);
-  while (LL_PWR_IsActiveFlag_VOS() == 0)
-  {
-  }
-  LL_RCC_HSE_Enable();
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-   /* Wait till HSE is ready */
-  while(LL_RCC_HSE_IsReady() != 1)
-  {
+  /** Supply configuration update enable
+  */
+  HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
 
-  }
-  LL_RCC_PLL_SetSource(LL_RCC_PLLSOURCE_HSE);
-  LL_RCC_PLL1P_Enable();
-  LL_RCC_PLL1_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_8_16);
-  LL_RCC_PLL1_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
-  LL_RCC_PLL1_SetM(1);
-  LL_RCC_PLL1_SetN(50);
-  LL_RCC_PLL1_SetP(2);
-  LL_RCC_PLL1_SetQ(2);
-  LL_RCC_PLL1_SetR(2);
-  LL_RCC_PLL1_Enable();
+  /** Configure the main internal regulator output voltage
+  */
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
 
-   /* Wait till PLL is ready */
-  while(LL_RCC_PLL1_IsReady() != 1)
-  {
-  }
+  while(!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
 
-   /* Intermediate AHB prescaler 2 when target frequency clock is higher than 80 MHz */
-   LL_RCC_SetAHBPrescaler(LL_RCC_AHB_DIV_2);
-
-  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL1);
-
-   /* Wait till System clock is ready */
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL1)
-  {
-
-  }
-  LL_RCC_SetSysPrescaler(LL_RCC_SYSCLK_DIV_1);
-  LL_RCC_SetAHBPrescaler(LL_RCC_AHB_DIV_2);
-  LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
-  LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
-  LL_RCC_SetAPB3Prescaler(LL_RCC_APB3_DIV_1);
-  LL_RCC_SetAPB4Prescaler(LL_RCC_APB4_DIV_1);
-  LL_SetSystemCoreClock(200000000);
-
-   /* Update the time base */
-  if (HAL_InitTick (TICK_INT_PRIORITY) != HAL_OK)
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 1;
+  RCC_OscInitStruct.PLL.PLLN = 36;
+  RCC_OscInitStruct.PLL.PLLP = 2;
+  RCC_OscInitStruct.PLL.PLLQ = 2;
+  RCC_OscInitStruct.PLL.PLLR = 2;
+  RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_3;
+  RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
+  RCC_OscInitStruct.PLL.PLLFRACN = 0;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
   }
-}
 
-/**
-  * @brief Peripherals Common Clock Configuration
-  * @retval None
+  /** Initializes the CPU, AHB and APB buses clocks
   */
-void PeriphCommonClock_Config(void)
-{
-  LL_RCC_PLL3P_Enable();
-  LL_RCC_PLL3_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_8_16);
-  LL_RCC_PLL3_SetVCOOutputRange(LL_RCC_PLLVCORANGE_MEDIUM);
-  LL_RCC_PLL3_SetM(1);
-  LL_RCC_PLL3_SetN(18);
-  LL_RCC_PLL3_SetP(2);
-  LL_RCC_PLL3_SetQ(2);
-  LL_RCC_PLL3_SetR(2);
-  LL_RCC_PLL3_SetFRACN(6144);
-  LL_RCC_PLL3FRACN_Enable();
-  LL_RCC_PLL3_Enable();
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2
+                              |RCC_CLOCKTYPE_D3PCLK1|RCC_CLOCKTYPE_D1PCLK1;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.SYSCLKDivider = RCC_SYSCLK_DIV2;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV1;
+  RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV1;
 
-   /* Wait till PLL is ready */
-  while(LL_RCC_PLL3_IsReady() != 1)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
+    Error_Handler();
   }
-
 }
 
 /* USER CODE BEGIN 4 */

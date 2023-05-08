@@ -1,0 +1,498 @@
+ARM GAS  /tmp/ccyKINlq.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_font.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.lv_font_get_glyph_bitmap,"ax",%progbits
+  17              		.align	1
+  18              		.global	lv_font_get_glyph_bitmap
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu fpv5-d16
+  24              	lv_font_get_glyph_bitmap:
+  25              	.LFB7:
+  26              		.file 1 "Drivers/lvgl/lvgl/src/font/lv_font.c"
+   1:Drivers/lvgl/lvgl/src/font/lv_font.c **** /**
+   2:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * @file lv_font.c
+   3:Drivers/lvgl/lvgl/src/font/lv_font.c ****  *
+   4:Drivers/lvgl/lvgl/src/font/lv_font.c ****  */
+   5:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+   6:Drivers/lvgl/lvgl/src/font/lv_font.c **** /*********************
+   7:Drivers/lvgl/lvgl/src/font/lv_font.c ****  *      INCLUDES
+   8:Drivers/lvgl/lvgl/src/font/lv_font.c ****  *********************/
+   9:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  10:Drivers/lvgl/lvgl/src/font/lv_font.c **** #include "lv_font.h"
+  11:Drivers/lvgl/lvgl/src/font/lv_font.c **** #include "../misc/lv_utils.h"
+  12:Drivers/lvgl/lvgl/src/font/lv_font.c **** #include "../misc/lv_log.h"
+  13:Drivers/lvgl/lvgl/src/font/lv_font.c **** #include "../misc/lv_assert.h"
+  14:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  15:Drivers/lvgl/lvgl/src/font/lv_font.c **** /*********************
+  16:Drivers/lvgl/lvgl/src/font/lv_font.c ****  *      DEFINES
+  17:Drivers/lvgl/lvgl/src/font/lv_font.c ****  *********************/
+  18:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  19:Drivers/lvgl/lvgl/src/font/lv_font.c **** /**********************
+  20:Drivers/lvgl/lvgl/src/font/lv_font.c ****  *      TYPEDEFS
+  21:Drivers/lvgl/lvgl/src/font/lv_font.c ****  **********************/
+  22:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  23:Drivers/lvgl/lvgl/src/font/lv_font.c **** /**********************
+  24:Drivers/lvgl/lvgl/src/font/lv_font.c ****  *  STATIC PROTOTYPES
+  25:Drivers/lvgl/lvgl/src/font/lv_font.c ****  **********************/
+  26:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  27:Drivers/lvgl/lvgl/src/font/lv_font.c **** /**********************
+  28:Drivers/lvgl/lvgl/src/font/lv_font.c ****  *  STATIC VARIABLES
+  29:Drivers/lvgl/lvgl/src/font/lv_font.c ****  **********************/
+  30:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  31:Drivers/lvgl/lvgl/src/font/lv_font.c **** /**********************
+  32:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * GLOBAL PROTOTYPES
+ARM GAS  /tmp/ccyKINlq.s 			page 2
+
+
+  33:Drivers/lvgl/lvgl/src/font/lv_font.c ****  **********************/
+  34:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  35:Drivers/lvgl/lvgl/src/font/lv_font.c **** /**********************
+  36:Drivers/lvgl/lvgl/src/font/lv_font.c ****  *      MACROS
+  37:Drivers/lvgl/lvgl/src/font/lv_font.c ****  **********************/
+  38:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  39:Drivers/lvgl/lvgl/src/font/lv_font.c **** /**********************
+  40:Drivers/lvgl/lvgl/src/font/lv_font.c ****  *   GLOBAL FUNCTIONS
+  41:Drivers/lvgl/lvgl/src/font/lv_font.c ****  **********************/
+  42:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  43:Drivers/lvgl/lvgl/src/font/lv_font.c **** /**
+  44:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * Return with the bitmap of a font.
+  45:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * @param font_p pointer to a font
+  46:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * @param letter a UNICODE character code
+  47:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * @return pointer to the bitmap of the letter
+  48:Drivers/lvgl/lvgl/src/font/lv_font.c ****  */
+  49:Drivers/lvgl/lvgl/src/font/lv_font.c **** const uint8_t * lv_font_get_glyph_bitmap(const lv_font_t * font_p, uint32_t letter)
+  50:Drivers/lvgl/lvgl/src/font/lv_font.c **** {
+  27              		.loc 1 50 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              	.LVL0:
+  51:Drivers/lvgl/lvgl/src/font/lv_font.c ****     LV_ASSERT_NULL(font_p);
+  32              		.loc 1 51 0
+  33 0000 18B1     		cbz	r0, .L3
+  50:Drivers/lvgl/lvgl/src/font/lv_font.c ****     LV_ASSERT_NULL(font_p);
+  34              		.loc 1 50 0
+  35 0002 08B5     		push	{r3, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 3, -8
+  39              		.cfi_offset 14, -4
+  52:Drivers/lvgl/lvgl/src/font/lv_font.c ****     return font_p->get_glyph_bitmap(font_p, letter);
+  40              		.loc 1 52 0
+  41 0004 4368     		ldr	r3, [r0, #4]
+  42 0006 9847     		blx	r3
+  43              	.LVL1:
+  53:Drivers/lvgl/lvgl/src/font/lv_font.c **** }
+  44              		.loc 1 53 0
+  45 0008 08BD     		pop	{r3, pc}
+  46              	.LVL2:
+  47              	.L3:
+  48              	.LCFI1:
+  49              		.cfi_def_cfa_offset 0
+  50              		.cfi_restore 3
+  51              		.cfi_restore 14
+  52 000a FEE7     		b	.L3
+  53              		.cfi_endproc
+  54              	.LFE7:
+  56              		.section	.text.lv_font_get_glyph_dsc,"ax",%progbits
+  57              		.align	1
+  58              		.global	lv_font_get_glyph_dsc
+  59              		.syntax unified
+  60              		.thumb
+  61              		.thumb_func
+  62              		.fpu fpv5-d16
+ARM GAS  /tmp/ccyKINlq.s 			page 3
+
+
+  64              	lv_font_get_glyph_dsc:
+  65              	.LFB8:
+  54:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  55:Drivers/lvgl/lvgl/src/font/lv_font.c **** /**
+  56:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * Get the descriptor of a glyph
+  57:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * @param font_p pointer to font
+  58:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * @param dsc_out store the result descriptor here
+  59:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * @param letter a UNICODE letter code
+  60:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * @param letter_next the next letter after `letter`. Used for kerning
+  61:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * @return true: descriptor is successfully loaded into `dsc_out`.
+  62:Drivers/lvgl/lvgl/src/font/lv_font.c ****  *         false: the letter was not found, no data is loaded to `dsc_out`
+  63:Drivers/lvgl/lvgl/src/font/lv_font.c ****  */
+  64:Drivers/lvgl/lvgl/src/font/lv_font.c **** bool lv_font_get_glyph_dsc(const lv_font_t * font_p, lv_font_glyph_dsc_t * dsc_out, uint32_t letter
+  65:Drivers/lvgl/lvgl/src/font/lv_font.c ****                            uint32_t letter_next)
+  66:Drivers/lvgl/lvgl/src/font/lv_font.c **** {
+  66              		.loc 1 66 0
+  67              		.cfi_startproc
+  68              		@ args = 0, pretend = 0, frame = 0
+  69              		@ frame_needed = 0, uses_anonymous_args = 0
+  70              	.LVL3:
+  67:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  68:Drivers/lvgl/lvgl/src/font/lv_font.c ****     LV_ASSERT_NULL(font_p);
+  71              		.loc 1 68 0
+  72 0000 18B1     		cbz	r0, .L8
+  66:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  73              		.loc 1 66 0
+  74 0002 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+  75              	.LCFI2:
+  76              		.cfi_def_cfa_offset 32
+  77              		.cfi_offset 4, -32
+  78              		.cfi_offset 5, -28
+  79              		.cfi_offset 6, -24
+  80              		.cfi_offset 7, -20
+  81              		.cfi_offset 8, -16
+  82              		.cfi_offset 9, -12
+  83              		.cfi_offset 10, -8
+  84              		.cfi_offset 14, -4
+  69:Drivers/lvgl/lvgl/src/font/lv_font.c ****     LV_ASSERT_NULL(dsc_out);
+  85              		.loc 1 69 0
+  86 0006 09B9     		cbnz	r1, .L9
+  87              	.L10:
+  88 0008 FEE7     		b	.L10
+  89              	.L8:
+  90              	.LCFI3:
+  91              		.cfi_def_cfa_offset 0
+  92              		.cfi_restore 4
+  93              		.cfi_restore 5
+  94              		.cfi_restore 6
+  95              		.cfi_restore 7
+  96              		.cfi_restore 8
+  97              		.cfi_restore 9
+  98              		.cfi_restore 10
+  99              		.cfi_restore 14
+ 100 000a FEE7     		b	.L8
+ 101              	.L9:
+ 102              	.LCFI4:
+ 103              		.cfi_def_cfa_offset 32
+ARM GAS  /tmp/ccyKINlq.s 			page 4
+
+
+ 104              		.cfi_offset 4, -32
+ 105              		.cfi_offset 5, -28
+ 106              		.cfi_offset 6, -24
+ 107              		.cfi_offset 7, -20
+ 108              		.cfi_offset 8, -16
+ 109              		.cfi_offset 9, -12
+ 110              		.cfi_offset 10, -8
+ 111              		.cfi_offset 14, -4
+ 112 000c 8246     		mov	r10, r0
+ 113 000e 9946     		mov	r9, r3
+ 114 0010 9046     		mov	r8, r2
+ 115 0012 0C46     		mov	r4, r1
+ 116              	.LVL4:
+  70:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  71:Drivers/lvgl/lvgl/src/font/lv_font.c **** #if LV_USE_FONT_PLACEHOLDER
+  72:Drivers/lvgl/lvgl/src/font/lv_font.c ****     const lv_font_t * placeholder_font = NULL;
+  73:Drivers/lvgl/lvgl/src/font/lv_font.c **** #endif
+  74:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  75:Drivers/lvgl/lvgl/src/font/lv_font.c ****     const lv_font_t * f = font_p;
+  76:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  77:Drivers/lvgl/lvgl/src/font/lv_font.c ****     dsc_out->resolved_font = NULL;
+ 117              		.loc 1 77 0
+ 118 0014 0025     		movs	r5, #0
+ 119 0016 0D60     		str	r5, [r1]
+  75:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+ 120              		.loc 1 75 0
+ 121 0018 0746     		mov	r7, r0
+  78:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  79:Drivers/lvgl/lvgl/src/font/lv_font.c ****     while(f) {
+ 122              		.loc 1 79 0
+ 123 001a 04E0     		b	.L11
+ 124              	.LVL5:
+ 125              	.L24:
+ 126              	.LBB2:
+  80:Drivers/lvgl/lvgl/src/font/lv_font.c ****         bool found = f->get_glyph_dsc(f, dsc_out, letter, letter_next);
+  81:Drivers/lvgl/lvgl/src/font/lv_font.c ****         if(found) {
+  82:Drivers/lvgl/lvgl/src/font/lv_font.c ****             if(!dsc_out->is_placeholder) {
+  83:Drivers/lvgl/lvgl/src/font/lv_font.c ****                 dsc_out->resolved_font = f;
+ 127              		.loc 1 83 0
+ 128 001c 2760     		str	r7, [r4]
+ 129              	.LVL6:
+ 130              	.L14:
+ 131              	.LBE2:
+  84:Drivers/lvgl/lvgl/src/font/lv_font.c ****                 return true;
+  85:Drivers/lvgl/lvgl/src/font/lv_font.c ****             }
+  86:Drivers/lvgl/lvgl/src/font/lv_font.c **** #if LV_USE_FONT_PLACEHOLDER
+  87:Drivers/lvgl/lvgl/src/font/lv_font.c ****             else if(placeholder_font == NULL) {
+  88:Drivers/lvgl/lvgl/src/font/lv_font.c ****                 placeholder_font = f;
+  89:Drivers/lvgl/lvgl/src/font/lv_font.c ****             }
+  90:Drivers/lvgl/lvgl/src/font/lv_font.c **** #endif
+  91:Drivers/lvgl/lvgl/src/font/lv_font.c ****         }
+  92:Drivers/lvgl/lvgl/src/font/lv_font.c ****         f = f->fallback;
+  93:Drivers/lvgl/lvgl/src/font/lv_font.c ****     }
+  94:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+  95:Drivers/lvgl/lvgl/src/font/lv_font.c **** #if LV_USE_FONT_PLACEHOLDER
+  96:Drivers/lvgl/lvgl/src/font/lv_font.c ****     if(placeholder_font != NULL) {
+  97:Drivers/lvgl/lvgl/src/font/lv_font.c ****         placeholder_font->get_glyph_dsc(placeholder_font, dsc_out, letter, letter_next);
+ARM GAS  /tmp/ccyKINlq.s 			page 5
+
+
+  98:Drivers/lvgl/lvgl/src/font/lv_font.c ****         dsc_out->resolved_font = placeholder_font;
+  99:Drivers/lvgl/lvgl/src/font/lv_font.c ****         return true;
+ 100:Drivers/lvgl/lvgl/src/font/lv_font.c ****     }
+ 101:Drivers/lvgl/lvgl/src/font/lv_font.c **** #endif
+ 102:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+ 103:Drivers/lvgl/lvgl/src/font/lv_font.c ****     if(letter < 0x20 ||
+ 104:Drivers/lvgl/lvgl/src/font/lv_font.c ****        letter == 0xf8ff || /*LV_SYMBOL_DUMMY*/
+ 105:Drivers/lvgl/lvgl/src/font/lv_font.c ****        letter == 0x200c) { /*ZERO WIDTH NON-JOINER*/
+ 106:Drivers/lvgl/lvgl/src/font/lv_font.c ****         dsc_out->box_w = 0;
+ 107:Drivers/lvgl/lvgl/src/font/lv_font.c ****         dsc_out->adv_w = 0;
+ 108:Drivers/lvgl/lvgl/src/font/lv_font.c ****     }
+ 109:Drivers/lvgl/lvgl/src/font/lv_font.c ****     else {
+ 110:Drivers/lvgl/lvgl/src/font/lv_font.c **** #if LV_USE_FONT_PLACEHOLDER
+ 111:Drivers/lvgl/lvgl/src/font/lv_font.c ****         dsc_out->box_w = font_p->line_height / 2;
+ 112:Drivers/lvgl/lvgl/src/font/lv_font.c ****         dsc_out->adv_w = dsc_out->box_w + 2;
+ 113:Drivers/lvgl/lvgl/src/font/lv_font.c **** #else
+ 114:Drivers/lvgl/lvgl/src/font/lv_font.c ****         dsc_out->box_w = 0;
+ 115:Drivers/lvgl/lvgl/src/font/lv_font.c ****         dsc_out->adv_w = 0;
+ 116:Drivers/lvgl/lvgl/src/font/lv_font.c **** #endif
+ 117:Drivers/lvgl/lvgl/src/font/lv_font.c ****     }
+ 118:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+ 119:Drivers/lvgl/lvgl/src/font/lv_font.c ****     dsc_out->resolved_font = NULL;
+ 120:Drivers/lvgl/lvgl/src/font/lv_font.c ****     dsc_out->box_h = font_p->line_height;
+ 121:Drivers/lvgl/lvgl/src/font/lv_font.c ****     dsc_out->ofs_x = 0;
+ 122:Drivers/lvgl/lvgl/src/font/lv_font.c ****     dsc_out->ofs_y = 0;
+ 123:Drivers/lvgl/lvgl/src/font/lv_font.c ****     dsc_out->bpp   = 1;
+ 124:Drivers/lvgl/lvgl/src/font/lv_font.c ****     dsc_out->is_placeholder = true;
+ 125:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+ 126:Drivers/lvgl/lvgl/src/font/lv_font.c ****     return false;
+ 127:Drivers/lvgl/lvgl/src/font/lv_font.c **** }
+ 132              		.loc 1 127 0
+ 133 001e 1846     		mov	r0, r3
+ 134 0020 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 135              	.LVL7:
+ 136              	.L12:
+ 137              	.LBB3:
+  92:Drivers/lvgl/lvgl/src/font/lv_font.c ****     }
+ 138              		.loc 1 92 0
+ 139 0024 7F69     		ldr	r7, [r7, #20]
+ 140              	.LVL8:
+ 141              	.L11:
+ 142              	.LBE3:
+  79:Drivers/lvgl/lvgl/src/font/lv_font.c ****         bool found = f->get_glyph_dsc(f, dsc_out, letter, letter_next);
+ 143              		.loc 1 79 0
+ 144 0026 87B1     		cbz	r7, .L23
+ 145              	.LBB4:
+  80:Drivers/lvgl/lvgl/src/font/lv_font.c ****         if(found) {
+ 146              		.loc 1 80 0
+ 147 0028 4B46     		mov	r3, r9
+ 148 002a 4246     		mov	r2, r8
+ 149 002c 2146     		mov	r1, r4
+ 150 002e 3846     		mov	r0, r7
+ 151 0030 3E68     		ldr	r6, [r7]
+ 152 0032 B047     		blx	r6
+ 153              	.LVL9:
+  81:Drivers/lvgl/lvgl/src/font/lv_font.c ****             if(!dsc_out->is_placeholder) {
+ 154              		.loc 1 81 0
+ARM GAS  /tmp/ccyKINlq.s 			page 6
+
+
+ 155 0034 0346     		mov	r3, r0
+ 156 0036 0028     		cmp	r0, #0
+ 157 0038 F4D0     		beq	.L12
+  82:Drivers/lvgl/lvgl/src/font/lv_font.c ****                 dsc_out->resolved_font = f;
+ 158              		.loc 1 82 0
+ 159 003a A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+ 160 003c 12F0100F 		tst	r2, #16
+ 161 0040 ECD0     		beq	.L24
+  87:Drivers/lvgl/lvgl/src/font/lv_font.c ****                 placeholder_font = f;
+ 162              		.loc 1 87 0
+ 163 0042 002D     		cmp	r5, #0
+ 164 0044 EED1     		bne	.L12
+  88:Drivers/lvgl/lvgl/src/font/lv_font.c ****             }
+ 165              		.loc 1 88 0
+ 166 0046 3D46     		mov	r5, r7
+ 167              	.LVL10:
+ 168 0048 ECE7     		b	.L12
+ 169              	.LVL11:
+ 170              	.L23:
+ 171              	.LBE4:
+  96:Drivers/lvgl/lvgl/src/font/lv_font.c ****         placeholder_font->get_glyph_dsc(placeholder_font, dsc_out, letter, letter_next);
+ 172              		.loc 1 96 0
+ 173 004a 45B1     		cbz	r5, .L16
+  97:Drivers/lvgl/lvgl/src/font/lv_font.c ****         dsc_out->resolved_font = placeholder_font;
+ 174              		.loc 1 97 0
+ 175 004c 2E68     		ldr	r6, [r5]
+ 176 004e 4B46     		mov	r3, r9
+ 177 0050 4246     		mov	r2, r8
+ 178 0052 2146     		mov	r1, r4
+ 179 0054 2846     		mov	r0, r5
+ 180 0056 B047     		blx	r6
+ 181              	.LVL12:
+  98:Drivers/lvgl/lvgl/src/font/lv_font.c ****         return true;
+ 182              		.loc 1 98 0
+ 183 0058 2560     		str	r5, [r4]
+  99:Drivers/lvgl/lvgl/src/font/lv_font.c ****     }
+ 184              		.loc 1 99 0
+ 185 005a 0123     		movs	r3, #1
+ 186 005c DFE7     		b	.L14
+ 187              	.L16:
+ 103:Drivers/lvgl/lvgl/src/font/lv_font.c ****        letter == 0xf8ff || /*LV_SYMBOL_DUMMY*/
+ 188              		.loc 1 103 0
+ 189 005e 4FF6FF03 		movw	r3, #63743
+ 190 0062 9845     		cmp	r8, r3
+ 191 0064 18BF     		it	ne
+ 192 0066 B8F11F0F 		cmpne	r8, #31
+ 193 006a 03D9     		bls	.L17
+ 104:Drivers/lvgl/lvgl/src/font/lv_font.c ****        letter == 0x200c) { /*ZERO WIDTH NON-JOINER*/
+ 194              		.loc 1 104 0
+ 195 006c 42F20C03 		movw	r3, #8204
+ 196 0070 9845     		cmp	r8, r3
+ 197 0072 12D1     		bne	.L18
+ 198              	.L17:
+ 106:Drivers/lvgl/lvgl/src/font/lv_font.c ****         dsc_out->adv_w = 0;
+ 199              		.loc 1 106 0
+ 200 0074 0023     		movs	r3, #0
+ 201 0076 E380     		strh	r3, [r4, #6]	@ movhi
+ARM GAS  /tmp/ccyKINlq.s 			page 7
+
+
+ 107:Drivers/lvgl/lvgl/src/font/lv_font.c ****     }
+ 202              		.loc 1 107 0
+ 203 0078 A380     		strh	r3, [r4, #4]	@ movhi
+ 204              	.L19:
+ 119:Drivers/lvgl/lvgl/src/font/lv_font.c ****     dsc_out->box_h = font_p->line_height;
+ 205              		.loc 1 119 0
+ 206 007a 0023     		movs	r3, #0
+ 207 007c 2360     		str	r3, [r4]
+ 120:Drivers/lvgl/lvgl/src/font/lv_font.c ****     dsc_out->ofs_x = 0;
+ 208              		.loc 1 120 0
+ 209 007e BAF80820 		ldrh	r2, [r10, #8]
+ 210 0082 2281     		strh	r2, [r4, #8]	@ movhi
+ 121:Drivers/lvgl/lvgl/src/font/lv_font.c ****     dsc_out->ofs_y = 0;
+ 211              		.loc 1 121 0
+ 212 0084 6381     		strh	r3, [r4, #10]	@ movhi
+ 122:Drivers/lvgl/lvgl/src/font/lv_font.c ****     dsc_out->bpp   = 1;
+ 213              		.loc 1 122 0
+ 214 0086 A381     		strh	r3, [r4, #12]	@ movhi
+ 123:Drivers/lvgl/lvgl/src/font/lv_font.c ****     dsc_out->is_placeholder = true;
+ 215              		.loc 1 123 0
+ 216 0088 A27B     		ldrb	r2, [r4, #14]	@ zero_extendqisi2
+ 217 008a 0121     		movs	r1, #1
+ 218 008c 61F30302 		bfi	r2, r1, #0, #4
+ 124:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+ 219              		.loc 1 124 0
+ 220 0090 D2B2     		uxtb	r2, r2
+ 221 0092 42F01002 		orr	r2, r2, #16
+ 222 0096 A273     		strb	r2, [r4, #14]
+ 126:Drivers/lvgl/lvgl/src/font/lv_font.c **** }
+ 223              		.loc 1 126 0
+ 224 0098 C1E7     		b	.L14
+ 225              	.L18:
+ 111:Drivers/lvgl/lvgl/src/font/lv_font.c ****         dsc_out->adv_w = dsc_out->box_w + 2;
+ 226              		.loc 1 111 0
+ 227 009a BAF90830 		ldrsh	r3, [r10, #8]
+ 228 009e 0222     		movs	r2, #2
+ 229 00a0 93FBF2F3 		sdiv	r3, r3, r2
+ 230 00a4 9BB2     		uxth	r3, r3
+ 231 00a6 E380     		strh	r3, [r4, #6]	@ movhi
+ 112:Drivers/lvgl/lvgl/src/font/lv_font.c **** #else
+ 232              		.loc 1 112 0
+ 233 00a8 1344     		add	r3, r3, r2
+ 234 00aa A380     		strh	r3, [r4, #4]	@ movhi
+ 235 00ac E5E7     		b	.L19
+ 236              		.cfi_endproc
+ 237              	.LFE8:
+ 239              		.section	.text.lv_font_get_glyph_width,"ax",%progbits
+ 240              		.align	1
+ 241              		.global	lv_font_get_glyph_width
+ 242              		.syntax unified
+ 243              		.thumb
+ 244              		.thumb_func
+ 245              		.fpu fpv5-d16
+ 247              	lv_font_get_glyph_width:
+ 248              	.LFB9:
+ 128:Drivers/lvgl/lvgl/src/font/lv_font.c **** 
+ 129:Drivers/lvgl/lvgl/src/font/lv_font.c **** /**
+ARM GAS  /tmp/ccyKINlq.s 			page 8
+
+
+ 130:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * Get the width of a glyph with kerning
+ 131:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * @param font pointer to a font
+ 132:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * @param letter a UNICODE letter
+ 133:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * @param letter_next the next letter after `letter`. Used for kerning
+ 134:Drivers/lvgl/lvgl/src/font/lv_font.c ****  * @return the width of the glyph
+ 135:Drivers/lvgl/lvgl/src/font/lv_font.c ****  */
+ 136:Drivers/lvgl/lvgl/src/font/lv_font.c **** uint16_t lv_font_get_glyph_width(const lv_font_t * font, uint32_t letter, uint32_t letter_next)
+ 137:Drivers/lvgl/lvgl/src/font/lv_font.c **** {
+ 249              		.loc 1 137 0
+ 250              		.cfi_startproc
+ 251              		@ args = 0, pretend = 0, frame = 16
+ 252              		@ frame_needed = 0, uses_anonymous_args = 0
+ 253              	.LVL13:
+ 138:Drivers/lvgl/lvgl/src/font/lv_font.c ****     LV_ASSERT_NULL(font);
+ 254              		.loc 1 138 0
+ 255 0000 00B9     		cbnz	r0, .L26
+ 256              	.L27:
+ 257 0002 FEE7     		b	.L27
+ 258              	.L26:
+ 137:Drivers/lvgl/lvgl/src/font/lv_font.c ****     LV_ASSERT_NULL(font);
+ 259              		.loc 1 137 0
+ 260 0004 00B5     		push	{lr}
+ 261              	.LCFI5:
+ 262              		.cfi_def_cfa_offset 4
+ 263              		.cfi_offset 14, -4
+ 264 0006 85B0     		sub	sp, sp, #20
+ 265              	.LCFI6:
+ 266              		.cfi_def_cfa_offset 24
+ 267 0008 1346     		mov	r3, r2
+ 268 000a 0A46     		mov	r2, r1
+ 269              	.LVL14:
+ 139:Drivers/lvgl/lvgl/src/font/lv_font.c ****     lv_font_glyph_dsc_t g;
+ 140:Drivers/lvgl/lvgl/src/font/lv_font.c ****     lv_font_get_glyph_dsc(font, &g, letter, letter_next);
+ 270              		.loc 1 140 0
+ 271 000c 6946     		mov	r1, sp
+ 272              	.LVL15:
+ 273 000e FFF7FEFF 		bl	lv_font_get_glyph_dsc
+ 274              	.LVL16:
+ 141:Drivers/lvgl/lvgl/src/font/lv_font.c ****     return g.adv_w;
+ 142:Drivers/lvgl/lvgl/src/font/lv_font.c **** }
+ 275              		.loc 1 142 0
+ 276 0012 BDF80400 		ldrh	r0, [sp, #4]
+ 277 0016 05B0     		add	sp, sp, #20
+ 278              	.LCFI7:
+ 279              		.cfi_def_cfa_offset 4
+ 280              		@ sp needed
+ 281 0018 5DF804FB 		ldr	pc, [sp], #4
+ 282              		.cfi_endproc
+ 283              	.LFE9:
+ 285              		.text
+ 286              	.Letext0:
+ 287              		.file 2 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 288              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ 289              		.file 4 "Drivers/lvgl/lvgl/src/font/../misc/lv_area.h"
+ 290              		.file 5 "Drivers/lvgl/lvgl/src/font/lv_font.h"
+ 291              		.file 6 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+ 292              		.file 7 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+ARM GAS  /tmp/ccyKINlq.s 			page 9
+
+
+ 293              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 294              		.file 9 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+ARM GAS  /tmp/ccyKINlq.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_font.c
+     /tmp/ccyKINlq.s:17     .text.lv_font_get_glyph_bitmap:0000000000000000 $t
+     /tmp/ccyKINlq.s:24     .text.lv_font_get_glyph_bitmap:0000000000000000 lv_font_get_glyph_bitmap
+     /tmp/ccyKINlq.s:57     .text.lv_font_get_glyph_dsc:0000000000000000 $t
+     /tmp/ccyKINlq.s:64     .text.lv_font_get_glyph_dsc:0000000000000000 lv_font_get_glyph_dsc
+     /tmp/ccyKINlq.s:240    .text.lv_font_get_glyph_width:0000000000000000 $t
+     /tmp/ccyKINlq.s:247    .text.lv_font_get_glyph_width:0000000000000000 lv_font_get_glyph_width
+
+NO UNDEFINED SYMBOLS

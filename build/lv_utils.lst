@@ -1,0 +1,199 @@
+ARM GAS  /tmp/cc29d4Jn.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_utils.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text._lv_utils_bsearch,"ax",%progbits
+  17              		.align	1
+  18              		.global	_lv_utils_bsearch
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu fpv5-d16
+  24              	_lv_utils_bsearch:
+  25              	.LFB0:
+  26              		.file 1 "Drivers/lvgl/lvgl/src/misc/lv_utils.c"
+   1:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** /**
+   2:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  * @file lv_utils.c
+   3:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *
+   4:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  */
+   5:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** 
+   6:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** /*********************
+   7:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *      INCLUDES
+   8:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *********************/
+   9:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** #include <stddef.h>
+  10:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** 
+  11:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** #include "lv_utils.h"
+  12:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** 
+  13:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** /*********************
+  14:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *      DEFINES
+  15:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *********************/
+  16:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** 
+  17:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** /**********************
+  18:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *      TYPEDEFS
+  19:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  **********************/
+  20:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** 
+  21:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** /**********************
+  22:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *  STATIC PROTOTYPES
+  23:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  **********************/
+  24:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** 
+  25:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** /**********************
+  26:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *  STATIC VARIABLES
+  27:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  **********************/
+  28:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** 
+  29:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** /**********************
+  30:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *      MACROS
+  31:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  **********************/
+  32:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** 
+ARM GAS  /tmp/cc29d4Jn.s 			page 2
+
+
+  33:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** /**********************
+  34:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *   GLOBAL FUNCTIONS
+  35:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  **********************/
+  36:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** 
+  37:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** /** Searches base[0] to base[n - 1] for an item that matches *key.
+  38:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *
+  39:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  * @note The function cmp must return negative if its first
+  40:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *  argument (the search key) is less than its second (a table entry),
+  41:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *  zero if equal, and positive if greater.
+  42:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *
+  43:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *  @note Items in the array must be in ascending order.
+  44:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *
+  45:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  * @param key    Pointer to item being searched for
+  46:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  * @param base   Pointer to first element to search
+  47:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  * @param n      Number of elements
+  48:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  * @param size   Size of each element
+  49:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  * @param cmp    Pointer to comparison function (see #unicode_list_compare as a comparison function
+  50:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  * example)
+  51:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  *
+  52:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  * @return a pointer to a matching item, or NULL if none exists.
+  53:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****  */
+  54:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** void * _lv_utils_bsearch(const void * key, const void * base, uint32_t n, uint32_t size,
+  55:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****                          int32_t (*cmp)(const void * pRef, const void * pElement))
+  56:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** {
+  27              		.loc 1 56 0
+  28              		.cfi_startproc
+  29              		@ args = 4, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              	.LVL0:
+  32 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 32
+  35              		.cfi_offset 4, -32
+  36              		.cfi_offset 5, -28
+  37              		.cfi_offset 6, -24
+  38              		.cfi_offset 7, -20
+  39              		.cfi_offset 8, -16
+  40              		.cfi_offset 9, -12
+  41              		.cfi_offset 10, -8
+  42              		.cfi_offset 14, -4
+  43 0004 8246     		mov	r10, r0
+  44 0006 8846     		mov	r8, r1
+  45 0008 1446     		mov	r4, r2
+  46 000a 1F46     		mov	r7, r3
+  47 000c DDF82090 		ldr	r9, [sp, #32]
+  48              	.LVL1:
+  57:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****     const char * middle;
+  58:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****     int32_t c;
+  59:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** 
+  60:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****     for(middle = base; n != 0;) {
+  49              		.loc 1 60 0
+  50 0010 02E0     		b	.L2
+  51              	.LVL2:
+  52              	.L3:
+  61:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****         middle += (n / 2) * size;
+  62:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****         if((c = (*cmp)(key, middle)) > 0) {
+  63:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****             n    = (n / 2) - ((n & 1) == 0);
+ARM GAS  /tmp/cc29d4Jn.s 			page 3
+
+
+  64:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****             base = (middle += size);
+  65:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****         }
+  66:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****         else if(c < 0) {
+  53              		.loc 1 66 0
+  54 0012 0028     		cmp	r0, #0
+  55 0014 13DA     		bge	.L1
+  67:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****             n /= 2;
+  56              		.loc 1 67 0
+  57 0016 2C46     		mov	r4, r5
+  58              	.LVL3:
+  59              	.L2:
+  60:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****         middle += (n / 2) * size;
+  60              		.loc 1 60 0 discriminator 1
+  61 0018 84B1     		cbz	r4, .L8
+  61:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****         middle += (n / 2) * size;
+  62              		.loc 1 61 0
+  63 001a 6508     		lsrs	r5, r4, #1
+  64 001c 07FB0586 		mla	r6, r7, r5, r8
+  65              	.LVL4:
+  62:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****             n    = (n / 2) - ((n & 1) == 0);
+  66              		.loc 1 62 0
+  67 0020 3146     		mov	r1, r6
+  68 0022 5046     		mov	r0, r10
+  69 0024 C847     		blx	r9
+  70              	.LVL5:
+  71 0026 0028     		cmp	r0, #0
+  72 0028 F3DD     		ble	.L3
+  63:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****             base = (middle += size);
+  73              		.loc 1 63 0
+  74 002a 14F0010F 		tst	r4, #1
+  75 002e 0CBF     		ite	eq
+  76 0030 0124     		moveq	r4, #1
+  77              	.LVL6:
+  78 0032 0024     		movne	r4, #0
+  79 0034 2C1B     		subs	r4, r5, r4
+  80              	.LVL7:
+  64:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****         }
+  81              		.loc 1 64 0
+  82 0036 06EB0708 		add	r8, r6, r7
+  83              	.LVL8:
+  84 003a EDE7     		b	.L2
+  85              	.LVL9:
+  86              	.L8:
+  68:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****             middle = base;
+  69:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****         }
+  70:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****         else {
+  71:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****             return (char *)middle;
+  72:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****         }
+  73:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****     }
+  74:Drivers/lvgl/lvgl/src/misc/lv_utils.c ****     return NULL;
+  87              		.loc 1 74 0
+  88 003c 0026     		movs	r6, #0
+  89              	.LVL10:
+  90              	.L1:
+  75:Drivers/lvgl/lvgl/src/misc/lv_utils.c **** }
+  91              		.loc 1 75 0
+  92 003e 3046     		mov	r0, r6
+ARM GAS  /tmp/cc29d4Jn.s 			page 4
+
+
+  93 0040 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+  94              		.cfi_endproc
+  95              	.LFE0:
+  97              		.text
+  98              	.Letext0:
+  99              		.file 2 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 100              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ARM GAS  /tmp/cc29d4Jn.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_utils.c
+     /tmp/cc29d4Jn.s:17     .text._lv_utils_bsearch:0000000000000000 $t
+     /tmp/cc29d4Jn.s:24     .text._lv_utils_bsearch:0000000000000000 _lv_utils_bsearch
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,155 @@
+ARM GAS  /tmp/cczdgAmU.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_draw.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.lv_draw_init,"ax",%progbits
+  17              		.align	1
+  18              		.global	lv_draw_init
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu fpv5-d16
+  24              	lv_draw_init:
+  25              	.LFB56:
+  26              		.file 1 "Drivers/lvgl/lvgl/src/draw/lv_draw.c"
+   1:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** /**
+   2:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  * @file lv_draw.c
+   3:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  *
+   4:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  */
+   5:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** 
+   6:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** /*********************
+   7:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  *      INCLUDES
+   8:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  *********************/
+   9:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** #include "lv_draw.h"
+  10:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** #include "sw/lv_draw_sw.h"
+  11:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** 
+  12:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** /*********************
+  13:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  *      DEFINES
+  14:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  *********************/
+  15:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** 
+  16:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** /**********************
+  17:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  *      TYPEDEFS
+  18:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  **********************/
+  19:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** 
+  20:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** /**********************
+  21:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  *  STATIC PROTOTYPES
+  22:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  **********************/
+  23:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** 
+  24:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** /**********************
+  25:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  *  STATIC VARIABLES
+  26:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  **********************/
+  27:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** 
+  28:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** /**********************
+  29:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  *  STATIC VARIABLES
+  30:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  **********************/
+  31:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** 
+  32:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** /**********************
+ARM GAS  /tmp/cczdgAmU.s 			page 2
+
+
+  33:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  *      MACROS
+  34:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  **********************/
+  35:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** 
+  36:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** /**********************
+  37:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  *   GLOBAL FUNCTIONS
+  38:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****  **********************/
+  39:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** 
+  40:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** void lv_draw_init(void)
+  41:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** {
+  27              		.loc 1 41 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  42:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****     /*Nothing to init now*/
+  43:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** }
+  32              		.loc 1 43 0
+  33 0000 7047     		bx	lr
+  34              		.cfi_endproc
+  35              	.LFE56:
+  37              		.section	.text.lv_draw_wait_for_finish,"ax",%progbits
+  38              		.align	1
+  39              		.global	lv_draw_wait_for_finish
+  40              		.syntax unified
+  41              		.thumb
+  42              		.thumb_func
+  43              		.fpu fpv5-d16
+  45              	lv_draw_wait_for_finish:
+  46              	.LFB57:
+  44:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** 
+  45:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** void lv_draw_wait_for_finish(lv_draw_ctx_t * draw_ctx)
+  46:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** {
+  47              		.loc 1 46 0
+  48              		.cfi_startproc
+  49              		@ args = 0, pretend = 0, frame = 0
+  50              		@ frame_needed = 0, uses_anonymous_args = 0
+  51              	.LVL0:
+  52 0000 08B5     		push	{r3, lr}
+  53              	.LCFI0:
+  54              		.cfi_def_cfa_offset 8
+  55              		.cfi_offset 3, -8
+  56              		.cfi_offset 14, -4
+  47:Drivers/lvgl/lvgl/src/draw/lv_draw.c ****     if(draw_ctx->wait_for_finish) draw_ctx->wait_for_finish(draw_ctx);
+  57              		.loc 1 47 0
+  58 0002 436B     		ldr	r3, [r0, #52]
+  59 0004 03B1     		cbz	r3, .L2
+  60              		.loc 1 47 0 is_stmt 0 discriminator 1
+  61 0006 9847     		blx	r3
+  62              	.LVL1:
+  63              	.L2:
+  48:Drivers/lvgl/lvgl/src/draw/lv_draw.c **** }
+  64              		.loc 1 48 0 is_stmt 1
+  65 0008 08BD     		pop	{r3, pc}
+  66              		.cfi_endproc
+  67              	.LFE57:
+  69              		.text
+  70              	.Letext0:
+ARM GAS  /tmp/cczdgAmU.s 			page 3
+
+
+  71              		.file 2 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+  72              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+  73              		.file 4 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+  74              		.file 5 "Drivers/lvgl/lvgl/src/draw/../misc/../font/../misc/lv_area.h"
+  75              		.file 6 "Drivers/lvgl/lvgl/src/draw/../misc/../font/lv_font.h"
+  76              		.file 7 "Drivers/lvgl/lvgl/src/draw/../misc/lv_types.h"
+  77              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+  78              		.file 9 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+  79              		.file 10 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+  80              		.file 11 "Drivers/lvgl/lvgl/src/draw/../misc/lv_color.h"
+  81              		.file 12 "Drivers/lvgl/lvgl/src/draw/../misc/lv_txt.h"
+  82              		.file 13 "Drivers/lvgl/lvgl/src/draw/../misc/lv_bidi.h"
+  83              		.file 14 "Drivers/lvgl/lvgl/src/draw/../misc/lv_style.h"
+  84              		.file 15 "Drivers/lvgl/lvgl/src/draw/lv_img_buf.h"
+  85              		.file 16 "Drivers/lvgl/lvgl/src/draw/lv_draw_rect.h"
+  86              		.file 17 "Drivers/lvgl/lvgl/src/draw/lv_draw_label.h"
+  87              		.file 18 "Drivers/lvgl/lvgl/src/draw/lv_draw_img.h"
+  88              		.file 19 "Drivers/lvgl/lvgl/src/draw/lv_draw_line.h"
+  89              		.file 20 "Drivers/lvgl/lvgl/src/draw/lv_draw_arc.h"
+  90              		.file 21 "Drivers/lvgl/lvgl/src/draw/lv_draw_layer.h"
+  91              		.file 22 "Drivers/lvgl/lvgl/src/draw/lv_draw.h"
+ARM GAS  /tmp/cczdgAmU.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_draw.c
+     /tmp/cczdgAmU.s:17     .text.lv_draw_init:0000000000000000 $t
+     /tmp/cczdgAmU.s:24     .text.lv_draw_init:0000000000000000 lv_draw_init
+     /tmp/cczdgAmU.s:38     .text.lv_draw_wait_for_finish:0000000000000000 $t
+     /tmp/cczdgAmU.s:45     .text.lv_draw_wait_for_finish:0000000000000000 lv_draw_wait_for_finish
+
+NO UNDEFINED SYMBOLS

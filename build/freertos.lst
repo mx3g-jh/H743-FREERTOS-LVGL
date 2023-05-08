@@ -1,0 +1,721 @@
+ARM GAS  /tmp/ccsP8GJq.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"freertos.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.StartDefaultTask,"ax",%progbits
+  17              		.align	1
+  18              		.global	StartDefaultTask
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu fpv5-d16
+  24              	StartDefaultTask:
+  25              	.LFB351:
+  26              		.file 1 "Core/Src/freertos.c"
+   1:Core/Src/freertos.c **** /* USER CODE BEGIN Header */
+   2:Core/Src/freertos.c **** /**
+   3:Core/Src/freertos.c ****   ******************************************************************************
+   4:Core/Src/freertos.c ****   * File Name          : freertos.c
+   5:Core/Src/freertos.c ****   * Description        : Code for freertos applications
+   6:Core/Src/freertos.c ****   ******************************************************************************
+   7:Core/Src/freertos.c ****   * @attention
+   8:Core/Src/freertos.c ****   *
+   9:Core/Src/freertos.c ****   * Copyright (c) 2023 STMicroelectronics.
+  10:Core/Src/freertos.c ****   * All rights reserved.
+  11:Core/Src/freertos.c ****   *
+  12:Core/Src/freertos.c ****   * This software is licensed under terms that can be found in the LICENSE file
+  13:Core/Src/freertos.c ****   * in the root directory of this software component.
+  14:Core/Src/freertos.c ****   * If no LICENSE file comes with this software, it is provided AS-IS.
+  15:Core/Src/freertos.c ****   *
+  16:Core/Src/freertos.c ****   ******************************************************************************
+  17:Core/Src/freertos.c ****   */
+  18:Core/Src/freertos.c **** /* USER CODE END Header */
+  19:Core/Src/freertos.c **** 
+  20:Core/Src/freertos.c **** /* Includes ------------------------------------------------------------------*/
+  21:Core/Src/freertos.c **** #include "FreeRTOS.h"
+  22:Core/Src/freertos.c **** #include "task.h"
+  23:Core/Src/freertos.c **** #include "main.h"
+  24:Core/Src/freertos.c **** #include "cmsis_os.h"
+  25:Core/Src/freertos.c **** 
+  26:Core/Src/freertos.c **** /* Private includes ----------------------------------------------------------*/
+  27:Core/Src/freertos.c **** /* USER CODE BEGIN Includes */
+  28:Core/Src/freertos.c **** #include "lvgl.h"
+  29:Core/Src/freertos.c **** #include "lv_demos.h"
+  30:Core/Src/freertos.c **** #include "st7789.h"
+  31:Core/Src/freertos.c **** /* USER CODE END Includes */
+  32:Core/Src/freertos.c **** 
+ARM GAS  /tmp/ccsP8GJq.s 			page 2
+
+
+  33:Core/Src/freertos.c **** /* Private typedef -----------------------------------------------------------*/
+  34:Core/Src/freertos.c **** /* USER CODE BEGIN PTD */
+  35:Core/Src/freertos.c **** 
+  36:Core/Src/freertos.c **** /* USER CODE END PTD */
+  37:Core/Src/freertos.c **** 
+  38:Core/Src/freertos.c **** /* Private define ------------------------------------------------------------*/
+  39:Core/Src/freertos.c **** /* USER CODE BEGIN PD */
+  40:Core/Src/freertos.c **** 
+  41:Core/Src/freertos.c **** /* USER CODE END PD */
+  42:Core/Src/freertos.c **** 
+  43:Core/Src/freertos.c **** /* Private macro -------------------------------------------------------------*/
+  44:Core/Src/freertos.c **** /* USER CODE BEGIN PM */
+  45:Core/Src/freertos.c **** 
+  46:Core/Src/freertos.c **** /* USER CODE END PM */
+  47:Core/Src/freertos.c **** 
+  48:Core/Src/freertos.c **** /* Private variables ---------------------------------------------------------*/
+  49:Core/Src/freertos.c **** /* USER CODE BEGIN Variables */
+  50:Core/Src/freertos.c **** 
+  51:Core/Src/freertos.c **** /* USER CODE END Variables */
+  52:Core/Src/freertos.c **** /* Definitions for defaultTask */
+  53:Core/Src/freertos.c **** osThreadId_t defaultTaskHandle;
+  54:Core/Src/freertos.c **** const osThreadAttr_t defaultTask_attributes = {
+  55:Core/Src/freertos.c ****   .name = "defaultTask",
+  56:Core/Src/freertos.c ****   .stack_size = 128 * 4,
+  57:Core/Src/freertos.c ****   .priority = (osPriority_t) osPriorityNormal,
+  58:Core/Src/freertos.c **** };
+  59:Core/Src/freertos.c **** /* Definitions for LEDTask */
+  60:Core/Src/freertos.c **** osThreadId_t LEDTaskHandle;
+  61:Core/Src/freertos.c **** const osThreadAttr_t LEDTask_attributes = {
+  62:Core/Src/freertos.c ****   .name = "LEDTask",
+  63:Core/Src/freertos.c ****   .stack_size = 128 * 4,
+  64:Core/Src/freertos.c ****   .priority = (osPriority_t) osPriorityNormal,
+  65:Core/Src/freertos.c **** };
+  66:Core/Src/freertos.c **** /* Definitions for LvglTimer_Task */
+  67:Core/Src/freertos.c **** osThreadId_t LvglTimer_TaskHandle;
+  68:Core/Src/freertos.c **** const osThreadAttr_t LvglTimer_Task_attributes = {
+  69:Core/Src/freertos.c ****   .name = "LvglTimer_Task",
+  70:Core/Src/freertos.c ****   .stack_size = 512 * 4,
+  71:Core/Src/freertos.c ****   .priority = (osPriority_t) osPriorityNormal,
+  72:Core/Src/freertos.c **** };
+  73:Core/Src/freertos.c **** /* Definitions for LVGLTask */
+  74:Core/Src/freertos.c **** osThreadId_t LVGLTaskHandle;
+  75:Core/Src/freertos.c **** const osThreadAttr_t LVGLTask_attributes = {
+  76:Core/Src/freertos.c ****   .name = "LVGLTask",
+  77:Core/Src/freertos.c ****   .stack_size = 512 * 4,
+  78:Core/Src/freertos.c ****   .priority = (osPriority_t) osPriorityNormal,
+  79:Core/Src/freertos.c **** };
+  80:Core/Src/freertos.c **** 
+  81:Core/Src/freertos.c **** /* Private function prototypes -----------------------------------------------*/
+  82:Core/Src/freertos.c **** /* USER CODE BEGIN FunctionPrototypes */
+  83:Core/Src/freertos.c **** 
+  84:Core/Src/freertos.c **** /* USER CODE END FunctionPrototypes */
+  85:Core/Src/freertos.c **** 
+  86:Core/Src/freertos.c **** void StartDefaultTask(void *argument);
+  87:Core/Src/freertos.c **** void StartLEDTask(void *argument);
+  88:Core/Src/freertos.c **** void StartLvglTimerTask(void *argument);
+  89:Core/Src/freertos.c **** void StartLVGLTask(void *argument);
+ARM GAS  /tmp/ccsP8GJq.s 			page 3
+
+
+  90:Core/Src/freertos.c **** 
+  91:Core/Src/freertos.c **** void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
+  92:Core/Src/freertos.c **** 
+  93:Core/Src/freertos.c **** /**
+  94:Core/Src/freertos.c ****   * @brief  FreeRTOS initialization
+  95:Core/Src/freertos.c ****   * @param  None
+  96:Core/Src/freertos.c ****   * @retval None
+  97:Core/Src/freertos.c ****   */
+  98:Core/Src/freertos.c **** void MX_FREERTOS_Init(void) {
+  99:Core/Src/freertos.c ****   /* USER CODE BEGIN Init */
+ 100:Core/Src/freertos.c **** 
+ 101:Core/Src/freertos.c ****   /* USER CODE END Init */
+ 102:Core/Src/freertos.c **** 
+ 103:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_MUTEX */
+ 104:Core/Src/freertos.c ****   /* add mutexes, ... */
+ 105:Core/Src/freertos.c ****   /* USER CODE END RTOS_MUTEX */
+ 106:Core/Src/freertos.c **** 
+ 107:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_SEMAPHORES */
+ 108:Core/Src/freertos.c ****   /* add semaphores, ... */
+ 109:Core/Src/freertos.c ****   /* USER CODE END RTOS_SEMAPHORES */
+ 110:Core/Src/freertos.c **** 
+ 111:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_TIMERS */
+ 112:Core/Src/freertos.c ****   /* start timers, add new ones, ... */
+ 113:Core/Src/freertos.c ****   /* USER CODE END RTOS_TIMERS */
+ 114:Core/Src/freertos.c **** 
+ 115:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_QUEUES */
+ 116:Core/Src/freertos.c ****   /* add queues, ... */
+ 117:Core/Src/freertos.c ****   /* USER CODE END RTOS_QUEUES */
+ 118:Core/Src/freertos.c **** 
+ 119:Core/Src/freertos.c ****   /* Create the thread(s) */
+ 120:Core/Src/freertos.c ****   /* creation of defaultTask */
+ 121:Core/Src/freertos.c ****   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+ 122:Core/Src/freertos.c **** 
+ 123:Core/Src/freertos.c ****   /* creation of LEDTask */
+ 124:Core/Src/freertos.c ****   LEDTaskHandle = osThreadNew(StartLEDTask, NULL, &LEDTask_attributes);
+ 125:Core/Src/freertos.c **** 
+ 126:Core/Src/freertos.c ****   /* creation of LvglTimer_Task */
+ 127:Core/Src/freertos.c ****   LvglTimer_TaskHandle = osThreadNew(StartLvglTimerTask, NULL, &LvglTimer_Task_attributes);
+ 128:Core/Src/freertos.c **** 
+ 129:Core/Src/freertos.c ****   /* creation of LVGLTask */
+ 130:Core/Src/freertos.c ****   LVGLTaskHandle = osThreadNew(StartLVGLTask, NULL, &LVGLTask_attributes);
+ 131:Core/Src/freertos.c **** 
+ 132:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_THREADS */
+ 133:Core/Src/freertos.c ****   /* add threads, ... */
+ 134:Core/Src/freertos.c ****   /* USER CODE END RTOS_THREADS */
+ 135:Core/Src/freertos.c **** 
+ 136:Core/Src/freertos.c ****   /* USER CODE BEGIN RTOS_EVENTS */
+ 137:Core/Src/freertos.c ****   /* add events, ... */
+ 138:Core/Src/freertos.c ****   /* USER CODE END RTOS_EVENTS */
+ 139:Core/Src/freertos.c **** 
+ 140:Core/Src/freertos.c **** }
+ 141:Core/Src/freertos.c **** 
+ 142:Core/Src/freertos.c **** /* USER CODE BEGIN Header_StartDefaultTask */
+ 143:Core/Src/freertos.c **** /**
+ 144:Core/Src/freertos.c ****   * @brief  Function implementing the defaultTask thread.
+ 145:Core/Src/freertos.c ****   * @param  argument: Not used
+ 146:Core/Src/freertos.c ****   * @retval None
+ARM GAS  /tmp/ccsP8GJq.s 			page 4
+
+
+ 147:Core/Src/freertos.c ****   */
+ 148:Core/Src/freertos.c **** /* USER CODE END Header_StartDefaultTask */
+ 149:Core/Src/freertos.c **** void StartDefaultTask(void *argument)
+ 150:Core/Src/freertos.c **** {
+  27              		.loc 1 150 0
+  28              		.cfi_startproc
+  29              		@ Volatile: function does not return.
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              	.LVL0:
+  33 0000 08B5     		push	{r3, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 3, -8
+  37              		.cfi_offset 14, -4
+  38              	.LVL1:
+  39              	.L2:
+ 151:Core/Src/freertos.c ****   /* USER CODE BEGIN StartDefaultTask */
+ 152:Core/Src/freertos.c ****   /* Infinite loop */
+ 153:Core/Src/freertos.c ****   for(;;)
+ 154:Core/Src/freertos.c ****   {
+ 155:Core/Src/freertos.c ****     osDelay(1);
+  40              		.loc 1 155 0 discriminator 1
+  41 0002 0120     		movs	r0, #1
+  42 0004 FFF7FEFF 		bl	osDelay
+  43              	.LVL2:
+  44 0008 FBE7     		b	.L2
+  45              		.cfi_endproc
+  46              	.LFE351:
+  48              		.section	.text.StartLEDTask,"ax",%progbits
+  49              		.align	1
+  50              		.global	StartLEDTask
+  51              		.syntax unified
+  52              		.thumb
+  53              		.thumb_func
+  54              		.fpu fpv5-d16
+  56              	StartLEDTask:
+  57              	.LFB352:
+ 156:Core/Src/freertos.c ****   }
+ 157:Core/Src/freertos.c ****   /* USER CODE END StartDefaultTask */
+ 158:Core/Src/freertos.c **** }
+ 159:Core/Src/freertos.c **** 
+ 160:Core/Src/freertos.c **** /* USER CODE BEGIN Header_StartLEDTask */
+ 161:Core/Src/freertos.c **** /**
+ 162:Core/Src/freertos.c **** * @brief Function implementing the LEDTask thread.
+ 163:Core/Src/freertos.c **** * @param argument: Not used
+ 164:Core/Src/freertos.c **** * @retval None
+ 165:Core/Src/freertos.c **** */
+ 166:Core/Src/freertos.c **** /* USER CODE END Header_StartLEDTask */
+ 167:Core/Src/freertos.c **** void StartLEDTask(void *argument)
+ 168:Core/Src/freertos.c **** {
+  58              		.loc 1 168 0
+  59              		.cfi_startproc
+  60              		@ Volatile: function does not return.
+  61              		@ args = 0, pretend = 0, frame = 0
+  62              		@ frame_needed = 0, uses_anonymous_args = 0
+  63              	.LVL3:
+ARM GAS  /tmp/ccsP8GJq.s 			page 5
+
+
+  64 0000 08B5     		push	{r3, lr}
+  65              	.LCFI1:
+  66              		.cfi_def_cfa_offset 8
+  67              		.cfi_offset 3, -8
+  68              		.cfi_offset 14, -4
+  69              	.LVL4:
+  70              	.L5:
+ 169:Core/Src/freertos.c ****   /* USER CODE BEGIN StartLEDTask */
+ 170:Core/Src/freertos.c ****   /* Infinite loop */
+ 171:Core/Src/freertos.c ****   for(;;)
+ 172:Core/Src/freertos.c ****   {
+ 173:Core/Src/freertos.c ****     osDelay(50);
+  71              		.loc 1 173 0 discriminator 1
+  72 0002 3220     		movs	r0, #50
+  73 0004 FFF7FEFF 		bl	osDelay
+  74              	.LVL5:
+ 174:Core/Src/freertos.c ****     // LL_GPIO_TogglePin(BLUE_LED_GPIO_Port,BLUE_LED_Pin);
+ 175:Core/Src/freertos.c ****     HAL_GPIO_TogglePin(BLUE_LED_GPIO_Port,BLUE_LED_Pin);
+  75              		.loc 1 175 0 discriminator 1
+  76 0008 4FF40051 		mov	r1, #8192
+  77 000c 0348     		ldr	r0, .L7
+  78 000e FFF7FEFF 		bl	HAL_GPIO_TogglePin
+  79              	.LVL6:
+ 176:Core/Src/freertos.c ****     osDelay(50);
+  80              		.loc 1 176 0 discriminator 1
+  81 0012 3220     		movs	r0, #50
+  82 0014 FFF7FEFF 		bl	osDelay
+  83              	.LVL7:
+  84 0018 F3E7     		b	.L5
+  85              	.L8:
+  86 001a 00BF     		.align	2
+  87              	.L7:
+  88 001c 00080258 		.word	1476528128
+  89              		.cfi_endproc
+  90              	.LFE352:
+  92              		.section	.text.StartLvglTimerTask,"ax",%progbits
+  93              		.align	1
+  94              		.global	StartLvglTimerTask
+  95              		.syntax unified
+  96              		.thumb
+  97              		.thumb_func
+  98              		.fpu fpv5-d16
+ 100              	StartLvglTimerTask:
+ 101              	.LFB353:
+ 177:Core/Src/freertos.c ****   }
+ 178:Core/Src/freertos.c ****   /* USER CODE END StartLEDTask */
+ 179:Core/Src/freertos.c **** }
+ 180:Core/Src/freertos.c **** 
+ 181:Core/Src/freertos.c **** /* USER CODE BEGIN Header_StartLvglTimerTask */
+ 182:Core/Src/freertos.c **** /**
+ 183:Core/Src/freertos.c **** * @brief Function implementing the LvglTimer_Task thread.
+ 184:Core/Src/freertos.c **** * @param argument: Not used
+ 185:Core/Src/freertos.c **** * @retval None
+ 186:Core/Src/freertos.c **** */
+ 187:Core/Src/freertos.c **** /* USER CODE END Header_StartLvglTimerTask */
+ 188:Core/Src/freertos.c **** void StartLvglTimerTask(void *argument)
+ 189:Core/Src/freertos.c **** {
+ARM GAS  /tmp/ccsP8GJq.s 			page 6
+
+
+ 102              		.loc 1 189 0
+ 103              		.cfi_startproc
+ 104              		@ Volatile: function does not return.
+ 105              		@ args = 0, pretend = 0, frame = 0
+ 106              		@ frame_needed = 0, uses_anonymous_args = 0
+ 107              	.LVL8:
+ 108 0000 08B5     		push	{r3, lr}
+ 109              	.LCFI2:
+ 110              		.cfi_def_cfa_offset 8
+ 111              		.cfi_offset 3, -8
+ 112              		.cfi_offset 14, -4
+ 113              	.LVL9:
+ 114              	.L10:
+ 190:Core/Src/freertos.c ****   /* USER CODE BEGIN StartLvglTimerTask */
+ 191:Core/Src/freertos.c ****   /* Infinite loop */
+ 192:Core/Src/freertos.c ****   for(;;)
+ 193:Core/Src/freertos.c ****   {
+ 194:Core/Src/freertos.c ****     lv_timer_handler();
+ 115              		.loc 1 194 0 discriminator 1
+ 116 0002 FFF7FEFF 		bl	lv_timer_handler
+ 117              	.LVL10:
+ 195:Core/Src/freertos.c ****     osDelay(5);
+ 118              		.loc 1 195 0 discriminator 1
+ 119 0006 0520     		movs	r0, #5
+ 120 0008 FFF7FEFF 		bl	osDelay
+ 121              	.LVL11:
+ 122 000c F9E7     		b	.L10
+ 123              		.cfi_endproc
+ 124              	.LFE353:
+ 126              		.section	.text.StartLVGLTask,"ax",%progbits
+ 127              		.align	1
+ 128              		.global	StartLVGLTask
+ 129              		.syntax unified
+ 130              		.thumb
+ 131              		.thumb_func
+ 132              		.fpu fpv5-d16
+ 134              	StartLVGLTask:
+ 135              	.LFB354:
+ 196:Core/Src/freertos.c ****   }
+ 197:Core/Src/freertos.c ****   /* USER CODE END StartLvglTimerTask */
+ 198:Core/Src/freertos.c **** }
+ 199:Core/Src/freertos.c **** 
+ 200:Core/Src/freertos.c **** /* USER CODE BEGIN Header_StartLVGLTask */
+ 201:Core/Src/freertos.c **** /**
+ 202:Core/Src/freertos.c **** * @brief Function implementing the LVGLTask thread.
+ 203:Core/Src/freertos.c **** * @param argument: Not used
+ 204:Core/Src/freertos.c **** * @retval None
+ 205:Core/Src/freertos.c **** */
+ 206:Core/Src/freertos.c **** /* USER CODE END Header_StartLVGLTask */
+ 207:Core/Src/freertos.c **** void StartLVGLTask(void *argument)
+ 208:Core/Src/freertos.c **** {
+ 136              		.loc 1 208 0
+ 137              		.cfi_startproc
+ 138              		@ Volatile: function does not return.
+ 139              		@ args = 0, pretend = 0, frame = 0
+ 140              		@ frame_needed = 0, uses_anonymous_args = 0
+ 141              	.LVL12:
+ARM GAS  /tmp/ccsP8GJq.s 			page 7
+
+
+ 142 0000 08B5     		push	{r3, lr}
+ 143              	.LCFI3:
+ 144              		.cfi_def_cfa_offset 8
+ 145              		.cfi_offset 3, -8
+ 146              		.cfi_offset 14, -4
+ 209:Core/Src/freertos.c ****   /* USER CODE BEGIN StartLVGLTask */
+ 210:Core/Src/freertos.c ****   lv_init();					//LVGL初始化
+ 147              		.loc 1 210 0
+ 148 0002 FFF7FEFF 		bl	lv_init
+ 149              	.LVL13:
+ 211:Core/Src/freertos.c **** 	// lv_port_disp_init();
+ 212:Core/Src/freertos.c **** // lv_port_indev_init();
+ 213:Core/Src/freertos.c ****   // ST7789_Init();
+ 214:Core/Src/freertos.c ****   Display_init(0);
+ 150              		.loc 1 214 0
+ 151 0006 0020     		movs	r0, #0
+ 152 0008 FFF7FEFF 		bl	Display_init
+ 153              	.LVL14:
+ 215:Core/Src/freertos.c ****   // osDelay(50);
+ 216:Core/Src/freertos.c ****   //  ST7789_Test();
+ 217:Core/Src/freertos.c ****   lv_demo_stress();
+ 154              		.loc 1 217 0
+ 155 000c FFF7FEFF 		bl	lv_demo_stress
+ 156              	.LVL15:
+ 157              	.L13:
+ 218:Core/Src/freertos.c ****   /* Infinite loop */
+ 219:Core/Src/freertos.c ****   for(;;)
+ 220:Core/Src/freertos.c ****   {
+ 221:Core/Src/freertos.c ****     // osDelay(500);
+ 222:Core/Src/freertos.c ****     osDelay(1);
+ 158              		.loc 1 222 0 discriminator 1
+ 159 0010 0120     		movs	r0, #1
+ 160 0012 FFF7FEFF 		bl	osDelay
+ 161              	.LVL16:
+ 162 0016 FBE7     		b	.L13
+ 163              		.cfi_endproc
+ 164              	.LFE354:
+ 166              		.section	.text.MX_FREERTOS_Init,"ax",%progbits
+ 167              		.align	1
+ 168              		.global	MX_FREERTOS_Init
+ 169              		.syntax unified
+ 170              		.thumb
+ 171              		.thumb_func
+ 172              		.fpu fpv5-d16
+ 174              	MX_FREERTOS_Init:
+ 175              	.LFB350:
+  98:Core/Src/freertos.c ****   /* USER CODE BEGIN Init */
+ 176              		.loc 1 98 0
+ 177              		.cfi_startproc
+ 178              		@ args = 0, pretend = 0, frame = 0
+ 179              		@ frame_needed = 0, uses_anonymous_args = 0
+ 180 0000 08B5     		push	{r3, lr}
+ 181              	.LCFI4:
+ 182              		.cfi_def_cfa_offset 8
+ 183              		.cfi_offset 3, -8
+ 184              		.cfi_offset 14, -4
+ 121:Core/Src/freertos.c **** 
+ARM GAS  /tmp/ccsP8GJq.s 			page 8
+
+
+ 185              		.loc 1 121 0
+ 186 0002 0E4A     		ldr	r2, .L17
+ 187 0004 0021     		movs	r1, #0
+ 188 0006 0E48     		ldr	r0, .L17+4
+ 189 0008 FFF7FEFF 		bl	osThreadNew
+ 190              	.LVL17:
+ 191 000c 0D4B     		ldr	r3, .L17+8
+ 192 000e 1860     		str	r0, [r3]
+ 124:Core/Src/freertos.c **** 
+ 193              		.loc 1 124 0
+ 194 0010 0D4A     		ldr	r2, .L17+12
+ 195 0012 0021     		movs	r1, #0
+ 196 0014 0D48     		ldr	r0, .L17+16
+ 197 0016 FFF7FEFF 		bl	osThreadNew
+ 198              	.LVL18:
+ 199 001a 0D4B     		ldr	r3, .L17+20
+ 200 001c 1860     		str	r0, [r3]
+ 127:Core/Src/freertos.c **** 
+ 201              		.loc 1 127 0
+ 202 001e 0D4A     		ldr	r2, .L17+24
+ 203 0020 0021     		movs	r1, #0
+ 204 0022 0D48     		ldr	r0, .L17+28
+ 205 0024 FFF7FEFF 		bl	osThreadNew
+ 206              	.LVL19:
+ 207 0028 0C4B     		ldr	r3, .L17+32
+ 208 002a 1860     		str	r0, [r3]
+ 130:Core/Src/freertos.c **** 
+ 209              		.loc 1 130 0
+ 210 002c 0C4A     		ldr	r2, .L17+36
+ 211 002e 0021     		movs	r1, #0
+ 212 0030 0C48     		ldr	r0, .L17+40
+ 213 0032 FFF7FEFF 		bl	osThreadNew
+ 214              	.LVL20:
+ 215 0036 0C4B     		ldr	r3, .L17+44
+ 216 0038 1860     		str	r0, [r3]
+ 140:Core/Src/freertos.c **** 
+ 217              		.loc 1 140 0
+ 218 003a 08BD     		pop	{r3, pc}
+ 219              	.L18:
+ 220              		.align	2
+ 221              	.L17:
+ 222 003c 00000000 		.word	.LANCHOR0
+ 223 0040 00000000 		.word	StartDefaultTask
+ 224 0044 00000000 		.word	defaultTaskHandle
+ 225 0048 00000000 		.word	.LANCHOR1
+ 226 004c 00000000 		.word	StartLEDTask
+ 227 0050 00000000 		.word	LEDTaskHandle
+ 228 0054 00000000 		.word	.LANCHOR2
+ 229 0058 00000000 		.word	StartLvglTimerTask
+ 230 005c 00000000 		.word	LvglTimer_TaskHandle
+ 231 0060 00000000 		.word	.LANCHOR3
+ 232 0064 00000000 		.word	StartLVGLTask
+ 233 0068 00000000 		.word	LVGLTaskHandle
+ 234              		.cfi_endproc
+ 235              	.LFE350:
+ 237              		.section	.text.vApplicationTickHook,"ax",%progbits
+ 238              		.align	1
+ARM GAS  /tmp/ccsP8GJq.s 			page 9
+
+
+ 239              		.global	vApplicationTickHook
+ 240              		.syntax unified
+ 241              		.thumb
+ 242              		.thumb_func
+ 243              		.fpu fpv5-d16
+ 245              	vApplicationTickHook:
+ 246              	.LFB355:
+ 223:Core/Src/freertos.c ****   }
+ 224:Core/Src/freertos.c ****   /* USER CODE END StartLVGLTask */
+ 225:Core/Src/freertos.c **** }
+ 226:Core/Src/freertos.c **** 
+ 227:Core/Src/freertos.c **** /* Private application code --------------------------------------------------*/
+ 228:Core/Src/freertos.c **** /* USER CODE BEGIN Application */
+ 229:Core/Src/freertos.c **** void vApplicationTickHook(void)
+ 230:Core/Src/freertos.c **** {
+ 247              		.loc 1 230 0
+ 248              		.cfi_startproc
+ 249              		@ args = 0, pretend = 0, frame = 0
+ 250              		@ frame_needed = 0, uses_anonymous_args = 0
+ 251 0000 08B5     		push	{r3, lr}
+ 252              	.LCFI5:
+ 253              		.cfi_def_cfa_offset 8
+ 254              		.cfi_offset 3, -8
+ 255              		.cfi_offset 14, -4
+ 231:Core/Src/freertos.c ****   lv_tick_inc(1);
+ 256              		.loc 1 231 0
+ 257 0002 0120     		movs	r0, #1
+ 258 0004 FFF7FEFF 		bl	lv_tick_inc
+ 259              	.LVL21:
+ 232:Core/Src/freertos.c **** }
+ 260              		.loc 1 232 0
+ 261 0008 08BD     		pop	{r3, pc}
+ 262              		.cfi_endproc
+ 263              	.LFE355:
+ 265              		.global	LVGLTask_attributes
+ 266              		.comm	LVGLTaskHandle,4,4
+ 267              		.global	LvglTimer_Task_attributes
+ 268              		.comm	LvglTimer_TaskHandle,4,4
+ 269              		.global	LEDTask_attributes
+ 270              		.comm	LEDTaskHandle,4,4
+ 271              		.global	defaultTask_attributes
+ 272              		.comm	defaultTaskHandle,4,4
+ 273              		.section	.rodata.LEDTask_attributes,"a",%progbits
+ 274              		.align	2
+ 275              		.set	.LANCHOR1,. + 0
+ 278              	LEDTask_attributes:
+ 279 0000 1C000000 		.word	.LC2
+ 280 0004 00000000 		.space	16
+ 280      00000000 
+ 280      00000000 
+ 280      00000000 
+ 281 0014 00020000 		.word	512
+ 282 0018 18000000 		.word	24
+ 283 001c 00000000 		.space	8
+ 283      00000000 
+ 284              		.section	.rodata.LVGLTask_attributes,"a",%progbits
+ 285              		.align	2
+ARM GAS  /tmp/ccsP8GJq.s 			page 10
+
+
+ 286              		.set	.LANCHOR3,. + 0
+ 289              	LVGLTask_attributes:
+ 290 0000 00000000 		.word	.LC0
+ 291 0004 00000000 		.space	16
+ 291      00000000 
+ 291      00000000 
+ 291      00000000 
+ 292 0014 00080000 		.word	2048
+ 293 0018 18000000 		.word	24
+ 294 001c 00000000 		.space	8
+ 294      00000000 
+ 295              		.section	.rodata.LvglTimer_Task_attributes,"a",%progbits
+ 296              		.align	2
+ 297              		.set	.LANCHOR2,. + 0
+ 300              	LvglTimer_Task_attributes:
+ 301 0000 0C000000 		.word	.LC1
+ 302 0004 00000000 		.space	16
+ 302      00000000 
+ 302      00000000 
+ 302      00000000 
+ 303 0014 00080000 		.word	2048
+ 304 0018 18000000 		.word	24
+ 305 001c 00000000 		.space	8
+ 305      00000000 
+ 306              		.section	.rodata.defaultTask_attributes,"a",%progbits
+ 307              		.align	2
+ 308              		.set	.LANCHOR0,. + 0
+ 311              	defaultTask_attributes:
+ 312 0000 24000000 		.word	.LC3
+ 313 0004 00000000 		.space	16
+ 313      00000000 
+ 313      00000000 
+ 313      00000000 
+ 314 0014 00020000 		.word	512
+ 315 0018 18000000 		.word	24
+ 316 001c 00000000 		.space	8
+ 316      00000000 
+ 317              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 318              		.align	2
+ 319              	.LC0:
+ 320 0000 4C56474C 		.ascii	"LVGLTask\000"
+ 320      5461736B 
+ 320      00
+ 321 0009 000000   		.space	3
+ 322              	.LC1:
+ 323 000c 4C76676C 		.ascii	"LvglTimer_Task\000"
+ 323      54696D65 
+ 323      725F5461 
+ 323      736B00
+ 324 001b 00       		.space	1
+ 325              	.LC2:
+ 326 001c 4C454454 		.ascii	"LEDTask\000"
+ 326      61736B00 
+ 327              	.LC3:
+ 328 0024 64656661 		.ascii	"defaultTask\000"
+ 328      756C7454 
+ 328      61736B00 
+ARM GAS  /tmp/ccsP8GJq.s 			page 11
+
+
+ 329              		.text
+ 330              	.Letext0:
+ 331              		.file 2 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 332              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ 333              		.file 4 "Core/Inc/FreeRTOSConfig.h"
+ 334              		.file 5 "Drivers/CMSIS/Include/core_cm7.h"
+ 335              		.file 6 "Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h"
+ 336              		.file 7 "Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h743xx.h"
+ 337              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+ 338              		.file 9 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+ 339              		.file 10 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 340              		.file 11 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+ 341              		.file 12 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/math.h"
+ 342              		.file 13 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_def.h"
+ 343              		.file 14 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_dma.h"
+ 344              		.file 15 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_flash.h"
+ 345              		.file 16 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_spi.h"
+ 346              		.file 17 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h"
+ 347              		.file 18 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h"
+ 348              		.file 19 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/../font/../misc/lv_area.h"
+ 349              		.file 20 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/../font/lv_font.h"
+ 350              		.file 21 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/lv_color.h"
+ 351              		.file 22 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/lv_txt.h"
+ 352              		.file 23 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/lv_style.h"
+ 353              		.file 24 "Drivers/lvgl/lvgl/src/core/lv_obj.h"
+ 354              		.file 25 "Drivers/lvgl/lvgl/src/hal/../misc/lv_ll.h"
+ 355              		.file 26 "Drivers/lvgl/lvgl/src/core/lv_group.h"
+ 356              		.file 27 "Drivers/lvgl/lvgl/src/core/lv_obj_scroll.h"
+ 357              		.file 28 "Drivers/lvgl/lvgl/src/core/lv_obj_style.h"
+ 358              		.file 29 "Drivers/lvgl/lvgl/src/core/lv_obj_class.h"
+ 359              		.file 30 "Drivers/lvgl/lvgl/src/core/lv_event.h"
+ 360              		.file 31 "Drivers/lvgl/lvgl/src/widgets/lv_arc.h"
+ 361              		.file 32 "Drivers/lvgl/lvgl/src/widgets/lv_btn.h"
+ 362              		.file 33 "Drivers/lvgl/lvgl/src/widgets/lv_img.h"
+ 363              		.file 34 "Drivers/lvgl/lvgl/src/widgets/lv_label.h"
+ 364              		.file 35 "Drivers/lvgl/lvgl/src/widgets/lv_line.h"
+ 365              		.file 36 "Drivers/lvgl/lvgl/src/widgets/lv_table.h"
+ 366              		.file 37 "Drivers/lvgl/lvgl/src/widgets/lv_checkbox.h"
+ 367              		.file 38 "Drivers/lvgl/lvgl/src/widgets/lv_bar.h"
+ 368              		.file 39 "Drivers/lvgl/lvgl/src/widgets/lv_slider.h"
+ 369              		.file 40 "Drivers/lvgl/lvgl/src/widgets/lv_btnmatrix.h"
+ 370              		.file 41 "Drivers/lvgl/lvgl/src/widgets/lv_dropdown.h"
+ 371              		.file 42 "Drivers/lvgl/lvgl/src/widgets/lv_roller.h"
+ 372              		.file 43 "Drivers/lvgl/lvgl/src/widgets/lv_textarea.h"
+ 373              		.file 44 "Drivers/lvgl/lvgl/src/widgets/lv_canvas.h"
+ 374              		.file 45 "Drivers/lvgl/lvgl/src/widgets/lv_switch.h"
+ 375              		.file 46 "Drivers/lvgl/lvgl/src/extra/layouts/flex/lv_flex.h"
+ 376              		.file 47 "Drivers/lvgl/lvgl/src/extra/layouts/grid/lv_grid.h"
+ 377              		.file 48 "Drivers/lvgl/lvgl/src/extra/widgets/animimg/lv_animimg.h"
+ 378              		.file 49 "Drivers/lvgl/lvgl/src/extra/widgets/calendar/lv_calendar.h"
+ 379              		.file 50 "Drivers/lvgl/lvgl/src/extra/widgets/calendar/lv_calendar_header_arrow.h"
+ 380              		.file 51 "Drivers/lvgl/lvgl/src/extra/widgets/calendar/lv_calendar_header_dropdown.h"
+ 381              		.file 52 "Drivers/lvgl/lvgl/src/extra/widgets/chart/lv_chart.h"
+ 382              		.file 53 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.h"
+ 383              		.file 54 "Drivers/lvgl/lvgl/src/extra/widgets/list/lv_list.h"
+ 384              		.file 55 "Drivers/lvgl/lvgl/src/extra/widgets/menu/lv_menu.h"
+ 385              		.file 56 "Drivers/lvgl/lvgl/src/extra/widgets/msgbox/lv_msgbox.h"
+ARM GAS  /tmp/ccsP8GJq.s 			page 12
+
+
+ 386              		.file 57 "Drivers/lvgl/lvgl/src/extra/widgets/meter/lv_meter.h"
+ 387              		.file 58 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.h"
+ 388              		.file 59 "Drivers/lvgl/lvgl/src/extra/widgets/spinner/lv_spinner.h"
+ 389              		.file 60 "Drivers/lvgl/lvgl/src/extra/widgets/tabview/lv_tabview.h"
+ 390              		.file 61 "Drivers/lvgl/lvgl/src/extra/widgets/tileview/lv_tileview.h"
+ 391              		.file 62 "Drivers/lvgl/lvgl/src/extra/widgets/win/lv_win.h"
+ 392              		.file 63 "Drivers/lvgl/lvgl/src/extra/widgets/colorwheel/lv_colorwheel.h"
+ 393              		.file 64 "Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.h"
+ 394              		.file 65 "Drivers/lvgl/lvgl/src/extra/widgets/imgbtn/lv_imgbtn.h"
+ 395              		.file 66 "Drivers/lvgl/lvgl/src/extra/widgets/span/lv_span.h"
+ 396              		.file 67 "Drivers/ST7789/fonts.h"
+ 397              		.file 68 "Drivers/ST7789/st7789.h"
+ 398              		.file 69 "Drivers/lvgl/lvgl/src/misc/../hal/lv_hal_tick.h"
+ 399              		.file 70 "Drivers/lvgl/lvgl/demos/stress/lv_demo_stress.h"
+ 400              		.file 71 "Drivers/lvgl/lvgl/src/misc/lv_timer.h"
+ 401              		.file 72 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_gpio.h"
+ARM GAS  /tmp/ccsP8GJq.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 freertos.c
+     /tmp/ccsP8GJq.s:17     .text.StartDefaultTask:0000000000000000 $t
+     /tmp/ccsP8GJq.s:24     .text.StartDefaultTask:0000000000000000 StartDefaultTask
+     /tmp/ccsP8GJq.s:49     .text.StartLEDTask:0000000000000000 $t
+     /tmp/ccsP8GJq.s:56     .text.StartLEDTask:0000000000000000 StartLEDTask
+     /tmp/ccsP8GJq.s:88     .text.StartLEDTask:000000000000001c $d
+     /tmp/ccsP8GJq.s:93     .text.StartLvglTimerTask:0000000000000000 $t
+     /tmp/ccsP8GJq.s:100    .text.StartLvglTimerTask:0000000000000000 StartLvglTimerTask
+     /tmp/ccsP8GJq.s:127    .text.StartLVGLTask:0000000000000000 $t
+     /tmp/ccsP8GJq.s:134    .text.StartLVGLTask:0000000000000000 StartLVGLTask
+     /tmp/ccsP8GJq.s:167    .text.MX_FREERTOS_Init:0000000000000000 $t
+     /tmp/ccsP8GJq.s:174    .text.MX_FREERTOS_Init:0000000000000000 MX_FREERTOS_Init
+     /tmp/ccsP8GJq.s:222    .text.MX_FREERTOS_Init:000000000000003c $d
+                            *COM*:0000000000000004 defaultTaskHandle
+                            *COM*:0000000000000004 LEDTaskHandle
+                            *COM*:0000000000000004 LvglTimer_TaskHandle
+                            *COM*:0000000000000004 LVGLTaskHandle
+     /tmp/ccsP8GJq.s:238    .text.vApplicationTickHook:0000000000000000 $t
+     /tmp/ccsP8GJq.s:245    .text.vApplicationTickHook:0000000000000000 vApplicationTickHook
+     /tmp/ccsP8GJq.s:289    .rodata.LVGLTask_attributes:0000000000000000 LVGLTask_attributes
+     /tmp/ccsP8GJq.s:300    .rodata.LvglTimer_Task_attributes:0000000000000000 LvglTimer_Task_attributes
+     /tmp/ccsP8GJq.s:278    .rodata.LEDTask_attributes:0000000000000000 LEDTask_attributes
+     /tmp/ccsP8GJq.s:311    .rodata.defaultTask_attributes:0000000000000000 defaultTask_attributes
+     /tmp/ccsP8GJq.s:274    .rodata.LEDTask_attributes:0000000000000000 $d
+     /tmp/ccsP8GJq.s:285    .rodata.LVGLTask_attributes:0000000000000000 $d
+     /tmp/ccsP8GJq.s:296    .rodata.LvglTimer_Task_attributes:0000000000000000 $d
+     /tmp/ccsP8GJq.s:307    .rodata.defaultTask_attributes:0000000000000000 $d
+     /tmp/ccsP8GJq.s:318    .rodata.str1.4:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+osDelay
+HAL_GPIO_TogglePin
+lv_timer_handler
+lv_init
+Display_init
+lv_demo_stress
+osThreadNew
+lv_tick_inc

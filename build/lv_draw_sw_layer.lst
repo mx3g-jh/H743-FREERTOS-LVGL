@@ -1,0 +1,870 @@
+ARM GAS  /tmp/cclhArEG.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_draw_sw_layer.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.lv_draw_sw_layer_create,"ax",%progbits
+  17              		.align	1
+  18              		.global	lv_draw_sw_layer_create
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu fpv5-d16
+  24              	lv_draw_sw_layer_create:
+  25              	.LFB159:
+  26              		.file 1 "Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c"
+   1:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** /**
+   2:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  * @file lv_draw_sw_layer.h
+   3:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  *
+   4:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  */
+   5:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+   6:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** /*********************
+   7:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  *      INCLUDES
+   8:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  *********************/
+   9:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** #include "lv_draw_sw.h"
+  10:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** #include "../../hal/lv_hal_disp.h"
+  11:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** #include "../../misc/lv_area.h"
+  12:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** #include "../../core/lv_refr.h"
+  13:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  14:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** /*********************
+  15:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  *      DEFINES
+  16:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  *********************/
+  17:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  18:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** /**********************
+  19:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  *      TYPEDEFS
+  20:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  **********************/
+  21:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  22:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** /**********************
+  23:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  *  STATIC PROTOTYPES
+  24:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  **********************/
+  25:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  26:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** /**********************
+  27:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  *  STATIC VARIABLES
+  28:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  **********************/
+  29:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  30:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** /**********************
+  31:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  *  GLOBAL VARIABLES
+  32:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  **********************/
+ARM GAS  /tmp/cclhArEG.s 			page 2
+
+
+  33:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  34:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** /**********************
+  35:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  *      MACROS
+  36:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  **********************/
+  37:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  38:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** /**********************
+  39:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  *   GLOBAL FUNCTIONS
+  40:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****  **********************/
+  41:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  42:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  43:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** struct _lv_draw_layer_ctx_t * lv_draw_sw_layer_create(struct _lv_draw_ctx_t * draw_ctx, lv_draw_lay
+  44:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****                                                       lv_draw_layer_flags_t flags)
+  45:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** {
+  27              		.loc 1 45 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              	.LVL0:
+  46:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     if(LV_COLOR_SCREEN_TRANSP == 0 && (flags & LV_DRAW_LAYER_FLAG_HAS_ALPHA)) {
+  32              		.loc 1 46 0
+  33 0000 12F0010F 		tst	r2, #1
+  34 0004 7BD1     		bne	.L6
+  45:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     if(LV_COLOR_SCREEN_TRANSP == 0 && (flags & LV_DRAW_LAYER_FLAG_HAS_ALPHA)) {
+  35              		.loc 1 45 0 discriminator 4
+  36 0006 70B5     		push	{r4, r5, r6, lr}
+  37              	.LCFI0:
+  38              		.cfi_def_cfa_offset 16
+  39              		.cfi_offset 4, -16
+  40              		.cfi_offset 5, -12
+  41              		.cfi_offset 6, -8
+  42              		.cfi_offset 14, -4
+  43 0008 1646     		mov	r6, r2
+  44 000a 0C46     		mov	r4, r1
+  45 000c 0546     		mov	r5, r0
+  46              	.LVL1:
+  47:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         LV_LOG_WARN("Rendering this widget needs LV_COLOR_SCREEN_TRANSP 1");
+  48:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         return NULL;
+  49:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     }
+  50:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  51:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     lv_draw_sw_layer_ctx_t * layer_sw_ctx = (lv_draw_sw_layer_ctx_t *) layer_ctx;
+  52:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     uint32_t px_size = flags & LV_DRAW_LAYER_FLAG_HAS_ALPHA ? LV_IMG_PX_SIZE_ALPHA_BYTE : sizeof(lv
+  53:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     if(flags & LV_DRAW_LAYER_FLAG_CAN_SUBDIVIDE) {
+  47              		.loc 1 53 0 discriminator 4
+  48 000e 12F0020F 		tst	r2, #2
+  49 0012 44D0     		beq	.L3
+  50              	.LBB10:
+  54:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->buf_size_bytes = LV_LAYER_SIMPLE_BUF_SIZE;
+  51              		.loc 1 54 0
+  52 0014 8B6A     		ldr	r3, [r1, #40]
+  53 0016 4FF4C042 		mov	r2, #24576
+  54              	.LVL2:
+  55 001a 62F31E03 		bfi	r3, r2, #0, #31
+  56 001e 8B62     		str	r3, [r1, #40]
+  55:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         uint32_t full_size = lv_area_get_size(&layer_sw_ctx->base_draw.area_full) * px_size;
+  57              		.loc 1 55 0
+  58 0020 0846     		mov	r0, r1
+  59              	.LVL3:
+ARM GAS  /tmp/cclhArEG.s 			page 3
+
+
+  60 0022 FFF7FEFF 		bl	lv_area_get_size
+  61              	.LVL4:
+  62 0026 4000     		lsls	r0, r0, #1
+  63              	.LVL5:
+  56:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         if(layer_sw_ctx->buf_size_bytes > full_size) layer_sw_ctx->buf_size_bytes = full_size;
+  64              		.loc 1 56 0
+  65 0028 A36A     		ldr	r3, [r4, #40]
+  66 002a C3F31E03 		ubfx	r3, r3, #0, #31
+  67 002e 8342     		cmp	r3, r0
+  68 0030 03D9     		bls	.L4
+  69              		.loc 1 56 0 is_stmt 0 discriminator 1
+  70 0032 A36A     		ldr	r3, [r4, #40]
+  71 0034 60F31E03 		bfi	r3, r0, #0, #31
+  72 0038 A362     		str	r3, [r4, #40]
+  73              	.L4:
+  57:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->base_draw.buf = lv_mem_alloc(layer_sw_ctx->buf_size_bytes);
+  74              		.loc 1 57 0 is_stmt 1
+  75 003a A06A     		ldr	r0, [r4, #40]
+  76              	.LVL6:
+  77 003c 20F00040 		bic	r0, r0, #-2147483648
+  78 0040 FFF7FEFF 		bl	lv_mem_alloc
+  79              	.LVL7:
+  80 0044 6061     		str	r0, [r4, #20]
+  58:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         if(layer_sw_ctx->base_draw.buf == NULL) {
+  81              		.loc 1 58 0
+  82 0046 E8B1     		cbz	r0, .L13
+  83              	.L5:
+  59:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****             LV_LOG_WARN("Cannot allocate %"LV_PRIu32" bytes for layer buffer. Allocating %"LV_PRIu3
+  60:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****                         (uint32_t)layer_sw_ctx->buf_size_bytes, (uint32_t)LV_LAYER_SIMPLE_FALLBACK_
+  61:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****             layer_sw_ctx->buf_size_bytes = LV_LAYER_SIMPLE_FALLBACK_BUF_SIZE;
+  62:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****             layer_sw_ctx->base_draw.buf = lv_mem_alloc(layer_sw_ctx->buf_size_bytes);
+  63:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****             if(layer_sw_ctx->base_draw.buf == NULL) {
+  64:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****                 return NULL;
+  65:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****             }
+  66:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         }
+  67:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->base_draw.area_act = layer_sw_ctx->base_draw.area_full;
+  84              		.loc 1 67 0
+  85 0048 04F10803 		add	r3, r4, #8
+  86 004c 94E80300 		ldm	r4, {r0, r1}
+  87 0050 83E80300 		stm	r3, {r0, r1}
+  68:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->base_draw.area_act.y2 = layer_sw_ctx->base_draw.area_full.y1;
+  88              		.loc 1 68 0
+  89 0054 B4F90230 		ldrsh	r3, [r4, #2]
+  90 0058 E381     		strh	r3, [r4, #14]	@ movhi
+  91              	.LVL8:
+  92              	.LBB11:
+  93              	.LBB12:
+  94              		.file 2 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h"
+   1:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+   2:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @file lv_area.h
+   3:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  *
+   4:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+   5:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+   6:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #ifndef LV_AREA_H
+   7:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #define LV_AREA_H
+   8:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+   9:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #ifdef __cplusplus
+ARM GAS  /tmp/cclhArEG.s 			page 4
+
+
+  10:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** extern "C" {
+  11:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #endif
+  12:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  13:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /*********************
+  14:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  *      INCLUDES
+  15:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  *********************/
+  16:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #include "../lv_conf_internal.h"
+  17:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #include <stdbool.h>
+  18:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #include <stdint.h>
+  19:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  20:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /*********************
+  21:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  *      DEFINES
+  22:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  *********************/
+  23:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  24:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #if LV_USE_LARGE_COORD
+  25:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef int32_t lv_coord_t;
+  26:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #else
+  27:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef int16_t lv_coord_t;
+  28:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #endif
+  29:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  30:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**********************
+  31:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  *      TYPEDEFS
+  32:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  **********************/
+  33:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  34:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+  35:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Represents a point on the screen.
+  36:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+  37:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef struct {
+  38:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t x;
+  39:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t y;
+  40:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** } lv_point_t;
+  41:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  42:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /** Represents an area of the screen.*/
+  43:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef struct {
+  44:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t x1;
+  45:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t y1;
+  46:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t x2;
+  47:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t y2;
+  48:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** } lv_area_t;
+  49:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  50:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /** Alignments*/
+  51:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** enum {
+  52:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_DEFAULT = 0,
+  53:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_TOP_LEFT,
+  54:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_TOP_MID,
+  55:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_TOP_RIGHT,
+  56:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_BOTTOM_LEFT,
+  57:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_BOTTOM_MID,
+  58:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_BOTTOM_RIGHT,
+  59:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_LEFT_MID,
+  60:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_RIGHT_MID,
+  61:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_CENTER,
+  62:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  63:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_TOP_LEFT,
+  64:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_TOP_MID,
+  65:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_TOP_RIGHT,
+  66:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_BOTTOM_LEFT,
+ARM GAS  /tmp/cclhArEG.s 			page 5
+
+
+  67:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_BOTTOM_MID,
+  68:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_BOTTOM_RIGHT,
+  69:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_LEFT_TOP,
+  70:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_LEFT_MID,
+  71:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_LEFT_BOTTOM,
+  72:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_RIGHT_TOP,
+  73:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_RIGHT_MID,
+  74:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_RIGHT_BOTTOM,
+  75:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** };
+  76:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef uint8_t lv_align_t;
+  77:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  78:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** enum {
+  79:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_NONE     = 0x00,
+  80:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_LEFT     = (1 << 0),
+  81:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_RIGHT    = (1 << 1),
+  82:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_TOP      = (1 << 2),
+  83:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_BOTTOM   = (1 << 3),
+  84:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_HOR      = LV_DIR_LEFT | LV_DIR_RIGHT,
+  85:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_VER      = LV_DIR_TOP | LV_DIR_BOTTOM,
+  86:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_ALL      = LV_DIR_HOR | LV_DIR_VER,
+  87:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** };
+  88:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  89:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef uint8_t lv_dir_t;
+  90:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  91:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**********************
+  92:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * GLOBAL PROTOTYPES
+  93:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  **********************/
+  94:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  95:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+  96:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Initialize an area
+  97:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param area_p pointer to an area
+  98:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param x1 left coordinate of the area
+  99:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param y1 top coordinate of the area
+ 100:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param x2 right coordinate of the area
+ 101:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param y2 bottom coordinate of the area
+ 102:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+ 103:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** void lv_area_set(lv_area_t * area_p, lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2);
+ 104:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+ 105:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+ 106:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Copy an area
+ 107:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param dest pointer to the destination area
+ 108:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param src pointer to the source area
+ 109:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+ 110:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** inline static void lv_area_copy(lv_area_t * dest, const lv_area_t * src)
+ 111:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 112:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->x1 = src->x1;
+ 113:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y1 = src->y1;
+ 114:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->x2 = src->x2;
+ 115:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y2 = src->y2;
+ 116:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 117:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+ 118:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+ 119:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Get the width of an area
+ 120:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param area_p pointer to an area
+ 121:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @return the width of the area (if x1 == x2 -> width = 1)
+ 122:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+ 123:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** static inline lv_coord_t lv_area_get_width(const lv_area_t * area_p)
+ARM GAS  /tmp/cclhArEG.s 			page 6
+
+
+ 124:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 125:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     return (lv_coord_t)(area_p->x2 - area_p->x1 + 1);
+  95              		.loc 2 125 0
+  96 005a A389     		ldrh	r3, [r4, #12]
+  97 005c 2289     		ldrh	r2, [r4, #8]
+  98 005e 9B1A     		subs	r3, r3, r2
+  99 0060 9BB2     		uxth	r3, r3
+ 100 0062 0133     		adds	r3, r3, #1
+ 101 0064 1AB2     		sxth	r2, r3
+ 102              	.LVL9:
+ 103              	.LBE12:
+ 104              	.LBE11:
+  69:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         lv_coord_t w = lv_area_get_width(&layer_sw_ctx->base_draw.area_act);
+  70:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->base_draw.max_row_with_alpha = layer_sw_ctx->buf_size_bytes / w / LV_IMG_PX_S
+ 105              		.loc 1 70 0
+ 106 0066 A36A     		ldr	r3, [r4, #40]
+ 107 0068 C3F31E03 		ubfx	r3, r3, #0, #31
+ 108 006c 93FBF2F3 		sdiv	r3, r3, r2
+ 109 0070 254A     		ldr	r2, .L14
+ 110 0072 82FB0312 		smull	r1, r2, r2, r3
+ 111 0076 A2EBE372 		sub	r2, r2, r3, asr #31
+ 112 007a 2282     		strh	r2, [r4, #16]	@ movhi
+  71:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->base_draw.max_row_with_no_alpha = layer_sw_ctx->buf_size_bytes / w / sizeof(l
+ 113              		.loc 1 71 0
+ 114 007c 5B08     		lsrs	r3, r3, #1
+ 115 007e 6382     		strh	r3, [r4, #18]	@ movhi
+ 116              	.LBE10:
+  72:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     }
+  73:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     else {
+  74:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->base_draw.area_act = layer_sw_ctx->base_draw.area_full;
+  75:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->buf_size_bytes = lv_area_get_size(&layer_sw_ctx->base_draw.area_full) * px_si
+  76:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->base_draw.buf = lv_mem_alloc(layer_sw_ctx->buf_size_bytes);
+  77:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         lv_memset_00(layer_sw_ctx->base_draw.buf, layer_sw_ctx->buf_size_bytes);
+  78:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->has_alpha = flags & LV_DRAW_LAYER_FLAG_HAS_ALPHA ? 1 : 0;
+  79:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         if(layer_sw_ctx->base_draw.buf == NULL) {
+  80:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****             return NULL;
+  81:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         }
+  82:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  83:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         draw_ctx->buf = layer_sw_ctx->base_draw.buf;
+  84:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         draw_ctx->buf_area = &layer_sw_ctx->base_draw.area_act;
+  85:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         draw_ctx->clip_area = &layer_sw_ctx->base_draw.area_act;
+  86:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  87:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         lv_disp_t * disp_refr = _lv_refr_get_disp_refreshing();
+  88:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         disp_refr->driver->screen_transp = flags & LV_DRAW_LAYER_FLAG_HAS_ALPHA ? 1 : 0;
+  89:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     }
+  90:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  91:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     return layer_ctx;
+ 117              		.loc 1 91 0
+ 118 0080 2046     		mov	r0, r4
+ 119              	.L1:
+  92:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** }
+ 120              		.loc 1 92 0
+ 121 0082 70BD     		pop	{r4, r5, r6, pc}
+ 122              	.LVL10:
+ 123              	.L13:
+ 124              	.LBB13:
+  61:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****             layer_sw_ctx->base_draw.buf = lv_mem_alloc(layer_sw_ctx->buf_size_bytes);
+ARM GAS  /tmp/cclhArEG.s 			page 7
+
+
+ 125              		.loc 1 61 0
+ 126 0084 A36A     		ldr	r3, [r4, #40]
+ 127 0086 4FF44060 		mov	r0, #3072
+ 128 008a 60F31E03 		bfi	r3, r0, #0, #31
+ 129 008e A362     		str	r3, [r4, #40]
+  62:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****             if(layer_sw_ctx->base_draw.buf == NULL) {
+ 130              		.loc 1 62 0
+ 131 0090 FFF7FEFF 		bl	lv_mem_alloc
+ 132              	.LVL11:
+ 133 0094 6061     		str	r0, [r4, #20]
+  63:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****                 return NULL;
+ 134              		.loc 1 63 0
+ 135 0096 0028     		cmp	r0, #0
+ 136 0098 D6D1     		bne	.L5
+  64:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****             }
+ 137              		.loc 1 64 0
+ 138 009a 0020     		movs	r0, #0
+ 139 009c F1E7     		b	.L1
+ 140              	.LVL12:
+ 141              	.L3:
+ 142              	.LBE13:
+ 143              	.LBB14:
+  74:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->buf_size_bytes = lv_area_get_size(&layer_sw_ctx->base_draw.area_full) * px_si
+ 144              		.loc 1 74 0
+ 145 009e 01F10803 		add	r3, r1, #8
+ 146 00a2 D1E90001 		ldrd	r0, r1, [r1]
+ 147              	.LVL13:
+ 148 00a6 83E80300 		stm	r3, {r0, r1}
+  75:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->base_draw.buf = lv_mem_alloc(layer_sw_ctx->buf_size_bytes);
+ 149              		.loc 1 75 0
+ 150 00aa 2046     		mov	r0, r4
+ 151 00ac FFF7FEFF 		bl	lv_area_get_size
+ 152              	.LVL14:
+ 153 00b0 4000     		lsls	r0, r0, #1
+ 154 00b2 20F00040 		bic	r0, r0, #-2147483648
+ 155 00b6 A36A     		ldr	r3, [r4, #40]
+ 156 00b8 60F31E03 		bfi	r3, r0, #0, #31
+ 157 00bc A362     		str	r3, [r4, #40]
+  76:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         lv_memset_00(layer_sw_ctx->base_draw.buf, layer_sw_ctx->buf_size_bytes);
+ 158              		.loc 1 76 0
+ 159 00be FFF7FEFF 		bl	lv_mem_alloc
+ 160              	.LVL15:
+ 161 00c2 6061     		str	r0, [r4, #20]
+  77:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->has_alpha = flags & LV_DRAW_LAYER_FLAG_HAS_ALPHA ? 1 : 0;
+ 162              		.loc 1 77 0
+ 163 00c4 A16A     		ldr	r1, [r4, #40]
+ 164 00c6 21F00041 		bic	r1, r1, #-2147483648
+ 165 00ca FFF7FEFF 		bl	lv_memset_00
+ 166              	.LVL16:
+  78:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         if(layer_sw_ctx->base_draw.buf == NULL) {
+ 167              		.loc 1 78 0
+ 168 00ce 06F00106 		and	r6, r6, #1
+ 169 00d2 94F82B30 		ldrb	r3, [r4, #43]	@ zero_extendqisi2
+ 170 00d6 66F3C713 		bfi	r3, r6, #7, #1
+ 171 00da 84F82B30 		strb	r3, [r4, #43]
+  79:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****             return NULL;
+ 172              		.loc 1 79 0
+ARM GAS  /tmp/cclhArEG.s 			page 8
+
+
+ 173 00de 6369     		ldr	r3, [r4, #20]
+ 174 00e0 7BB1     		cbz	r3, .L8
+  83:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         draw_ctx->buf_area = &layer_sw_ctx->base_draw.area_act;
+ 175              		.loc 1 83 0
+ 176 00e2 2B60     		str	r3, [r5]
+  84:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         draw_ctx->clip_area = &layer_sw_ctx->base_draw.area_act;
+ 177              		.loc 1 84 0
+ 178 00e4 04F10803 		add	r3, r4, #8
+ 179 00e8 6B60     		str	r3, [r5, #4]
+  85:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+ 180              		.loc 1 85 0
+ 181 00ea AB60     		str	r3, [r5, #8]
+  87:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         disp_refr->driver->screen_transp = flags & LV_DRAW_LAYER_FLAG_HAS_ALPHA ? 1 : 0;
+ 182              		.loc 1 87 0
+ 183 00ec FFF7FEFF 		bl	_lv_refr_get_disp_refreshing
+ 184              	.LVL17:
+  88:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     }
+ 185              		.loc 1 88 0
+ 186 00f0 0368     		ldr	r3, [r0]
+ 187 00f2 1A7C     		ldrb	r2, [r3, #16]	@ zero_extendqisi2
+ 188 00f4 66F38612 		bfi	r2, r6, #6, #1
+ 189 00f8 1A74     		strb	r2, [r3, #16]
+ 190              	.LBE14:
+  91:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** }
+ 191              		.loc 1 91 0
+ 192 00fa 2046     		mov	r0, r4
+ 193              	.LVL18:
+ 194 00fc C1E7     		b	.L1
+ 195              	.LVL19:
+ 196              	.L6:
+ 197              	.LCFI1:
+ 198              		.cfi_def_cfa_offset 0
+ 199              		.cfi_restore 4
+ 200              		.cfi_restore 5
+ 201              		.cfi_restore 6
+ 202              		.cfi_restore 14
+  48:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     }
+ 203              		.loc 1 48 0
+ 204 00fe 0020     		movs	r0, #0
+ 205              	.LVL20:
+ 206              		.loc 1 92 0
+ 207 0100 7047     		bx	lr
+ 208              	.LVL21:
+ 209              	.L8:
+ 210              	.LCFI2:
+ 211              		.cfi_def_cfa_offset 16
+ 212              		.cfi_offset 4, -16
+ 213              		.cfi_offset 5, -12
+ 214              		.cfi_offset 6, -8
+ 215              		.cfi_offset 14, -4
+ 216              	.LBB15:
+  80:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         }
+ 217              		.loc 1 80 0
+ 218 0102 0020     		movs	r0, #0
+ 219 0104 BDE7     		b	.L1
+ 220              	.L15:
+ 221 0106 00BF     		.align	2
+ARM GAS  /tmp/cclhArEG.s 			page 9
+
+
+ 222              	.L14:
+ 223 0108 56555555 		.word	1431655766
+ 224              	.LBE15:
+ 225              		.cfi_endproc
+ 226              	.LFE159:
+ 228              		.section	.text.lv_draw_sw_layer_adjust,"ax",%progbits
+ 229              		.align	1
+ 230              		.global	lv_draw_sw_layer_adjust
+ 231              		.syntax unified
+ 232              		.thumb
+ 233              		.thumb_func
+ 234              		.fpu fpv5-d16
+ 236              	lv_draw_sw_layer_adjust:
+ 237              	.LFB160:
+  93:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  94:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** void lv_draw_sw_layer_adjust(struct _lv_draw_ctx_t * draw_ctx, struct _lv_draw_layer_ctx_t * layer_
+  95:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****                              lv_draw_layer_flags_t flags)
+  96:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** {
+ 238              		.loc 1 96 0
+ 239              		.cfi_startproc
+ 240              		@ args = 0, pretend = 0, frame = 0
+ 241              		@ frame_needed = 0, uses_anonymous_args = 0
+ 242              	.LVL22:
+ 243 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 244              	.LCFI3:
+ 245              		.cfi_def_cfa_offset 24
+ 246              		.cfi_offset 3, -24
+ 247              		.cfi_offset 4, -20
+ 248              		.cfi_offset 5, -16
+ 249              		.cfi_offset 6, -12
+ 250              		.cfi_offset 7, -8
+ 251              		.cfi_offset 14, -4
+ 252 0002 0546     		mov	r5, r0
+ 253 0004 0C46     		mov	r4, r1
+ 254 0006 1646     		mov	r6, r2
+ 255              	.LVL23:
+  97:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+  98:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     lv_draw_sw_layer_ctx_t * layer_sw_ctx = (lv_draw_sw_layer_ctx_t *) layer_ctx;
+  99:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     lv_disp_t * disp_refr = _lv_refr_get_disp_refreshing();
+ 256              		.loc 1 99 0
+ 257 0008 FFF7FEFF 		bl	_lv_refr_get_disp_refreshing
+ 258              	.LVL24:
+ 259 000c 0746     		mov	r7, r0
+ 260              	.LVL25:
+ 100:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     if(flags & LV_DRAW_LAYER_FLAG_HAS_ALPHA) {
+ 261              		.loc 1 100 0
+ 262 000e 16F0010F 		tst	r6, #1
+ 263 0012 10D1     		bne	.L20
+ 101:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         lv_memset_00(layer_ctx->buf, layer_sw_ctx->buf_size_bytes);
+ 102:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->has_alpha = 1;
+ 103:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         disp_refr->driver->screen_transp = 1;
+ 104:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     }
+ 105:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     else {
+ 106:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->has_alpha = 0;
+ 264              		.loc 1 106 0
+ 265 0014 94F82B30 		ldrb	r3, [r4, #43]	@ zero_extendqisi2
+ 266 0018 6FF3C713 		bfc	r3, #7, #1
+ARM GAS  /tmp/cclhArEG.s 			page 10
+
+
+ 267 001c 84F82B30 		strb	r3, [r4, #43]
+ 107:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         disp_refr->driver->screen_transp = 0;
+ 268              		.loc 1 107 0
+ 269 0020 0368     		ldr	r3, [r0]
+ 270 0022 1A7C     		ldrb	r2, [r3, #16]	@ zero_extendqisi2
+ 271 0024 6FF38612 		bfc	r2, #6, #1
+ 272 0028 1A74     		strb	r2, [r3, #16]
+ 273              	.LVL26:
+ 274              	.L18:
+ 108:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     }
+ 109:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+ 110:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     draw_ctx->buf = layer_ctx->buf;
+ 275              		.loc 1 110 0
+ 276 002a 6369     		ldr	r3, [r4, #20]
+ 277 002c 2B60     		str	r3, [r5]
+ 111:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     draw_ctx->buf_area = &layer_ctx->area_act;
+ 278              		.loc 1 111 0
+ 279 002e 0834     		adds	r4, r4, #8
+ 280              	.LVL27:
+ 281 0030 6C60     		str	r4, [r5, #4]
+ 112:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     draw_ctx->clip_area = &layer_ctx->area_act;
+ 282              		.loc 1 112 0
+ 283 0032 AC60     		str	r4, [r5, #8]
+ 113:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** }
+ 284              		.loc 1 113 0
+ 285 0034 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 286              	.LVL28:
+ 287              	.L20:
+ 101:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         layer_sw_ctx->has_alpha = 1;
+ 288              		.loc 1 101 0
+ 289 0036 A16A     		ldr	r1, [r4, #40]
+ 290 0038 21F00041 		bic	r1, r1, #-2147483648
+ 291 003c 6069     		ldr	r0, [r4, #20]
+ 292              	.LVL29:
+ 293 003e FFF7FEFF 		bl	lv_memset_00
+ 294              	.LVL30:
+ 102:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****         disp_refr->driver->screen_transp = 1;
+ 295              		.loc 1 102 0
+ 296 0042 94F82B30 		ldrb	r3, [r4, #43]	@ zero_extendqisi2
+ 297 0046 43F08003 		orr	r3, r3, #128
+ 298 004a 84F82B30 		strb	r3, [r4, #43]
+ 103:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     }
+ 299              		.loc 1 103 0
+ 300 004e 3A68     		ldr	r2, [r7]
+ 301 0050 137C     		ldrb	r3, [r2, #16]	@ zero_extendqisi2
+ 302 0052 43F04003 		orr	r3, r3, #64
+ 303 0056 1374     		strb	r3, [r2, #16]
+ 304 0058 E7E7     		b	.L18
+ 305              		.cfi_endproc
+ 306              	.LFE160:
+ 308              		.section	.text.lv_draw_sw_layer_blend,"ax",%progbits
+ 309              		.align	1
+ 310              		.global	lv_draw_sw_layer_blend
+ 311              		.syntax unified
+ 312              		.thumb
+ 313              		.thumb_func
+ 314              		.fpu fpv5-d16
+ARM GAS  /tmp/cclhArEG.s 			page 11
+
+
+ 316              	lv_draw_sw_layer_blend:
+ 317              	.LFB161:
+ 114:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+ 115:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** void lv_draw_sw_layer_blend(struct _lv_draw_ctx_t * draw_ctx, struct _lv_draw_layer_ctx_t * layer_c
+ 116:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****                             const lv_draw_img_dsc_t * draw_dsc)
+ 117:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** {
+ 318              		.loc 1 117 0
+ 319              		.cfi_startproc
+ 320              		@ args = 0, pretend = 0, frame = 16
+ 321              		@ frame_needed = 0, uses_anonymous_args = 0
+ 322              	.LVL31:
+ 323 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 324              	.LCFI4:
+ 325              		.cfi_def_cfa_offset 20
+ 326              		.cfi_offset 4, -20
+ 327              		.cfi_offset 5, -16
+ 328              		.cfi_offset 6, -12
+ 329              		.cfi_offset 7, -8
+ 330              		.cfi_offset 14, -4
+ 331 0002 85B0     		sub	sp, sp, #20
+ 332              	.LCFI5:
+ 333              		.cfi_def_cfa_offset 40
+ 334 0004 0446     		mov	r4, r0
+ 335 0006 0D46     		mov	r5, r1
+ 336 0008 1646     		mov	r6, r2
+ 337              	.LVL32:
+ 118:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     lv_draw_sw_layer_ctx_t * layer_sw_ctx = (lv_draw_sw_layer_ctx_t *) layer_ctx;
+ 119:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+ 120:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     lv_img_dsc_t img;
+ 121:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     img.data = draw_ctx->buf;
+ 338              		.loc 1 121 0
+ 339 000a 0368     		ldr	r3, [r0]
+ 340 000c 0393     		str	r3, [sp, #12]
+ 122:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     img.header.always_zero = 0;
+ 341              		.loc 1 122 0
+ 342 000e 9DF80430 		ldrb	r3, [sp, #4]	@ zero_extendqisi2
+ 343 0012 6FF34713 		bfc	r3, #5, #3
+ 344 0016 8DF80430 		strb	r3, [sp, #4]
+ 123:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     img.header.w = lv_area_get_width(draw_ctx->buf_area);
+ 345              		.loc 1 123 0
+ 346 001a 4268     		ldr	r2, [r0, #4]
+ 347              	.LVL33:
+ 348              	.LBB16:
+ 349              	.LBB17:
+ 350              		.loc 2 125 0
+ 351 001c 9388     		ldrh	r3, [r2, #4]
+ 352 001e 1188     		ldrh	r1, [r2]
+ 353              	.LVL34:
+ 354 0020 5B1A     		subs	r3, r3, r1
+ 355 0022 9BB2     		uxth	r3, r3
+ 356 0024 0133     		adds	r3, r3, #1
+ 357              	.LVL35:
+ 358              	.LBE17:
+ 359              	.LBE16:
+ 360              		.loc 1 123 0
+ 361 0026 0199     		ldr	r1, [sp, #4]
+ 362 0028 63F39421 		bfi	r1, r3, #10, #11
+ARM GAS  /tmp/cclhArEG.s 			page 12
+
+
+ 363 002c 0191     		str	r1, [sp, #4]
+ 364              	.LVL36:
+ 365              	.LBB18:
+ 366              	.LBB19:
+ 126:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 127:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+ 128:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+ 129:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Get the height of an area
+ 130:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param area_p pointer to an area
+ 131:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @return the height of the area (if y1 == y2 -> height = 1)
+ 132:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+ 133:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** static inline lv_coord_t lv_area_get_height(const lv_area_t * area_p)
+ 134:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 135:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     return (lv_coord_t)(area_p->y2 - area_p->y1 + 1);
+ 367              		.loc 2 135 0
+ 368 002e D388     		ldrh	r3, [r2, #6]
+ 369 0030 5288     		ldrh	r2, [r2, #2]
+ 370              	.LVL37:
+ 371 0032 9B1A     		subs	r3, r3, r2
+ 372 0034 9BB2     		uxth	r3, r3
+ 373 0036 0133     		adds	r3, r3, #1
+ 374              	.LBE19:
+ 375              	.LBE18:
+ 124:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     img.header.h = lv_area_get_height(draw_ctx->buf_area);
+ 376              		.loc 1 124 0
+ 377 0038 BDF80620 		ldrh	r2, [sp, #6]
+ 378 003c 63F34F12 		bfi	r2, r3, #5, #11
+ 379 0040 ADF80620 		strh	r2, [sp, #6]	@ movhi
+ 125:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     img.header.cf = layer_sw_ctx->has_alpha ? LV_IMG_CF_TRUE_COLOR_ALPHA : LV_IMG_CF_TRUE_COLOR;
+ 380              		.loc 1 125 0
+ 381 0044 95F92B30 		ldrsb	r3, [r5, #43]
+ 382 0048 002B     		cmp	r3, #0
+ 383 004a 25DB     		blt	.L25
+ 384 004c 0422     		movs	r2, #4
+ 385              	.L22:
+ 386              		.loc 1 125 0 is_stmt 0 discriminator 4
+ 387 004e 9DF80430 		ldrb	r3, [sp, #4]	@ zero_extendqisi2
+ 388 0052 62F30403 		bfi	r3, r2, #0, #5
+ 389 0056 04AF     		add	r7, sp, #16
+ 390 0058 07F80C3D 		strb	r3, [r7, #-12]!
+ 126:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+ 127:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     /*Restore the original draw_ctx*/
+ 128:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     draw_ctx->buf = layer_ctx->original.buf;
+ 391              		.loc 1 128 0 is_stmt 1 discriminator 4
+ 392 005c 2B6A     		ldr	r3, [r5, #32]
+ 393 005e 2360     		str	r3, [r4]
+ 129:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     draw_ctx->buf_area = layer_ctx->original.buf_area;
+ 394              		.loc 1 129 0 discriminator 4
+ 395 0060 EB69     		ldr	r3, [r5, #28]
+ 396 0062 6360     		str	r3, [r4, #4]
+ 130:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     draw_ctx->clip_area = layer_ctx->original.clip_area;
+ 397              		.loc 1 130 0 discriminator 4
+ 398 0064 AB69     		ldr	r3, [r5, #24]
+ 399 0066 A360     		str	r3, [r4, #8]
+ 131:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     lv_disp_t * disp_refr = _lv_refr_get_disp_refreshing();
+ 400              		.loc 1 131 0 discriminator 4
+ 401 0068 FFF7FEFF 		bl	_lv_refr_get_disp_refreshing
+ARM GAS  /tmp/cclhArEG.s 			page 13
+
+
+ 402              	.LVL38:
+ 132:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     disp_refr->driver->screen_transp = layer_ctx->original.screen_transp;
+ 403              		.loc 1 132 0 discriminator 4
+ 404 006c 0368     		ldr	r3, [r0]
+ 405 006e 95F82410 		ldrb	r1, [r5, #36]	@ zero_extendqisi2
+ 406 0072 1A7C     		ldrb	r2, [r3, #16]	@ zero_extendqisi2
+ 407 0074 61F38612 		bfi	r2, r1, #6, #1
+ 408 0078 1A74     		strb	r2, [r3, #16]
+ 133:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+ 134:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     /*Blend the layer*/
+ 135:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     lv_draw_img(draw_ctx, draw_dsc, &layer_ctx->area_act, &img);
+ 409              		.loc 1 135 0 discriminator 4
+ 410 007a 3B46     		mov	r3, r7
+ 411 007c 05F10802 		add	r2, r5, #8
+ 412 0080 3146     		mov	r1, r6
+ 413 0082 2046     		mov	r0, r4
+ 414              	.LVL39:
+ 415 0084 FFF7FEFF 		bl	lv_draw_img
+ 416              	.LVL40:
+ 136:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     lv_draw_wait_for_finish(draw_ctx);
+ 417              		.loc 1 136 0 discriminator 4
+ 418 0088 2046     		mov	r0, r4
+ 419 008a FFF7FEFF 		bl	lv_draw_wait_for_finish
+ 420              	.LVL41:
+ 137:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     lv_img_cache_invalidate_src(&img);
+ 421              		.loc 1 137 0 discriminator 4
+ 422 008e 3846     		mov	r0, r7
+ 423 0090 FFF7FEFF 		bl	lv_img_cache_invalidate_src
+ 424              	.LVL42:
+ 138:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** }
+ 425              		.loc 1 138 0 discriminator 4
+ 426 0094 05B0     		add	sp, sp, #20
+ 427              	.LCFI6:
+ 428              		.cfi_remember_state
+ 429              		.cfi_def_cfa_offset 20
+ 430              		@ sp needed
+ 431 0096 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 432              	.LVL43:
+ 433              	.L25:
+ 434              	.LCFI7:
+ 435              		.cfi_restore_state
+ 125:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+ 436              		.loc 1 125 0
+ 437 0098 0522     		movs	r2, #5
+ 438 009a D8E7     		b	.L22
+ 439              		.cfi_endproc
+ 440              	.LFE161:
+ 442              		.section	.text.lv_draw_sw_layer_destroy,"ax",%progbits
+ 443              		.align	1
+ 444              		.global	lv_draw_sw_layer_destroy
+ 445              		.syntax unified
+ 446              		.thumb
+ 447              		.thumb_func
+ 448              		.fpu fpv5-d16
+ 450              	lv_draw_sw_layer_destroy:
+ 451              	.LFB162:
+ 139:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+ARM GAS  /tmp/cclhArEG.s 			page 14
+
+
+ 140:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** void lv_draw_sw_layer_destroy(lv_draw_ctx_t * draw_ctx, lv_draw_layer_ctx_t * layer_ctx)
+ 141:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** {
+ 452              		.loc 1 141 0
+ 453              		.cfi_startproc
+ 454              		@ args = 0, pretend = 0, frame = 0
+ 455              		@ frame_needed = 0, uses_anonymous_args = 0
+ 456              	.LVL44:
+ 457 0000 08B5     		push	{r3, lr}
+ 458              	.LCFI8:
+ 459              		.cfi_def_cfa_offset 8
+ 460              		.cfi_offset 3, -8
+ 461              		.cfi_offset 14, -4
+ 142:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     LV_UNUSED(draw_ctx);
+ 143:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** 
+ 144:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c ****     lv_mem_free(layer_ctx->buf);
+ 462              		.loc 1 144 0
+ 463 0002 4869     		ldr	r0, [r1, #20]
+ 464              	.LVL45:
+ 465 0004 FFF7FEFF 		bl	lv_mem_free
+ 466              	.LVL46:
+ 145:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_layer.c **** }
+ 467              		.loc 1 145 0
+ 468 0008 08BD     		pop	{r3, pc}
+ 469              		.cfi_endproc
+ 470              	.LFE162:
+ 472              		.text
+ 473              	.Letext0:
+ 474              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 475              		.file 4 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ 476              		.file 5 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_types.h"
+ 477              		.file 6 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 478              		.file 7 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+ 479              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+ 480              		.file 9 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+ 481              		.file 10 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_color.h"
+ 482              		.file 11 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/../font/lv_font.h"
+ 483              		.file 12 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_txt.h"
+ 484              		.file 13 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_bidi.h"
+ 485              		.file 14 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_style.h"
+ 486              		.file 15 "Drivers/lvgl/lvgl/src/draw/sw/../lv_img_buf.h"
+ 487              		.file 16 "Drivers/lvgl/lvgl/src/draw/sw/../../core/lv_obj.h"
+ 488              		.file 17 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw_rect.h"
+ 489              		.file 18 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw_label.h"
+ 490              		.file 19 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw_img.h"
+ 491              		.file 20 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw_line.h"
+ 492              		.file 21 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw_arc.h"
+ 493              		.file 22 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw_layer.h"
+ 494              		.file 23 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw.h"
+ 495              		.file 24 "Drivers/lvgl/lvgl/src/draw/sw/../../hal/../misc/lv_timer.h"
+ 496              		.file 25 "Drivers/lvgl/lvgl/src/draw/sw/../../hal/lv_hal_disp.h"
+ 497              		.file 26 "Drivers/lvgl/lvgl/src/draw/sw/../../core/lv_group.h"
+ 498              		.file 27 "Drivers/lvgl/lvgl/src/draw/sw/../../hal/../misc/lv_ll.h"
+ 499              		.file 28 "Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw.h"
+ 500              		.file 29 "Drivers/lvgl/lvgl/src/draw/sw/../../core/lv_obj_scroll.h"
+ 501              		.file 30 "Drivers/lvgl/lvgl/src/draw/sw/../../core/lv_obj_style.h"
+ 502              		.file 31 "Drivers/lvgl/lvgl/src/draw/sw/../../core/lv_obj_class.h"
+ 503              		.file 32 "Drivers/lvgl/lvgl/src/draw/sw/../../core/lv_event.h"
+ARM GAS  /tmp/cclhArEG.s 			page 15
+
+
+ 504              		.file 33 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_mem.h"
+ 505              		.file 34 "Drivers/lvgl/lvgl/src/draw/sw/../../core/lv_refr.h"
+ 506              		.file 35 "Drivers/lvgl/lvgl/src/draw/sw/../lv_img_cache.h"
+ARM GAS  /tmp/cclhArEG.s 			page 16
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_draw_sw_layer.c
+     /tmp/cclhArEG.s:17     .text.lv_draw_sw_layer_create:0000000000000000 $t
+     /tmp/cclhArEG.s:24     .text.lv_draw_sw_layer_create:0000000000000000 lv_draw_sw_layer_create
+     /tmp/cclhArEG.s:223    .text.lv_draw_sw_layer_create:0000000000000108 $d
+     /tmp/cclhArEG.s:229    .text.lv_draw_sw_layer_adjust:0000000000000000 $t
+     /tmp/cclhArEG.s:236    .text.lv_draw_sw_layer_adjust:0000000000000000 lv_draw_sw_layer_adjust
+     /tmp/cclhArEG.s:309    .text.lv_draw_sw_layer_blend:0000000000000000 $t
+     /tmp/cclhArEG.s:316    .text.lv_draw_sw_layer_blend:0000000000000000 lv_draw_sw_layer_blend
+     /tmp/cclhArEG.s:443    .text.lv_draw_sw_layer_destroy:0000000000000000 $t
+     /tmp/cclhArEG.s:450    .text.lv_draw_sw_layer_destroy:0000000000000000 lv_draw_sw_layer_destroy
+
+UNDEFINED SYMBOLS
+lv_area_get_size
+lv_mem_alloc
+lv_memset_00
+_lv_refr_get_disp_refreshing
+lv_draw_img
+lv_draw_wait_for_finish
+lv_img_cache_invalidate_src
+lv_mem_free

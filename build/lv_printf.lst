@@ -1,0 +1,3289 @@
+ARM GAS  /tmp/ccYDvvkT.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_printf.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text._out_buffer,"ax",%progbits
+  17              		.align	1
+  18              		.syntax unified
+  19              		.thumb
+  20              		.thumb_func
+  21              		.fpu fpv5-d16
+  23              	_out_buffer:
+  24              	.LFB0:
+  25              		.file 1 "Drivers/lvgl/lvgl/src/misc/lv_printf.c"
+   1:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** ///////////////////////////////////////////////////////////////////////////////
+   2:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // \author (c) Marco Paland (info@paland.com)
+   3:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** //             2014-2019, PALANDesign Hannover, Germany
+   4:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** //
+   5:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // \license The MIT License (MIT)
+   6:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** //
+   7:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // Permission is hereby granted, free of charge, to any person obtaining a copy
+   8:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // of this software and associated documentation files (the "Software"), to deal
+   9:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // in the Software without restriction, including without limitation the rights
+  10:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  11:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // copies of the Software, and to permit persons to whom the Software is
+  12:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // furnished to do so, subject to the following conditions:
+  13:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** //
+  14:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // The above copyright notice and this permission notice shall be included in
+  15:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // all copies or substantial portions of the Software.
+  16:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** //
+  17:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  18:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  19:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  20:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  21:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  22:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  23:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // THE SOFTWARE.
+  24:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** //
+  25:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // \brief Tiny printf, sprintf and (v)snprintf implementation, optimized for speed on
+  26:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** //        embedded systems with a very limited resources. These routines are thread
+  27:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** //        safe and reentrant!
+  28:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** //        Use this instead of the bloated standard/newlib printf cause these use
+  29:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** //        malloc for printf (and may not be thread safe).
+  30:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** //
+  31:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** ///////////////////////////////////////////////////////////////////////////////
+  32:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  33:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** /*Original repository: https://github.com/mpaland/printf*/
+ARM GAS  /tmp/ccYDvvkT.s 			page 2
+
+
+  34:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  35:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #include "lv_printf.h"
+  36:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  37:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if LV_SPRINTF_CUSTOM == 0
+  38:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  39:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #include <stdbool.h>
+  40:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  41:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #define PRINTF_DISABLE_SUPPORT_FLOAT    (!LV_SPRINTF_USE_FLOAT)
+  42:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  43:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // 'ntoa' conversion buffer size, this must be big enough to hold one converted
+  44:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // numeric number including padded zeros (dynamically created on stack)
+  45:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // default: 32 byte
+  46:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #ifndef PRINTF_NTOA_BUFFER_SIZE
+  47:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     #define PRINTF_NTOA_BUFFER_SIZE    32U
+  48:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+  49:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  50:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // 'ftoa' conversion buffer size, this must be big enough to hold one converted
+  51:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // float number including padded zeros (dynamically created on stack)
+  52:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // default: 32 byte
+  53:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #ifndef PRINTF_FTOA_BUFFER_SIZE
+  54:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     #define PRINTF_FTOA_BUFFER_SIZE    32U
+  55:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+  56:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  57:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // support for the floating point type (%f)
+  58:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // default: activated
+  59:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if !PRINTF_DISABLE_SUPPORT_FLOAT
+  60:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     #define PRINTF_SUPPORT_FLOAT
+  61:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+  62:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  63:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // support for exponential floating point notation (%e/%g)
+  64:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // default: activated
+  65:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #ifndef PRINTF_DISABLE_SUPPORT_EXPONENTIAL
+  66:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     #define PRINTF_SUPPORT_EXPONENTIAL
+  67:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+  68:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  69:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // define the default floating point precision
+  70:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // default: 6 digits
+  71:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #ifndef PRINTF_DEFAULT_FLOAT_PRECISION
+  72:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     #define PRINTF_DEFAULT_FLOAT_PRECISION 6U
+  73:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+  74:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  75:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // define the largest float suitable to print with %f
+  76:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // default: 1e9
+  77:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #ifndef PRINTF_MAX_FLOAT
+  78:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     #define PRINTF_MAX_FLOAT 1e9
+  79:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+  80:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  81:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // support for the long long types (%llu or %p)
+  82:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // default: activated
+  83:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #ifndef PRINTF_DISABLE_SUPPORT_LONG_LONG
+  84:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     #define PRINTF_SUPPORT_LONG_LONG
+  85:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+  86:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  87:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // support for the ptrdiff_t type (%t)
+  88:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // ptrdiff_t is normally defined in <stddef.h> as long or long long type
+  89:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // default: activated
+  90:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #ifndef PRINTF_DISABLE_SUPPORT_PTRDIFF_T
+ARM GAS  /tmp/ccYDvvkT.s 			page 3
+
+
+  91:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     #define PRINTF_SUPPORT_PTRDIFF_T
+  92:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+  93:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  94:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** ///////////////////////////////////////////////////////////////////////////////
+  95:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+  96:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // internal flag definitions
+  97:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #define FLAGS_ZEROPAD   (1U <<  0U)
+  98:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #define FLAGS_LEFT      (1U <<  1U)
+  99:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #define FLAGS_PLUS      (1U <<  2U)
+ 100:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #define FLAGS_SPACE     (1U <<  3U)
+ 101:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #define FLAGS_HASH      (1U <<  4U)
+ 102:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #define FLAGS_UPPERCASE (1U <<  5U)
+ 103:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #define FLAGS_CHAR      (1U <<  6U)
+ 104:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #define FLAGS_SHORT     (1U <<  7U)
+ 105:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #define FLAGS_LONG      (1U <<  8U)
+ 106:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #define FLAGS_LONG_LONG (1U <<  9U)
+ 107:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #define FLAGS_PRECISION (1U << 10U)
+ 108:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #define FLAGS_ADAPT_EXP (1U << 11U)
+ 109:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 110:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // import float.h for DBL_MAX
+ 111:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_FLOAT)
+ 112:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     #include <float.h>
+ 113:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+ 114:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 115:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // output function type
+ 116:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** typedef void (*out_fct_type)(char character, void * buffer, size_t idx, size_t maxlen);
+ 117:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 118:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // wrapper (used as buffer) for output function type
+ 119:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** typedef struct {
+ 120:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     void (*fct)(char character, void * arg);
+ 121:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     void * arg;
+ 122:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** } out_fct_wrap_type;
+ 123:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 124:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // internal buffer output
+ 125:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** static inline void _out_buffer(char character, void * buffer, size_t idx, size_t maxlen)
+ 126:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+  26              		.loc 1 126 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              	.LVL0:
+ 127:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(idx < maxlen) {
+  32              		.loc 1 127 0
+  33 0000 9A42     		cmp	r2, r3
+  34 0002 00D2     		bcs	.L1
+ 128:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         ((char *)buffer)[idx] = character;
+  35              		.loc 1 128 0
+  36 0004 8854     		strb	r0, [r1, r2]
+  37              	.L1:
+ 129:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 130:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+  38              		.loc 1 130 0
+  39 0006 7047     		bx	lr
+  40              		.cfi_endproc
+  41              	.LFE0:
+  43              		.section	.text._out_null,"ax",%progbits
+ARM GAS  /tmp/ccYDvvkT.s 			page 4
+
+
+  44              		.align	1
+  45              		.syntax unified
+  46              		.thumb
+  47              		.thumb_func
+  48              		.fpu fpv5-d16
+  50              	_out_null:
+  51              	.LFB1:
+ 131:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 132:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // internal null output
+ 133:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** static inline void _out_null(char character, void * buffer, size_t idx, size_t maxlen)
+ 134:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+  52              		.loc 1 134 0
+  53              		.cfi_startproc
+  54              		@ args = 0, pretend = 0, frame = 0
+  55              		@ frame_needed = 0, uses_anonymous_args = 0
+  56              		@ link register save eliminated.
+  57              	.LVL1:
+ 135:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     LV_UNUSED(character);
+ 136:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     LV_UNUSED(buffer);
+ 137:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     LV_UNUSED(idx);
+ 138:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     LV_UNUSED(maxlen);
+ 139:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+  58              		.loc 1 139 0
+  59 0000 7047     		bx	lr
+  60              		.cfi_endproc
+  61              	.LFE1:
+  63              		.section	.text._atoi,"ax",%progbits
+  64              		.align	1
+  65              		.syntax unified
+  66              		.thumb
+  67              		.thumb_func
+  68              		.fpu fpv5-d16
+  70              	_atoi:
+  71              	.LFB4:
+ 140:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 141:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // internal secure strlen
+ 142:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // \return The length of the string (excluding the terminating 0) limited by 'maxsize'
+ 143:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** static inline unsigned int _strnlen_s(const char * str, size_t maxsize)
+ 144:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+ 145:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     const char * s;
+ 146:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     for(s = str; *s && maxsize--; ++s);
+ 147:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     return (unsigned int)(s - str);
+ 148:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 149:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 150:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // internal test if char is a digit (0-9)
+ 151:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // \return true if char is a digit
+ 152:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** static inline bool _is_digit(char ch)
+ 153:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+ 154:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     return (ch >= '0') && (ch <= '9');
+ 155:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 156:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 157:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // internal ASCII string to unsigned int conversion
+ 158:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** static unsigned int _atoi(const char ** str)
+ 159:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+  72              		.loc 1 159 0
+  73              		.cfi_startproc
+  74              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  /tmp/ccYDvvkT.s 			page 5
+
+
+  75              		@ frame_needed = 0, uses_anonymous_args = 0
+  76              		@ link register save eliminated.
+  77              	.LVL2:
+ 160:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     unsigned int i = 0U;
+  78              		.loc 1 160 0
+  79 0000 0023     		movs	r3, #0
+ 161:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     while(_is_digit(**str)) {
+  80              		.loc 1 161 0
+  81 0002 07E0     		b	.L5
+  82              	.LVL3:
+  83              	.L6:
+ 162:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         i = i * 10U + (unsigned int)(*((*str)++) - '0');
+  84              		.loc 1 162 0
+  85 0004 03EB8303 		add	r3, r3, r3, lsl #2
+  86              	.LVL4:
+  87 0008 5A00     		lsls	r2, r3, #1
+  88 000a 4B1C     		adds	r3, r1, #1
+  89 000c 0360     		str	r3, [r0]
+  90 000e 0B78     		ldrb	r3, [r1]	@ zero_extendqisi2
+  91 0010 1344     		add	r3, r3, r2
+  92 0012 303B     		subs	r3, r3, #48
+  93              	.LVL5:
+  94              	.L5:
+ 161:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     while(_is_digit(**str)) {
+  95              		.loc 1 161 0
+  96 0014 0168     		ldr	r1, [r0]
+  97 0016 0A78     		ldrb	r2, [r1]	@ zero_extendqisi2
+  98              	.LVL6:
+  99              	.LBB20:
+ 100              	.LBB21:
+ 154:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 101              		.loc 1 154 0
+ 102 0018 303A     		subs	r2, r2, #48
+ 103              	.LVL7:
+ 104 001a D2B2     		uxtb	r2, r2
+ 105              	.LVL8:
+ 106              	.LBE21:
+ 107              	.LBE20:
+ 161:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     while(_is_digit(**str)) {
+ 108              		.loc 1 161 0
+ 109 001c 092A     		cmp	r2, #9
+ 110 001e F1D9     		bls	.L6
+ 163:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 164:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     return i;
+ 165:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 111              		.loc 1 165 0
+ 112 0020 1846     		mov	r0, r3
+ 113              	.LVL9:
+ 114 0022 7047     		bx	lr
+ 115              		.cfi_endproc
+ 116              	.LFE4:
+ 118              		.section	.text._out_rev,"ax",%progbits
+ 119              		.align	1
+ 120              		.syntax unified
+ 121              		.thumb
+ 122              		.thumb_func
+ 123              		.fpu fpv5-d16
+ARM GAS  /tmp/ccYDvvkT.s 			page 6
+
+
+ 125              	_out_rev:
+ 126              	.LFB5:
+ 166:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 167:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // output the specified string in reverse, taking care of any zero-padding
+ 168:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** static size_t _out_rev(out_fct_type out, char * buffer, size_t idx, size_t maxlen, const char * buf
+ 169:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                        unsigned int width, unsigned int flags)
+ 170:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+ 127              		.loc 1 170 0
+ 128              		.cfi_startproc
+ 129              		@ args = 16, pretend = 0, frame = 8
+ 130              		@ frame_needed = 0, uses_anonymous_args = 0
+ 131              	.LVL10:
+ 132 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 133              	.LCFI0:
+ 134              		.cfi_def_cfa_offset 36
+ 135              		.cfi_offset 4, -36
+ 136              		.cfi_offset 5, -32
+ 137              		.cfi_offset 6, -28
+ 138              		.cfi_offset 7, -24
+ 139              		.cfi_offset 8, -20
+ 140              		.cfi_offset 9, -16
+ 141              		.cfi_offset 10, -12
+ 142              		.cfi_offset 11, -8
+ 143              		.cfi_offset 14, -4
+ 144 0004 83B0     		sub	sp, sp, #12
+ 145              	.LCFI1:
+ 146              		.cfi_def_cfa_offset 48
+ 147 0006 0546     		mov	r5, r0
+ 148 0008 0191     		str	r1, [sp, #4]
+ 149 000a 9346     		mov	fp, r2
+ 150 000c 1E46     		mov	r6, r3
+ 151 000e DDF83090 		ldr	r9, [sp, #48]
+ 152 0012 0D9C     		ldr	r4, [sp, #52]
+ 153 0014 DDF83880 		ldr	r8, [sp, #56]
+ 154              	.LVL11:
+ 171:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     const size_t start_idx = idx;
+ 172:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 173:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // pad spaces up to given width
+ 174:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(!(flags & FLAGS_LEFT) && !(flags & FLAGS_ZEROPAD)) {
+ 155              		.loc 1 174 0
+ 156 0018 0F9B     		ldr	r3, [sp, #60]
+ 157              	.LVL12:
+ 158 001a 13F0030F 		tst	r3, #3
+ 159 001e 14D1     		bne	.L9
+ 160              	.LBB22:
+ 175:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         size_t i;
+ 176:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         for(i = len; i < width; i++) {
+ 161              		.loc 1 176 0
+ 162 0020 2746     		mov	r7, r4
+ 163 0022 07E0     		b	.L8
+ 164              	.LVL13:
+ 165              	.L10:
+ 177:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             out(' ', buffer, idx++, maxlen);
+ 166              		.loc 1 177 0 discriminator 3
+ 167 0024 02F1010A 		add	r10, r2, #1
+ 168              	.LVL14:
+ 169 0028 3346     		mov	r3, r6
+ARM GAS  /tmp/ccYDvvkT.s 			page 7
+
+
+ 170 002a 0199     		ldr	r1, [sp, #4]
+ 171 002c 2020     		movs	r0, #32
+ 172 002e A847     		blx	r5
+ 173              	.LVL15:
+ 176:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             out(' ', buffer, idx++, maxlen);
+ 174              		.loc 1 176 0 discriminator 3
+ 175 0030 0137     		adds	r7, r7, #1
+ 176              	.LVL16:
+ 177              		.loc 1 177 0 discriminator 3
+ 178 0032 5246     		mov	r2, r10
+ 179              	.LVL17:
+ 180              	.L8:
+ 176:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             out(' ', buffer, idx++, maxlen);
+ 181              		.loc 1 176 0 discriminator 1
+ 182 0034 4745     		cmp	r7, r8
+ 183 0036 F5D3     		bcc	.L10
+ 184 0038 07E0     		b	.L9
+ 185              	.LVL18:
+ 186              	.L12:
+ 187              	.LBE22:
+ 178:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 179:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 180:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 181:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // reverse string
+ 182:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     while(len) {
+ 183:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         out(buf[--len], buffer, idx++, maxlen);
+ 188              		.loc 1 183 0
+ 189 003a 013C     		subs	r4, r4, #1
+ 190              	.LVL19:
+ 191 003c 571C     		adds	r7, r2, #1
+ 192              	.LVL20:
+ 193 003e 3346     		mov	r3, r6
+ 194 0040 0199     		ldr	r1, [sp, #4]
+ 195 0042 19F80400 		ldrb	r0, [r9, r4]	@ zero_extendqisi2
+ 196 0046 A847     		blx	r5
+ 197              	.LVL21:
+ 198 0048 3A46     		mov	r2, r7
+ 199              	.LVL22:
+ 200              	.L9:
+ 182:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         out(buf[--len], buffer, idx++, maxlen);
+ 201              		.loc 1 182 0
+ 202 004a 002C     		cmp	r4, #0
+ 203 004c F5D1     		bne	.L12
+ 184:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 185:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 186:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // append pad spaces up to given width
+ 187:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(flags & FLAGS_LEFT) {
+ 204              		.loc 1 187 0
+ 205 004e 0F9B     		ldr	r3, [sp, #60]
+ 206 0050 13F0020F 		tst	r3, #2
+ 207 0054 06D1     		bne	.L13
+ 208 0056 09E0     		b	.L7
+ 209              	.LVL23:
+ 210              	.L15:
+ 188:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         while(idx - start_idx < width) {
+ 189:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             out(' ', buffer, idx++, maxlen);
+ 211              		.loc 1 189 0
+ARM GAS  /tmp/ccYDvvkT.s 			page 8
+
+
+ 212 0058 541C     		adds	r4, r2, #1
+ 213              	.LVL24:
+ 214 005a 3346     		mov	r3, r6
+ 215 005c 0199     		ldr	r1, [sp, #4]
+ 216 005e 2020     		movs	r0, #32
+ 217 0060 A847     		blx	r5
+ 218              	.LVL25:
+ 219 0062 2246     		mov	r2, r4
+ 220              	.LVL26:
+ 221              	.L13:
+ 188:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         while(idx - start_idx < width) {
+ 222              		.loc 1 188 0
+ 223 0064 A2EB0B03 		sub	r3, r2, fp
+ 224 0068 4345     		cmp	r3, r8
+ 225 006a F5D3     		bcc	.L15
+ 226              	.L7:
+ 190:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 191:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 192:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 193:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     return idx;
+ 194:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 227              		.loc 1 194 0
+ 228 006c 1046     		mov	r0, r2
+ 229 006e 03B0     		add	sp, sp, #12
+ 230              	.LCFI2:
+ 231              		.cfi_def_cfa_offset 36
+ 232              		@ sp needed
+ 233 0070 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 234              		.cfi_endproc
+ 235              	.LFE5:
+ 237              		.section	.text._ntoa_format,"ax",%progbits
+ 238              		.align	1
+ 239              		.syntax unified
+ 240              		.thumb
+ 241              		.thumb_func
+ 242              		.fpu fpv5-d16
+ 244              	_ntoa_format:
+ 245              	.LFB6:
+ 195:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 196:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // internal itoa format
+ 197:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** static size_t _ntoa_format(out_fct_type out, char * buffer, size_t idx, size_t maxlen, char * buf, 
+ 198:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                            bool negative, unsigned int base, unsigned int prec, unsigned int width,
+ 199:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+ 246              		.loc 1 199 0
+ 247              		.cfi_startproc
+ 248              		@ args = 28, pretend = 0, frame = 0
+ 249              		@ frame_needed = 0, uses_anonymous_args = 0
+ 250              	.LVL27:
+ 251 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 252              	.LCFI3:
+ 253              		.cfi_def_cfa_offset 28
+ 254              		.cfi_offset 4, -28
+ 255              		.cfi_offset 5, -24
+ 256              		.cfi_offset 6, -20
+ 257              		.cfi_offset 7, -16
+ 258              		.cfi_offset 8, -12
+ 259              		.cfi_offset 9, -8
+ARM GAS  /tmp/ccYDvvkT.s 			page 9
+
+
+ 260              		.cfi_offset 14, -4
+ 261 0004 85B0     		sub	sp, sp, #20
+ 262              	.LCFI4:
+ 263              		.cfi_def_cfa_offset 48
+ 264 0006 0C9E     		ldr	r6, [sp, #48]
+ 265 0008 0D9C     		ldr	r4, [sp, #52]
+ 266 000a 9DF83890 		ldrb	r9, [sp, #56]	@ zero_extendqisi2
+ 267 000e DDF83C80 		ldr	r8, [sp, #60]
+ 268 0012 DDF840E0 		ldr	lr, [sp, #64]
+ 269 0016 DDF844C0 		ldr	ip, [sp, #68]
+ 270 001a 129D     		ldr	r5, [sp, #72]
+ 200:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // pad leading zeros
+ 201:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(!(flags & FLAGS_LEFT)) {
+ 271              		.loc 1 201 0
+ 272 001c 15F0020F 		tst	r5, #2
+ 273 0020 24D1     		bne	.L20
+ 202:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(width && (flags & FLAGS_ZEROPAD) && (negative || (flags & (FLAGS_PLUS | FLAGS_SPACE)))) 
+ 274              		.loc 1 202 0
+ 275 0022 BCF1000F 		cmp	ip, #0
+ 276 0026 0ED0     		beq	.L23
+ 277              		.loc 1 202 0 is_stmt 0 discriminator 1
+ 278 0028 15F0010F 		tst	r5, #1
+ 279 002c 0BD0     		beq	.L23
+ 280              		.loc 1 202 0 discriminator 2
+ 281 002e B9F1000F 		cmp	r9, #0
+ 282 0032 02D1     		bne	.L22
+ 283              		.loc 1 202 0 discriminator 3
+ 284 0034 15F00C0F 		tst	r5, #12
+ 285 0038 05D0     		beq	.L23
+ 286              	.L22:
+ 203:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             width--;
+ 287              		.loc 1 203 0 is_stmt 1
+ 288 003a 0CF1FF3C 		add	ip, ip, #-1
+ 289              	.LVL28:
+ 290 003e 02E0     		b	.L23
+ 291              	.LVL29:
+ 292              	.L24:
+ 204:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 205:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         while((len < prec) && (len < PRINTF_NTOA_BUFFER_SIZE)) {
+ 206:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = '0';
+ 293              		.loc 1 206 0
+ 294 0040 3027     		movs	r7, #48
+ 295 0042 3755     		strb	r7, [r6, r4]
+ 296 0044 0134     		adds	r4, r4, #1
+ 297              	.LVL30:
+ 298              	.L23:
+ 205:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = '0';
+ 299              		.loc 1 205 0
+ 300 0046 1F2C     		cmp	r4, #31
+ 301 0048 98BF     		it	ls
+ 302 004a 7445     		cmpls	r4, lr
+ 303 004c F8D3     		bcc	.L24
+ 304 004e 02E0     		b	.L25
+ 305              	.L26:
+ 306              	.LVL31:
+ 207:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 208:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         while((flags & FLAGS_ZEROPAD) && (len < width) && (len < PRINTF_NTOA_BUFFER_SIZE)) {
+ARM GAS  /tmp/ccYDvvkT.s 			page 10
+
+
+ 209:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = '0';
+ 307              		.loc 1 209 0
+ 308 0050 3027     		movs	r7, #48
+ 309 0052 3755     		strb	r7, [r6, r4]
+ 310 0054 0134     		adds	r4, r4, #1
+ 311              	.LVL32:
+ 312              	.L25:
+ 208:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = '0';
+ 313              		.loc 1 208 0
+ 314 0056 15F0010F 		tst	r5, #1
+ 315 005a 07D0     		beq	.L20
+ 208:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = '0';
+ 316              		.loc 1 208 0 is_stmt 0 discriminator 1
+ 317 005c 1F2C     		cmp	r4, #31
+ 318 005e 8CBF     		ite	hi
+ 319 0060 0027     		movhi	r7, #0
+ 320 0062 0127     		movls	r7, #1
+ 321 0064 6445     		cmp	r4, ip
+ 322 0066 01D2     		bcs	.L20
+ 323 0068 002F     		cmp	r7, #0
+ 324 006a F1D1     		bne	.L26
+ 325              	.LVL33:
+ 326              	.L20:
+ 210:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 211:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 212:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 213:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // handle hash
+ 214:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(flags & FLAGS_HASH) {
+ 327              		.loc 1 214 0 is_stmt 1
+ 328 006c 15F0100F 		tst	r5, #16
+ 329 0070 26D0     		beq	.L28
+ 215:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(!(flags & FLAGS_PRECISION) && len && ((len == prec) || (len == width))) {
+ 330              		.loc 1 215 0
+ 331 0072 15F4806F 		tst	r5, #1024
+ 332 0076 10D1     		bne	.L29
+ 333              		.loc 1 215 0 is_stmt 0 discriminator 1
+ 334 0078 7CB1     		cbz	r4, .L29
+ 335              		.loc 1 215 0 discriminator 2
+ 336 007a 6445     		cmp	r4, ip
+ 337 007c 18BF     		it	ne
+ 338 007e 7445     		cmpne	r4, lr
+ 339 0080 0BD1     		bne	.L29
+ 340              	.LVL34:
+ 216:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             len--;
+ 217:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             if(len && (base == 16U)) {
+ 341              		.loc 1 217 0 is_stmt 1
+ 342 0082 04F1FF3E 		add	lr, r4, #-1
+ 343              	.LVL35:
+ 344 0086 14F1FF37 		adds	r7, r4, #-1
+ 345 008a 18BF     		it	ne
+ 346 008c 0127     		movne	r7, #1
+ 347 008e B8F1100F 		cmp	r8, #16
+ 348 0092 18BF     		it	ne
+ 349 0094 0027     		movne	r7, #0
+ 350 0096 17B3     		cbz	r7, .L36
+ 218:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 len--;
+ 351              		.loc 1 218 0
+ARM GAS  /tmp/ccYDvvkT.s 			page 11
+
+
+ 352 0098 023C     		subs	r4, r4, #2
+ 353              	.LVL36:
+ 354              	.L29:
+ 219:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 220:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 221:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if((base == 16U) && !(flags & FLAGS_UPPERCASE) && (len < PRINTF_NTOA_BUFFER_SIZE)) {
+ 355              		.loc 1 221 0
+ 356 009a B8F1100F 		cmp	r8, #16
+ 357 009e 20D0     		beq	.L38
+ 358              	.L30:
+ 222:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = 'x';
+ 223:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 224:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         else if((base == 16U) && (flags & FLAGS_UPPERCASE) && (len < PRINTF_NTOA_BUFFER_SIZE)) {
+ 359              		.loc 1 224 0
+ 360 00a0 B8F1100F 		cmp	r8, #16
+ 361 00a4 26D0     		beq	.L39
+ 362              	.L32:
+ 225:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = 'X';
+ 226:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 227:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         else if((base == 2U) && (len < PRINTF_NTOA_BUFFER_SIZE)) {
+ 363              		.loc 1 227 0
+ 364 00a6 1F2C     		cmp	r4, #31
+ 365 00a8 98BF     		it	ls
+ 366 00aa B8F1020F 		cmpls	r8, #2
+ 367 00ae 02D1     		bne	.L31
+ 368              	.LVL37:
+ 228:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = 'b';
+ 369              		.loc 1 228 0
+ 370 00b0 6227     		movs	r7, #98
+ 371 00b2 3755     		strb	r7, [r6, r4]
+ 372 00b4 0134     		adds	r4, r4, #1
+ 373              	.LVL38:
+ 374              	.L31:
+ 229:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 230:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(len < PRINTF_NTOA_BUFFER_SIZE) {
+ 375              		.loc 1 230 0
+ 376 00b6 1F2C     		cmp	r4, #31
+ 377 00b8 02D8     		bhi	.L28
+ 378              	.LVL39:
+ 231:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = '0';
+ 379              		.loc 1 231 0
+ 380 00ba 3027     		movs	r7, #48
+ 381 00bc 3755     		strb	r7, [r6, r4]
+ 382 00be 0134     		adds	r4, r4, #1
+ 383              	.LVL40:
+ 384              	.L28:
+ 232:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 233:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 234:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 235:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(len < PRINTF_NTOA_BUFFER_SIZE) {
+ 385              		.loc 1 235 0
+ 386 00c0 1F2C     		cmp	r4, #31
+ 387 00c2 23D8     		bhi	.L33
+ 236:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(negative) {
+ 388              		.loc 1 236 0
+ 389 00c4 B9F1000F 		cmp	r9, #0
+ 390 00c8 1DD1     		bne	.L40
+ARM GAS  /tmp/ccYDvvkT.s 			page 12
+
+
+ 237:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = '-';
+ 238:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 239:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         else if(flags & FLAGS_PLUS) {
+ 391              		.loc 1 239 0
+ 392 00ca 15F0040F 		tst	r5, #4
+ 393 00ce 27D1     		bne	.L41
+ 240:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = '+';  // ignore the space if the '+' exists
+ 241:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 242:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         else if(flags & FLAGS_SPACE) {
+ 394              		.loc 1 242 0
+ 395 00d0 15F0080F 		tst	r5, #8
+ 396 00d4 1AD0     		beq	.L33
+ 397              	.LVL41:
+ 243:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = ' ';
+ 398              		.loc 1 243 0
+ 399 00d6 2027     		movs	r7, #32
+ 400 00d8 3755     		strb	r7, [r6, r4]
+ 401 00da 0134     		adds	r4, r4, #1
+ 402              	.LVL42:
+ 403 00dc 16E0     		b	.L33
+ 404              	.LVL43:
+ 405              	.L36:
+ 216:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             if(len && (base == 16U)) {
+ 406              		.loc 1 216 0
+ 407 00de 7446     		mov	r4, lr
+ 408 00e0 DBE7     		b	.L29
+ 409              	.LVL44:
+ 410              	.L38:
+ 221:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = 'x';
+ 411              		.loc 1 221 0 discriminator 1
+ 412 00e2 15F0200F 		tst	r5, #32
+ 413 00e6 DBD1     		bne	.L30
+ 221:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = 'x';
+ 414              		.loc 1 221 0 is_stmt 0 discriminator 2
+ 415 00e8 1F2C     		cmp	r4, #31
+ 416 00ea D9D8     		bhi	.L30
+ 417              	.LVL45:
+ 222:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 418              		.loc 1 222 0 is_stmt 1
+ 419 00ec 7827     		movs	r7, #120
+ 420 00ee 3755     		strb	r7, [r6, r4]
+ 421 00f0 0134     		adds	r4, r4, #1
+ 422              	.LVL46:
+ 423 00f2 E0E7     		b	.L31
+ 424              	.L39:
+ 224:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = 'X';
+ 425              		.loc 1 224 0 discriminator 1
+ 426 00f4 15F0200F 		tst	r5, #32
+ 427 00f8 D5D0     		beq	.L32
+ 224:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = 'X';
+ 428              		.loc 1 224 0 is_stmt 0 discriminator 2
+ 429 00fa 1F2C     		cmp	r4, #31
+ 430 00fc D3D8     		bhi	.L32
+ 431              	.LVL47:
+ 225:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 432              		.loc 1 225 0 is_stmt 1
+ 433 00fe 5827     		movs	r7, #88
+ARM GAS  /tmp/ccYDvvkT.s 			page 13
+
+
+ 434 0100 3755     		strb	r7, [r6, r4]
+ 435 0102 0134     		adds	r4, r4, #1
+ 436              	.LVL48:
+ 437 0104 D7E7     		b	.L31
+ 438              	.L40:
+ 439              	.LVL49:
+ 237:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 440              		.loc 1 237 0
+ 441 0106 2D27     		movs	r7, #45
+ 442 0108 3755     		strb	r7, [r6, r4]
+ 443 010a 0134     		adds	r4, r4, #1
+ 444              	.LVL50:
+ 445              	.L33:
+ 244:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 245:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 246:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 247:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     return _out_rev(out, buffer, idx, maxlen, buf, len, width, flags);
+ 446              		.loc 1 247 0
+ 447 010c 0395     		str	r5, [sp, #12]
+ 448 010e CDF808C0 		str	ip, [sp, #8]
+ 449 0112 0194     		str	r4, [sp, #4]
+ 450 0114 0096     		str	r6, [sp]
+ 451 0116 FFF7FEFF 		bl	_out_rev
+ 452              	.LVL51:
+ 248:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 453              		.loc 1 248 0
+ 454 011a 05B0     		add	sp, sp, #20
+ 455              	.LCFI5:
+ 456              		.cfi_remember_state
+ 457              		.cfi_def_cfa_offset 28
+ 458              		@ sp needed
+ 459 011c BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 460              	.LVL52:
+ 461              	.L41:
+ 462              	.LCFI6:
+ 463              		.cfi_restore_state
+ 240:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 464              		.loc 1 240 0
+ 465 0120 2B27     		movs	r7, #43
+ 466 0122 3755     		strb	r7, [r6, r4]
+ 467 0124 0134     		adds	r4, r4, #1
+ 468              	.LVL53:
+ 469 0126 F1E7     		b	.L33
+ 470              		.cfi_endproc
+ 471              	.LFE6:
+ 473              		.section	.text._ntoa_long,"ax",%progbits
+ 474              		.align	1
+ 475              		.syntax unified
+ 476              		.thumb
+ 477              		.thumb_func
+ 478              		.fpu fpv5-d16
+ 480              	_ntoa_long:
+ 481              	.LFB7:
+ 249:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 250:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // internal itoa for 'long' type
+ 251:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** static size_t _ntoa_long(out_fct_type out, char * buffer, size_t idx, size_t maxlen, unsigned long 
+ 252:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                          unsigned long base, unsigned int prec, unsigned int width, unsigned int fl
+ARM GAS  /tmp/ccYDvvkT.s 			page 14
+
+
+ 253:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+ 482              		.loc 1 253 0
+ 483              		.cfi_startproc
+ 484              		@ args = 24, pretend = 0, frame = 32
+ 485              		@ frame_needed = 0, uses_anonymous_args = 0
+ 486              	.LVL54:
+ 487 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 488              	.LCFI7:
+ 489              		.cfi_def_cfa_offset 24
+ 490              		.cfi_offset 4, -24
+ 491              		.cfi_offset 5, -20
+ 492              		.cfi_offset 6, -16
+ 493              		.cfi_offset 7, -12
+ 494              		.cfi_offset 8, -8
+ 495              		.cfi_offset 14, -4
+ 496 0004 90B0     		sub	sp, sp, #64
+ 497              	.LCFI8:
+ 498              		.cfi_def_cfa_offset 88
+ 499 0006 169D     		ldr	r5, [sp, #88]
+ 500 0008 189F     		ldr	r7, [sp, #96]
+ 501 000a DDF86CC0 		ldr	ip, [sp, #108]
+ 502              	.LVL55:
+ 254:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     char buf[PRINTF_NTOA_BUFFER_SIZE];
+ 255:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     size_t len = 0U;
+ 256:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 257:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // no hash for 0 values
+ 258:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(!value) {
+ 503              		.loc 1 258 0
+ 504 000e 0DB9     		cbnz	r5, .L43
+ 259:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         flags &= ~FLAGS_HASH;
+ 505              		.loc 1 259 0
+ 506 0010 2CF0100C 		bic	ip, ip, #16
+ 507              	.LVL56:
+ 508              	.L43:
+ 260:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 261:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 262:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // write if precision != 0 and value is != 0
+ 263:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(!(flags & FLAGS_PRECISION) || value) {
+ 509              		.loc 1 263 0
+ 510 0014 1CF48066 		ands	r6, ip, #1024
+ 511 0018 1ED0     		beq	.L49
+ 512              		.loc 1 263 0 is_stmt 0 discriminator 1
+ 513 001a 55B3     		cbz	r5, .L50
+ 514 001c 0026     		movs	r6, #0
+ 515 001e 1BE0     		b	.L49
+ 516              	.LVL57:
+ 517              	.L46:
+ 518              	.LBB23:
+ 264:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         do {
+ 265:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             const char digit = (char)(value % base);
+ 266:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = digit < 10 ? '0' + digit : (flags & FLAGS_UPPERCASE ? 'A' : 'a') + digit -
+ 519              		.loc 1 266 0 is_stmt 1 discriminator 2
+ 520 0020 1CF0200F 		tst	ip, #32
+ 521 0024 22D0     		beq	.L51
+ 522              		.loc 1 266 0 is_stmt 0
+ 523 0026 4FF0410E 		mov	lr, #65
+ 524              	.L48:
+ARM GAS  /tmp/ccYDvvkT.s 			page 15
+
+
+ 525              		.loc 1 266 0 discriminator 7
+ 526 002a 7444     		add	r4, r4, lr
+ 527              	.LVL58:
+ 528 002c E4B2     		uxtb	r4, r4
+ 529 002e 0A3C     		subs	r4, r4, #10
+ 530 0030 E4B2     		uxtb	r4, r4
+ 531              	.L47:
+ 532              		.loc 1 266 0 discriminator 8
+ 533 0032 06F1010E 		add	lr, r6, #1
+ 534              	.LVL59:
+ 535 0036 0DF14008 		add	r8, sp, #64
+ 536 003a 4644     		add	r6, r6, r8
+ 537 003c 06F8204C 		strb	r4, [r6, #-32]
+ 267:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             value /= base;
+ 538              		.loc 1 267 0 is_stmt 1 discriminator 8
+ 539 0040 B5FBF7F5 		udiv	r5, r5, r7
+ 540              	.LVL60:
+ 541              	.LBE23:
+ 268:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         } while(value && (len < PRINTF_NTOA_BUFFER_SIZE));
+ 542              		.loc 1 268 0 discriminator 8
+ 543 0044 BEF11F0F 		cmp	lr, #31
+ 544 0048 8CBF     		ite	hi
+ 545 004a 0024     		movhi	r4, #0
+ 546 004c 0124     		movls	r4, #1
+ 547 004e 002D     		cmp	r5, #0
+ 548 0050 08BF     		it	eq
+ 549 0052 0024     		moveq	r4, #0
+ 550 0054 7CB1     		cbz	r4, .L45
+ 551              	.LBB24:
+ 266:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             value /= base;
+ 552              		.loc 1 266 0
+ 553 0056 7646     		mov	r6, lr
+ 554              	.LVL61:
+ 555              	.L49:
+ 265:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = digit < 10 ? '0' + digit : (flags & FLAGS_UPPERCASE ? 'A' : 'a') + digit -
+ 556              		.loc 1 265 0
+ 557 0058 B5FBF7F4 		udiv	r4, r5, r7
+ 558 005c 07FB1454 		mls	r4, r7, r4, r5
+ 559 0060 E4B2     		uxtb	r4, r4
+ 560              	.LVL62:
+ 266:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             value /= base;
+ 561              		.loc 1 266 0
+ 562 0062 092C     		cmp	r4, #9
+ 563 0064 DCD8     		bhi	.L46
+ 266:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             value /= base;
+ 564              		.loc 1 266 0 is_stmt 0 discriminator 1
+ 565 0066 3034     		adds	r4, r4, #48
+ 566              	.LVL63:
+ 567 0068 E4B2     		uxtb	r4, r4
+ 568              	.LVL64:
+ 569 006a E2E7     		b	.L47
+ 570              	.LVL65:
+ 571              	.L51:
+ 266:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             value /= base;
+ 572              		.loc 1 266 0
+ 573 006c 4FF0610E 		mov	lr, #97
+ 574 0070 DBE7     		b	.L48
+ARM GAS  /tmp/ccYDvvkT.s 			page 16
+
+
+ 575              	.LVL66:
+ 576              	.L50:
+ 577              	.LBE24:
+ 255:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 578              		.loc 1 255 0 is_stmt 1
+ 579 0072 4FF0000E 		mov	lr, #0
+ 580              	.LVL67:
+ 581              	.L45:
+ 269:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 270:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 271:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     return _ntoa_format(out, buffer, idx, maxlen, buf, len, negative, (unsigned int)base, prec, wid
+ 582              		.loc 1 271 0
+ 583 0076 CDF818C0 		str	ip, [sp, #24]
+ 584 007a 1A9C     		ldr	r4, [sp, #104]
+ 585 007c 0594     		str	r4, [sp, #20]
+ 586 007e 199C     		ldr	r4, [sp, #100]
+ 587 0080 0494     		str	r4, [sp, #16]
+ 588 0082 0397     		str	r7, [sp, #12]
+ 589 0084 9DF85C40 		ldrb	r4, [sp, #92]	@ zero_extendqisi2
+ 590 0088 0294     		str	r4, [sp, #8]
+ 591 008a CDF804E0 		str	lr, [sp, #4]
+ 592 008e 08AC     		add	r4, sp, #32
+ 593 0090 0094     		str	r4, [sp]
+ 594 0092 FFF7FEFF 		bl	_ntoa_format
+ 595              	.LVL68:
+ 272:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 596              		.loc 1 272 0
+ 597 0096 10B0     		add	sp, sp, #64
+ 598              	.LCFI9:
+ 599              		.cfi_def_cfa_offset 24
+ 600              		@ sp needed
+ 601 0098 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 602              		.cfi_endproc
+ 603              	.LFE7:
+ 605              		.global	__aeabi_uldivmod
+ 606              		.section	.text._ntoa_long_long,"ax",%progbits
+ 607              		.align	1
+ 608              		.syntax unified
+ 609              		.thumb
+ 610              		.thumb_func
+ 611              		.fpu fpv5-d16
+ 613              	_ntoa_long_long:
+ 614              	.LFB8:
+ 273:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 274:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // internal itoa for 'long long' type
+ 275:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_LONG_LONG)
+ 276:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** static size_t _ntoa_long_long(out_fct_type out, char * buffer, size_t idx, size_t maxlen, unsigned 
+ 277:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                               bool negative, unsigned long long base, unsigned int prec, unsigned i
+ 278:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+ 615              		.loc 1 278 0
+ 616              		.cfi_startproc
+ 617              		@ args = 36, pretend = 0, frame = 48
+ 618              		@ frame_needed = 0, uses_anonymous_args = 0
+ 619              	.LVL69:
+ 620 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 621              	.LCFI10:
+ 622              		.cfi_def_cfa_offset 36
+ARM GAS  /tmp/ccYDvvkT.s 			page 17
+
+
+ 623              		.cfi_offset 4, -36
+ 624              		.cfi_offset 5, -32
+ 625              		.cfi_offset 6, -28
+ 626              		.cfi_offset 7, -24
+ 627              		.cfi_offset 8, -20
+ 628              		.cfi_offset 9, -16
+ 629              		.cfi_offset 10, -12
+ 630              		.cfi_offset 11, -8
+ 631              		.cfi_offset 14, -4
+ 632 0004 95B0     		sub	sp, sp, #84
+ 633              	.LCFI11:
+ 634              		.cfi_def_cfa_offset 120
+ 635 0006 0990     		str	r0, [sp, #36]
+ 636 0008 0A91     		str	r1, [sp, #40]
+ 637 000a 0B92     		str	r2, [sp, #44]
+ 638 000c 9B46     		mov	fp, r3
+ 639 000e DDE91E45 		ldrd	r4, [sp, #120]
+ 640 0012 DDF88880 		ldr	r8, [sp, #136]
+ 641 0016 DDF88C90 		ldr	r9, [sp, #140]
+ 642 001a DDF898A0 		ldr	r10, [sp, #152]
+ 643              	.LVL70:
+ 279:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     char buf[PRINTF_NTOA_BUFFER_SIZE];
+ 280:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     size_t len = 0U;
+ 281:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 282:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // no hash for 0 values
+ 283:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(!value) {
+ 644              		.loc 1 283 0
+ 645 001e 54EA0503 		orrs	r3, r4, r5
+ 646              	.LVL71:
+ 647 0022 01D1     		bne	.L55
+ 284:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         flags &= ~FLAGS_HASH;
+ 648              		.loc 1 284 0
+ 649 0024 2AF0100A 		bic	r10, r10, #16
+ 650              	.LVL72:
+ 651              	.L55:
+ 285:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 286:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 287:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // write if precision != 0 and value is != 0
+ 288:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(!(flags & FLAGS_PRECISION) || value) {
+ 652              		.loc 1 288 0
+ 653 0028 1AF48066 		ands	r6, r10, #1024
+ 654 002c 25D0     		beq	.L61
+ 655              		.loc 1 288 0 is_stmt 0 discriminator 1
+ 656 002e 54EA0503 		orrs	r3, r4, r5
+ 657 0032 31D0     		beq	.L62
+ 658 0034 0026     		movs	r6, #0
+ 659 0036 20E0     		b	.L61
+ 660              	.LVL73:
+ 661              	.L58:
+ 662              	.LBB25:
+ 289:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         do {
+ 290:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             const char digit = (char)(value % base);
+ 291:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = digit < 10 ? '0' + digit : (flags & FLAGS_UPPERCASE ? 'A' : 'a') + digit -
+ 663              		.loc 1 291 0 is_stmt 1 discriminator 2
+ 664 0038 1AF0200F 		tst	r10, #32
+ 665 003c 2AD0     		beq	.L63
+ 666              		.loc 1 291 0 is_stmt 0
+ARM GAS  /tmp/ccYDvvkT.s 			page 18
+
+
+ 667 003e 4122     		movs	r2, #65
+ 668              	.L60:
+ 669              		.loc 1 291 0 discriminator 7
+ 670 0040 1A44     		add	r2, r2, r3
+ 671 0042 D2B2     		uxtb	r2, r2
+ 672 0044 0A3A     		subs	r2, r2, #10
+ 673 0046 D2B2     		uxtb	r2, r2
+ 674              	.L59:
+ 675              		.loc 1 291 0 discriminator 8
+ 676 0048 771C     		adds	r7, r6, #1
+ 677              	.LVL74:
+ 678 004a 14AB     		add	r3, sp, #80
+ 679              	.LVL75:
+ 680 004c 1E44     		add	r6, r6, r3
+ 681 004e 06F8202C 		strb	r2, [r6, #-32]
+ 292:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             value /= base;
+ 682              		.loc 1 292 0 is_stmt 1 discriminator 8
+ 683 0052 4246     		mov	r2, r8
+ 684 0054 4B46     		mov	r3, r9
+ 685 0056 2046     		mov	r0, r4
+ 686 0058 2946     		mov	r1, r5
+ 687 005a FFF7FEFF 		bl	__aeabi_uldivmod
+ 688              	.LVL76:
+ 689 005e 0446     		mov	r4, r0
+ 690              	.LVL77:
+ 691 0060 0D46     		mov	r5, r1
+ 692              	.LVL78:
+ 693              	.LBE25:
+ 293:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         } while(value && (len < PRINTF_NTOA_BUFFER_SIZE));
+ 694              		.loc 1 293 0 discriminator 8
+ 695 0062 50EA0103 		orrs	r3, r0, r1
+ 696 0066 14BF     		ite	ne
+ 697 0068 0123     		movne	r3, #1
+ 698 006a 0023     		moveq	r3, #0
+ 699 006c 1F2F     		cmp	r7, #31
+ 700 006e 8CBF     		ite	hi
+ 701 0070 0023     		movhi	r3, #0
+ 702 0072 03F00103 		andls	r3, r3, #1
+ 703 0076 83B1     		cbz	r3, .L57
+ 704              	.LBB26:
+ 291:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             value /= base;
+ 705              		.loc 1 291 0
+ 706 0078 3E46     		mov	r6, r7
+ 707              	.LVL79:
+ 708              	.L61:
+ 290:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = digit < 10 ? '0' + digit : (flags & FLAGS_UPPERCASE ? 'A' : 'a') + digit -
+ 709              		.loc 1 290 0
+ 710 007a 4246     		mov	r2, r8
+ 711 007c 4B46     		mov	r3, r9
+ 712 007e 2046     		mov	r0, r4
+ 713 0080 2946     		mov	r1, r5
+ 714 0082 FFF7FEFF 		bl	__aeabi_uldivmod
+ 715              	.LVL80:
+ 716 0086 D3B2     		uxtb	r3, r2
+ 717              	.LVL81:
+ 291:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             value /= base;
+ 718              		.loc 1 291 0
+ARM GAS  /tmp/ccYDvvkT.s 			page 19
+
+
+ 719 0088 092B     		cmp	r3, #9
+ 720 008a D5D8     		bhi	.L58
+ 291:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             value /= base;
+ 721              		.loc 1 291 0 is_stmt 0 discriminator 1
+ 722 008c 03F13002 		add	r2, r3, #48
+ 723 0090 D2B2     		uxtb	r2, r2
+ 724 0092 D9E7     		b	.L59
+ 725              	.L63:
+ 291:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             value /= base;
+ 726              		.loc 1 291 0
+ 727 0094 6122     		movs	r2, #97
+ 728 0096 D3E7     		b	.L60
+ 729              	.LVL82:
+ 730              	.L62:
+ 731              	.LBE26:
+ 280:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 732              		.loc 1 280 0 is_stmt 1
+ 733 0098 0027     		movs	r7, #0
+ 734              	.LVL83:
+ 735              	.L57:
+ 294:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 295:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 296:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     return _ntoa_format(out, buffer, idx, maxlen, buf, len, negative, (unsigned int)base, prec, wid
+ 736              		.loc 1 296 0
+ 737 009a CDF818A0 		str	r10, [sp, #24]
+ 738 009e 259B     		ldr	r3, [sp, #148]
+ 739 00a0 0593     		str	r3, [sp, #20]
+ 740 00a2 249B     		ldr	r3, [sp, #144]
+ 741 00a4 0493     		str	r3, [sp, #16]
+ 742 00a6 CDF80C80 		str	r8, [sp, #12]
+ 743 00aa 9DF88030 		ldrb	r3, [sp, #128]	@ zero_extendqisi2
+ 744 00ae 0293     		str	r3, [sp, #8]
+ 745 00b0 0197     		str	r7, [sp, #4]
+ 746 00b2 0CAB     		add	r3, sp, #48
+ 747 00b4 0093     		str	r3, [sp]
+ 748 00b6 5B46     		mov	r3, fp
+ 749 00b8 0B9A     		ldr	r2, [sp, #44]
+ 750 00ba 0A99     		ldr	r1, [sp, #40]
+ 751 00bc 0998     		ldr	r0, [sp, #36]
+ 752 00be FFF7FEFF 		bl	_ntoa_format
+ 753              	.LVL84:
+ 297:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 754              		.loc 1 297 0
+ 755 00c2 15B0     		add	sp, sp, #84
+ 756              	.LCFI12:
+ 757              		.cfi_def_cfa_offset 36
+ 758              		@ sp needed
+ 759 00c4 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 760              		.cfi_endproc
+ 761              	.LFE8:
+ 763              		.section	.text._vsnprintf,"ax",%progbits
+ 764              		.align	1
+ 765              		.syntax unified
+ 766              		.thumb
+ 767              		.thumb_func
+ 768              		.fpu fpv5-d16
+ 770              	_vsnprintf:
+ARM GAS  /tmp/ccYDvvkT.s 			page 20
+
+
+ 771              	.LFB9:
+ 298:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif  // PRINTF_SUPPORT_LONG_LONG
+ 299:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 300:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_FLOAT)
+ 301:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 302:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_EXPONENTIAL)
+ 303:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // forward declaration so that _ftoa can switch to exp notation for values > PRINTF_MAX_FLOAT
+ 304:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** static size_t _etoa(out_fct_type out, char * buffer, size_t idx, size_t maxlen, double value, unsig
+ 305:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     unsigned int width, unsigned int flags);
+ 306:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+ 307:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 308:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // internal ftoa for fixed decimal floating point
+ 309:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** static size_t _ftoa(out_fct_type out, char * buffer, size_t idx, size_t maxlen, double value, unsig
+ 310:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     unsigned int width, unsigned int flags)
+ 311:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+ 312:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     char buf[PRINTF_FTOA_BUFFER_SIZE];
+ 313:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     size_t len  = 0U;
+ 314:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     double diff = 0.0;
+ 315:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 316:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // powers of 10
+ 317:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     static const double pow10[] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 
+ 318:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 319:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // test for special values
+ 320:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(value != value)
+ 321:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         return _out_rev(out, buffer, idx, maxlen, "nan", 3, width, flags);
+ 322:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(value < -DBL_MAX)
+ 323:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         return _out_rev(out, buffer, idx, maxlen, "fni-", 4, width, flags);
+ 324:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(value > DBL_MAX)
+ 325:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         return _out_rev(out, buffer, idx, maxlen, (flags & FLAGS_PLUS) ? "fni+" : "fni", (flags & F
+ 326:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         flags);
+ 327:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 328:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // test for very large values
+ 329:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // standard printf behavior is to print EVERY whole number digit -- which could be 100s of char
+ 330:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if((value > PRINTF_MAX_FLOAT) || (value < -PRINTF_MAX_FLOAT)) {
+ 331:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_EXPONENTIAL)
+ 332:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         return _etoa(out, buffer, idx, maxlen, value, prec, width, flags);
+ 333:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #else
+ 334:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         return 0U;
+ 335:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+ 336:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 337:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 338:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // test for negative
+ 339:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     bool negative = false;
+ 340:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(value < 0) {
+ 341:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         negative = true;
+ 342:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         value = 0 - value;
+ 343:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 344:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 345:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // set default precision, if not set explicitly
+ 346:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(!(flags & FLAGS_PRECISION)) {
+ 347:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         prec = PRINTF_DEFAULT_FLOAT_PRECISION;
+ 348:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 349:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // limit precision to 9, cause a prec >= 10 can lead to overflow errors
+ 350:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     while((len < PRINTF_FTOA_BUFFER_SIZE) && (prec > 9U)) {
+ 351:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         buf[len++] = '0';
+ 352:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         prec--;
+ 353:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ARM GAS  /tmp/ccYDvvkT.s 			page 21
+
+
+ 354:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 355:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     int whole = (int)value;
+ 356:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     double tmp = (value - whole) * pow10[prec];
+ 357:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     unsigned long frac = (unsigned long)tmp;
+ 358:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     diff = tmp - frac;
+ 359:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 360:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(diff > 0.5) {
+ 361:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         ++frac;
+ 362:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // handle rollover, e.g. case 0.99 with prec 1 is 1.0
+ 363:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(frac >= pow10[prec]) {
+ 364:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             frac = 0;
+ 365:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             ++whole;
+ 366:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 367:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 368:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     else if(diff < 0.5) {
+ 369:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 370:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     else if((frac == 0U) || (frac & 1U)) {
+ 371:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // if halfway, round up if odd OR if last digit is 0
+ 372:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         ++frac;
+ 373:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 374:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 375:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(prec == 0U) {
+ 376:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         diff = value - (double)whole;
+ 377:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if((!(diff < 0.5) || (diff > 0.5)) && (whole & 1)) {
+ 378:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             // exactly 0.5 and ODD, then round up
+ 379:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             // 1.5 -> 2, but 2.5 -> 2
+ 380:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             ++whole;
+ 381:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 382:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 383:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     else {
+ 384:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         unsigned int count = prec;
+ 385:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // now do fractional part, as an unsigned number
+ 386:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         while(len < PRINTF_FTOA_BUFFER_SIZE) {
+ 387:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             --count;
+ 388:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = (char)(48U + (frac % 10U));
+ 389:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             if(!(frac /= 10U)) {
+ 390:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ 391:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 392:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 393:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // add extra 0s
+ 394:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         while((len < PRINTF_FTOA_BUFFER_SIZE) && (count-- > 0U)) {
+ 395:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = '0';
+ 396:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 397:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(len < PRINTF_FTOA_BUFFER_SIZE) {
+ 398:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             // add decimal
+ 399:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = '.';
+ 400:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 401:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 402:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 403:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // do whole part, number is reversed
+ 404:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     while(len < PRINTF_FTOA_BUFFER_SIZE) {
+ 405:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         buf[len++] = (char)(48 + (whole % 10));
+ 406:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(!(whole /= 10)) {
+ 407:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             break;
+ 408:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 409:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 410:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ARM GAS  /tmp/ccYDvvkT.s 			page 22
+
+
+ 411:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // pad leading zeros
+ 412:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(!(flags & FLAGS_LEFT) && (flags & FLAGS_ZEROPAD)) {
+ 413:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(width && (negative || (flags & (FLAGS_PLUS | FLAGS_SPACE)))) {
+ 414:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             width--;
+ 415:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 416:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         while((len < width) && (len < PRINTF_FTOA_BUFFER_SIZE)) {
+ 417:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = '0';
+ 418:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 419:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 420:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 421:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(len < PRINTF_FTOA_BUFFER_SIZE) {
+ 422:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(negative) {
+ 423:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = '-';
+ 424:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 425:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         else if(flags & FLAGS_PLUS) {
+ 426:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = '+';  // ignore the space if the '+' exists
+ 427:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 428:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         else if(flags & FLAGS_SPACE) {
+ 429:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             buf[len++] = ' ';
+ 430:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 431:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 432:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 433:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     return _out_rev(out, buffer, idx, maxlen, buf, len, width, flags);
+ 434:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 435:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 436:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_EXPONENTIAL)
+ 437:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // internal ftoa variant for exponential floating-point type, contributed by Martijn Jasperse <m.ja
+ 438:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** static size_t _etoa(out_fct_type out, char * buffer, size_t idx, size_t maxlen, double value, unsig
+ 439:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     unsigned int width, unsigned int flags)
+ 440:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+ 441:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // check for NaN and special values
+ 442:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if((value != value) || (value > DBL_MAX) || (value < -DBL_MAX)) {
+ 443:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         return _ftoa(out, buffer, idx, maxlen, value, prec, width, flags);
+ 444:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 445:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 446:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // determine the sign
+ 447:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     const bool negative = value < 0;
+ 448:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(negative) {
+ 449:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         value = -value;
+ 450:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 451:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 452:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // default precision
+ 453:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(!(flags & FLAGS_PRECISION)) {
+ 454:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         prec = PRINTF_DEFAULT_FLOAT_PRECISION;
+ 455:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 456:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 457:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // determine the decimal exponent
+ 458:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // based on the algorithm by David Gay (https://www.ampl.com/netlib/fp/dtoa.c)
+ 459:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     union {
+ 460:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         uint64_t U;
+ 461:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         double   F;
+ 462:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     } conv;
+ 463:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 464:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     conv.F = value;
+ 465:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     int exp2 = (int)((conv.U >> 52U) & 0x07FFU) - 1023;           // effectively log2
+ 466:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     conv.U = (conv.U & ((1ULL << 52U) - 1U)) | (1023ULL << 52U);  // drop the exponent so conv.F is
+ 467:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // now approximate log10 from the log2 integer part and an expansion of ln around 1.5
+ARM GAS  /tmp/ccYDvvkT.s 			page 23
+
+
+ 468:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     int expval = (int)(0.1760912590558 + exp2 * 0.301029995663981 + (conv.F - 1.5) * 0.289529654602
+ 469:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // now we want to compute 10^expval but we want to be sure it won't overflow
+ 470:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     exp2 = (int)(expval * 3.321928094887362 + 0.5);
+ 471:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     const double z  = expval * 2.302585092994046 - exp2 * 0.6931471805599453;
+ 472:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     const double z2 = z * z;
+ 473:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     conv.U = (uint64_t)(exp2 + 1023) << 52U;
+ 474:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // compute exp(z) using continued fractions, see https://en.wikipedia.org/wiki/Exponential_func
+ 475:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     conv.F *= 1 + 2 * z / (2 - z + (z2 / (6 + (z2 / (10 + z2 / 14)))));
+ 476:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // correct for rounding errors
+ 477:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(value < conv.F) {
+ 478:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         expval--;
+ 479:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         conv.F /= 10;
+ 480:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 481:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 482:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // the exponent format is "%+03d" and largest value is "307", so set aside 4-5 characters
+ 483:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     unsigned int minwidth = ((expval < 100) && (expval > -100)) ? 4U : 5U;
+ 484:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 485:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // in "%g" mode, "prec" is the number of *significant figures* not decimals
+ 486:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(flags & FLAGS_ADAPT_EXP) {
+ 487:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // do we want to fall-back to "%f" mode?
+ 488:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if((value >= 1e-4) && (value < 1e6)) {
+ 489:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             if((int)prec > expval) {
+ 490:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 prec = (unsigned)((int)prec - expval - 1);
+ 491:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 492:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             else {
+ 493:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 prec = 0;
+ 494:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 495:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             flags |= FLAGS_PRECISION;   // make sure _ftoa respects precision
+ 496:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             // no characters in exponent
+ 497:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             minwidth = 0U;
+ 498:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             expval   = 0;
+ 499:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 500:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         else {
+ 501:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             // we use one sigfig for the whole part
+ 502:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             if((prec > 0) && (flags & FLAGS_PRECISION)) {
+ 503:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 --prec;
+ 504:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 505:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 506:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 507:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 508:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // will everything fit?
+ 509:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     unsigned int fwidth = width;
+ 510:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(width > minwidth) {
+ 511:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // we didn't fall-back so subtract the characters required for the exponent
+ 512:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         fwidth -= minwidth;
+ 513:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 514:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     else {
+ 515:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // not enough characters, so go back to default sizing
+ 516:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         fwidth = 0U;
+ 517:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 518:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if((flags & FLAGS_LEFT) && minwidth) {
+ 519:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // if we're padding on the right, DON'T pad the floating part
+ 520:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         fwidth = 0U;
+ 521:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 522:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 523:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // rescale the float value
+ 524:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(expval) {
+ARM GAS  /tmp/ccYDvvkT.s 			page 24
+
+
+ 525:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         value /= conv.F;
+ 526:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 527:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 528:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // output the floating part
+ 529:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     const size_t start_idx = idx;
+ 530:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     idx = _ftoa(out, buffer, idx, maxlen, negative ? -value : value, prec, fwidth, flags & ~FLAGS_A
+ 531:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 532:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // output the exponent part
+ 533:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(minwidth) {
+ 534:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // output the exponential symbol
+ 535:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         out((flags & FLAGS_UPPERCASE) ? 'E' : 'e', buffer, idx++, maxlen);
+ 536:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // output the exponent value
+ 537:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         idx = _ntoa_long(out, buffer, idx, maxlen, (expval < 0) ? -expval : expval, expval < 0, 10,
+ 538:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                          FLAGS_ZEROPAD | FLAGS_PLUS);
+ 539:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // might need to right-pad spaces
+ 540:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(flags & FLAGS_LEFT) {
+ 541:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             while(idx - start_idx < width) out(' ', buffer, idx++, maxlen);
+ 542:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 543:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 544:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     return idx;
+ 545:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 546:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif  // PRINTF_SUPPORT_EXPONENTIAL
+ 547:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif  // PRINTF_SUPPORT_FLOAT
+ 548:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 549:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** // internal vsnprintf
+ 550:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** static int _vsnprintf(out_fct_type out, char * buffer, const size_t maxlen, const char * format, va
+ 551:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+ 772              		.loc 1 551 0
+ 773              		.cfi_startproc
+ 774              		@ args = 4, pretend = 0, frame = 24
+ 775              		@ frame_needed = 0, uses_anonymous_args = 0
+ 776              	.LVL85:
+ 777 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 778              	.LCFI13:
+ 779              		.cfi_def_cfa_offset 36
+ 780              		.cfi_offset 4, -36
+ 781              		.cfi_offset 5, -32
+ 782              		.cfi_offset 6, -28
+ 783              		.cfi_offset 7, -24
+ 784              		.cfi_offset 8, -20
+ 785              		.cfi_offset 9, -16
+ 786              		.cfi_offset 10, -12
+ 787              		.cfi_offset 11, -8
+ 788              		.cfi_offset 14, -4
+ 789 0004 91B0     		sub	sp, sp, #68
+ 790              	.LCFI14:
+ 791              		.cfi_def_cfa_offset 104
+ 792 0006 0646     		mov	r6, r0
+ 793 0008 1546     		mov	r5, r2
+ 794 000a 0D93     		str	r3, [sp, #52]
+ 795              	.LVL86:
+ 552:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     unsigned int flags, width, precision, n;
+ 553:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     size_t idx = 0U;
+ 554:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 555:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     if(!buffer) {
+ 796              		.loc 1 555 0
+ 797 000c 0F46     		mov	r7, r1
+ARM GAS  /tmp/ccYDvvkT.s 			page 25
+
+
+ 798 000e 0029     		cmp	r1, #0
+ 799 0010 00F00E83 		beq	.L160
+ 800              	.L68:
+ 556:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // use null output function
+ 557:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         out = _out_null;
+ 558:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 559:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 560:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     while(*format) {
+ 561:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // format specifier?  %[flags][width][.precision][length]
+ 562:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(*format != '%') {
+ 563:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             // no
+ 564:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             out(*format, buffer, idx++, maxlen);
+ 565:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             format++;
+ 566:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             continue;
+ 567:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 568:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         else {
+ 569:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             // yes, evaluate it
+ 570:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             format++;
+ 571:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 572:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 573:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // evaluate flags
+ 574:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         flags = 0U;
+ 575:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         do {
+ 576:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             switch(*format) {
+ 577:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 case '0':
+ 578:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     flags |= FLAGS_ZEROPAD;
+ 579:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 580:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     n = 1U;
+ 581:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     break;
+ 582:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 case '-':
+ 583:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     flags |= FLAGS_LEFT;
+ 584:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 585:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     n = 1U;
+ 586:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     break;
+ 587:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 case '+':
+ 588:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     flags |= FLAGS_PLUS;
+ 589:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 590:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     n = 1U;
+ 591:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     break;
+ 592:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 case ' ':
+ 593:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     flags |= FLAGS_SPACE;
+ 594:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 595:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     n = 1U;
+ 596:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     break;
+ 597:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 case '#':
+ 598:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     flags |= FLAGS_HASH;
+ 599:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 600:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     n = 1U;
+ 601:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     break;
+ 602:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 default :
+ 603:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     n = 0U;
+ 604:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     break;
+ 605:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 606:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         } while(n);
+ 607:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 608:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // evaluate width field
+ 609:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         width = 0U;
+ARM GAS  /tmp/ccYDvvkT.s 			page 26
+
+
+ 610:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(_is_digit(*format)) {
+ 611:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             width = _atoi(&format);
+ 612:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 613:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         else if(*format == '*') {
+ 614:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             const int w = va_arg(va, int);
+ 615:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             if(w < 0) {
+ 616:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 flags |= FLAGS_LEFT;    // reverse padding
+ 617:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 width = (unsigned int) - w;
+ 618:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 619:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             else {
+ 620:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 width = (unsigned int)w;
+ 621:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 622:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             format++;
+ 623:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 624:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 625:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // evaluate precision field
+ 626:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         precision = 0U;
+ 627:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(*format == '.') {
+ 628:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             flags |= FLAGS_PRECISION;
+ 629:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             format++;
+ 630:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             if(_is_digit(*format)) {
+ 631:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 precision = _atoi(&format);
+ 632:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 633:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             else if(*format == '*') {
+ 634:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 const int prec = (int)va_arg(va, int);
+ 635:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 precision = prec > 0 ? (unsigned int)prec : 0U;
+ 636:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 637:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 638:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 639:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 640:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // evaluate length field
+ 641:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         switch(*format) {
+ 642:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'l' :
+ 643:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 flags |= FLAGS_LONG;
+ 644:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 645:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 if(*format == 'l') {
+ 646:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     flags |= FLAGS_LONG_LONG;
+ 647:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 648:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 }
+ 649:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ 650:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'h' :
+ 651:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 flags |= FLAGS_SHORT;
+ 652:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 653:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 if(*format == 'h') {
+ 654:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     flags |= FLAGS_CHAR;
+ 655:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 656:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 }
+ 657:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ 658:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_PTRDIFF_T)
+ 659:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 't' :
+ 660:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 flags |= (sizeof(ptrdiff_t) == sizeof(long) ? FLAGS_LONG : FLAGS_LONG_LONG);
+ 661:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 662:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ 663:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+ 664:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'j' :
+ 665:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 flags |= (sizeof(intmax_t) == sizeof(long) ? FLAGS_LONG : FLAGS_LONG_LONG);
+ 666:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ARM GAS  /tmp/ccYDvvkT.s 			page 27
+
+
+ 667:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ 668:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'z' :
+ 669:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 flags |= (sizeof(size_t) == sizeof(long) ? FLAGS_LONG : FLAGS_LONG_LONG);
+ 670:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 671:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ 672:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             default :
+ 673:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ 674:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 675:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 676:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // evaluate specifier
+ 677:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         switch(*format) {
+ 678:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'd' :
+ 679:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'i' :
+ 680:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'u' :
+ 681:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'x' :
+ 682:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'X' :
+ 683:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'p' :
+ 684:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'P' :
+ 685:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'o' :
+ 686:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'b' : {
+ 687:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // set the base
+ 688:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     unsigned int base;
+ 689:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     if(*format == 'x' || *format == 'X') {
+ 690:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         base = 16U;
+ 691:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 692:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     else if(*format == 'p' || *format == 'P') {
+ 693:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         base = 16U;
+ 694:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         flags |= FLAGS_HASH;   // always hash for pointer format
+ 695:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_LONG_LONG)
+ 696:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         if(sizeof(uintptr_t) == sizeof(long long))
+ 697:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             flags |= FLAGS_LONG_LONG;
+ 698:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         else
+ 699:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+ 700:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             flags |= FLAGS_LONG;
+ 701:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 702:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         if(*(format + 1) == 'V')
+ 703:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             format++;
+ 704:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 705:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     else if(*format == 'o') {
+ 706:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         base =  8U;
+ 707:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 708:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     else if(*format == 'b') {
+ 709:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         base =  2U;
+ 710:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 711:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     else {
+ 712:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         base = 10U;
+ 713:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         flags &= ~FLAGS_HASH;   // no hash for dec format
+ 714:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 715:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // uppercase
+ 716:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     if(*format == 'X' || *format == 'P') {
+ 717:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         flags |= FLAGS_UPPERCASE;
+ 718:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 719:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 720:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // no plus or space flag for u, x, X, o, b
+ 721:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     if((*format != 'i') && (*format != 'd')) {
+ 722:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         flags &= ~(FLAGS_PLUS | FLAGS_SPACE);
+ 723:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ARM GAS  /tmp/ccYDvvkT.s 			page 28
+
+
+ 724:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 725:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // ignore '0' flag when precision is given
+ 726:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     if(flags & FLAGS_PRECISION) {
+ 727:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         flags &= ~FLAGS_ZEROPAD;
+ 728:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 729:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 730:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // convert the integer
+ 731:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     if((*format == 'i') || (*format == 'd')) {
+ 732:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         // signed
+ 733:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         if(flags & FLAGS_LONG_LONG) {
+ 734:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_LONG_LONG)
+ 735:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             const long long value = va_arg(va, long long);
+ 736:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long_long(out, buffer, idx, maxlen, (unsigned long long)(va
+ 737:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                                                   precision, width, flags);
+ 738:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+ 739:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 740:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         else if(flags & FLAGS_LONG) {
+ 741:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             const long value = va_arg(va, long);
+ 742:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long(out, buffer, idx, maxlen, (unsigned long)(value > 0 ? 
+ 743:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                                              width, flags);
+ 744:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 745:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         else {
+ 746:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             const int value = (flags & FLAGS_CHAR) ? (char)va_arg(va, int) : (flags
+ 747:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                                                                                                    
+ 748:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long(out, buffer, idx, maxlen, (unsigned int)(value > 0 ? v
+ 749:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                                              width, flags);
+ 750:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 751:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 752:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     else if(*format == 'V') {
+ 753:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         lv_vaformat_t * vaf = va_arg(va, lv_vaformat_t *);
+ 754:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         va_list copy;
+ 755:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 756:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         va_copy(copy, *vaf->va);
+ 757:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         idx += _vsnprintf(out, buffer + idx, maxlen - idx, vaf->fmt, copy);
+ 758:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         va_end(copy);
+ 759:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 760:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     else {
+ 761:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         // unsigned
+ 762:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         if(flags & FLAGS_LONG_LONG) {
+ 763:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_LONG_LONG)
+ 764:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long_long(out, buffer, idx, maxlen, va_arg(va, unsigned lon
+ 765:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+ 766:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 767:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         else if(flags & FLAGS_LONG) {
+ 768:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long(out, buffer, idx, maxlen, va_arg(va, unsigned long), f
+ 769:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 770:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         else {
+ 771:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             const unsigned int value = (flags & FLAGS_CHAR) ? (unsigned char)va_arg
+ 772:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                                                                                                    
+ 773:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long(out, buffer, idx, maxlen, value, false, base, precisio
+ 774:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 775:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 776:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 777:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     break;
+ 778:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 }
+ 779:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_FLOAT)
+ 780:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'f' :
+ARM GAS  /tmp/ccYDvvkT.s 			page 29
+
+
+ 781:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'F' :
+ 782:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 if(*format == 'F') flags |= FLAGS_UPPERCASE;
+ 783:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 idx = _ftoa(out, buffer, idx, maxlen, va_arg(va, double), precision, width, flags);
+ 784:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 785:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ 786:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_EXPONENTIAL)
+ 787:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'e':
+ 788:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'E':
+ 789:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'g':
+ 790:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'G':
+ 791:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 if((*format == 'g') || (*format == 'G')) flags |= FLAGS_ADAPT_EXP;
+ 792:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 if((*format == 'E') || (*format == 'G')) flags |= FLAGS_UPPERCASE;
+ 793:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 idx = _etoa(out, buffer, idx, maxlen, va_arg(va, double), precision, width, flags);
+ 794:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 795:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ 796:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif  // PRINTF_SUPPORT_EXPONENTIAL
+ 797:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif  // PRINTF_SUPPORT_FLOAT
+ 798:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'c' : {
+ 799:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     unsigned int l = 1U;
+ 800:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // pre padding
+ 801:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     if(!(flags & FLAGS_LEFT)) {
+ 802:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         while(l++ < width) {
+ 803:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             out(' ', buffer, idx++, maxlen);
+ 804:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 805:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 806:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // char output
+ 807:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     out((char)va_arg(va, int), buffer, idx++, maxlen);
+ 808:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // post padding
+ 809:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     if(flags & FLAGS_LEFT) {
+ 810:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         while(l++ < width) {
+ 811:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             out(' ', buffer, idx++, maxlen);
+ 812:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 813:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 814:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 815:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     break;
+ 816:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 }
+ 817:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 818:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 's' : {
+ 819:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     const char * p = va_arg(va, char *);
+ 820:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     unsigned int l = _strnlen_s(p, precision ? precision : (size_t) -1);
+ 821:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // pre padding
+ 822:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     if(flags & FLAGS_PRECISION) {
+ 823:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         l = (l < precision ? l : precision);
+ 824:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 825:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     if(!(flags & FLAGS_LEFT)) {
+ 826:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         while(l++ < width) {
+ 827:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             out(' ', buffer, idx++, maxlen);
+ 828:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 829:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 830:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // string output
+ 831:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     while((*p != 0) && (!(flags & FLAGS_PRECISION) || precision--)) {
+ 832:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         out(*(p++), buffer, idx++, maxlen);
+ 833:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 834:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // post padding
+ 835:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     if(flags & FLAGS_LEFT) {
+ 836:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         while(l++ < width) {
+ 837:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             out(' ', buffer, idx++, maxlen);
+ARM GAS  /tmp/ccYDvvkT.s 			page 30
+
+
+ 838:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 839:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 840:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 841:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     break;
+ 842:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 }
+ 843:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 844:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case '%' :
+ 845:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 out('%', buffer, idx++, maxlen);
+ 801              		.loc 1 845 0
+ 802 0014 0024     		movs	r4, #0
+ 803              	.LVL87:
+ 804              	.L141:
+ 560:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         // format specifier?  %[flags][width][.precision][length]
+ 805              		.loc 1 560 0
+ 806 0016 0D9B     		ldr	r3, [sp, #52]
+ 807 0018 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 808 001a 0028     		cmp	r0, #0
+ 809 001c 00F00A83 		beq	.L161
+ 562:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             // no
+ 810              		.loc 1 562 0
+ 811 0020 2528     		cmp	r0, #37
+ 812 0022 0AD0     		beq	.L70
+ 564:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             format++;
+ 813              		.loc 1 564 0
+ 814 0024 04F10108 		add	r8, r4, #1
+ 815              	.LVL88:
+ 816 0028 2B46     		mov	r3, r5
+ 817 002a 2246     		mov	r2, r4
+ 818 002c 3946     		mov	r1, r7
+ 819 002e B047     		blx	r6
+ 820              	.LVL89:
+ 565:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             continue;
+ 821              		.loc 1 565 0
+ 822 0030 0D9B     		ldr	r3, [sp, #52]
+ 823 0032 0133     		adds	r3, r3, #1
+ 824 0034 0D93     		str	r3, [sp, #52]
+ 564:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             format++;
+ 825              		.loc 1 564 0
+ 826 0036 4446     		mov	r4, r8
+ 566:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 827              		.loc 1 566 0
+ 828 0038 EDE7     		b	.L141
+ 829              	.LVL90:
+ 830              	.L70:
+ 570:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 831              		.loc 1 570 0
+ 832 003a 0133     		adds	r3, r3, #1
+ 833 003c 0D93     		str	r3, [sp, #52]
+ 834              	.LVL91:
+ 574:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         do {
+ 835              		.loc 1 574 0
+ 836 003e 4FF00008 		mov	r8, #0
+ 837 0042 2DE0     		b	.L72
+ 838              	.LVL92:
+ 839              	.L73:
+ 840              	.LBB27:
+ 841              	.LBB28:
+ARM GAS  /tmp/ccYDvvkT.s 			page 31
+
+
+ 154:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 842              		.loc 1 154 0
+ 843 0044 A1F13003 		sub	r3, r1, #48
+ 844 0048 DBB2     		uxtb	r3, r3
+ 845              	.LVL93:
+ 846              	.LBE28:
+ 847              	.LBE27:
+ 610:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             width = _atoi(&format);
+ 848              		.loc 1 610 0
+ 849 004a 092B     		cmp	r3, #9
+ 850 004c 68D9     		bls	.L162
+ 613:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             const int w = va_arg(va, int);
+ 851              		.loc 1 613 0
+ 852 004e 2A29     		cmp	r1, #42
+ 853 0050 6BD0     		beq	.L163
+ 609:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(_is_digit(*format)) {
+ 854              		.loc 1 609 0
+ 855 0052 4FF0000B 		mov	fp, #0
+ 856              	.LVL94:
+ 857              	.L83:
+ 627:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             flags |= FLAGS_PRECISION;
+ 858              		.loc 1 627 0
+ 859 0056 0D9B     		ldr	r3, [sp, #52]
+ 860 0058 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 861 005a 2E2A     		cmp	r2, #46
+ 862 005c 75D0     		beq	.L164
+ 626:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(*format == '.') {
+ 863              		.loc 1 626 0
+ 864 005e 0023     		movs	r3, #0
+ 865 0060 0A93     		str	r3, [sp, #40]
+ 866              	.LVL95:
+ 867              	.L86:
+ 641:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'l' :
+ 868              		.loc 1 641 0
+ 869 0062 0D9A     		ldr	r2, [sp, #52]
+ 870 0064 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 871 0066 683B     		subs	r3, r3, #104
+ 872 0068 122B     		cmp	r3, #18
+ 873 006a 00F2AD80 		bhi	.L88
+ 874 006e DFE813F0 		tbh	[pc, r3, lsl #1]
+ 875              	.L90:
+ 876 0072 9900     		.2byte	(.L89-.L90)/2
+ 877 0074 AB00     		.2byte	(.L88-.L90)/2
+ 878 0076 0801     		.2byte	(.L91-.L90)/2
+ 879 0078 AB00     		.2byte	(.L88-.L90)/2
+ 880 007a 8B00     		.2byte	(.L92-.L90)/2
+ 881 007c AB00     		.2byte	(.L88-.L90)/2
+ 882 007e AB00     		.2byte	(.L88-.L90)/2
+ 883 0080 AB00     		.2byte	(.L88-.L90)/2
+ 884 0082 AB00     		.2byte	(.L88-.L90)/2
+ 885 0084 AB00     		.2byte	(.L88-.L90)/2
+ 886 0086 AB00     		.2byte	(.L88-.L90)/2
+ 887 0088 AB00     		.2byte	(.L88-.L90)/2
+ 888 008a A700     		.2byte	(.L93-.L90)/2
+ 889 008c AB00     		.2byte	(.L88-.L90)/2
+ 890 008e AB00     		.2byte	(.L88-.L90)/2
+ 891 0090 AB00     		.2byte	(.L88-.L90)/2
+ARM GAS  /tmp/ccYDvvkT.s 			page 32
+
+
+ 892 0092 AB00     		.2byte	(.L88-.L90)/2
+ 893 0094 AB00     		.2byte	(.L88-.L90)/2
+ 894 0096 0D01     		.2byte	(.L94-.L90)/2
+ 895              	.LVL96:
+ 896              		.p2align 1
+ 897              	.L79:
+ 578:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 898              		.loc 1 578 0
+ 899 0098 48F00108 		orr	r8, r8, #1
+ 900              	.LVL97:
+ 579:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     n = 1U;
+ 901              		.loc 1 579 0
+ 902 009c 0133     		adds	r3, r3, #1
+ 903 009e 0D93     		str	r3, [sp, #52]
+ 904              	.LVL98:
+ 905              	.L72:
+ 576:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 case '0':
+ 906              		.loc 1 576 0
+ 907 00a0 0D9B     		ldr	r3, [sp, #52]
+ 908 00a2 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 909 00a4 A1F12002 		sub	r2, r1, #32
+ 910 00a8 102A     		cmp	r2, #16
+ 911 00aa CBD8     		bhi	.L73
+ 912 00ac 01A0     		adr	r0, .L75
+ 913 00ae 50F822F0 		ldr	pc, [r0, r2, lsl #2]
+ 914 00b2 00BF     		.p2align 2
+ 915              	.L75:
+ 916 00b4 0D010000 		.word	.L74+1
+ 917 00b8 45000000 		.word	.L73+1
+ 918 00bc 45000000 		.word	.L73+1
+ 919 00c0 17010000 		.word	.L76+1
+ 920 00c4 45000000 		.word	.L73+1
+ 921 00c8 45000000 		.word	.L73+1
+ 922 00cc 45000000 		.word	.L73+1
+ 923 00d0 45000000 		.word	.L73+1
+ 924 00d4 45000000 		.word	.L73+1
+ 925 00d8 45000000 		.word	.L73+1
+ 926 00dc 45000000 		.word	.L73+1
+ 927 00e0 03010000 		.word	.L77+1
+ 928 00e4 45000000 		.word	.L73+1
+ 929 00e8 F9000000 		.word	.L78+1
+ 930 00ec 45000000 		.word	.L73+1
+ 931 00f0 45000000 		.word	.L73+1
+ 932 00f4 99000000 		.word	.L79+1
+ 933              		.p2align 1
+ 934              	.L78:
+ 583:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 935              		.loc 1 583 0
+ 936 00f8 48F00208 		orr	r8, r8, #2
+ 937              	.LVL99:
+ 584:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     n = 1U;
+ 938              		.loc 1 584 0
+ 939 00fc 0133     		adds	r3, r3, #1
+ 940 00fe 0D93     		str	r3, [sp, #52]
+ 941              	.LVL100:
+ 942 0100 CEE7     		b	.L72
+ 943              	.LVL101:
+ARM GAS  /tmp/ccYDvvkT.s 			page 33
+
+
+ 944              	.L77:
+ 588:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 945              		.loc 1 588 0
+ 946 0102 48F00408 		orr	r8, r8, #4
+ 947              	.LVL102:
+ 589:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     n = 1U;
+ 948              		.loc 1 589 0
+ 949 0106 0133     		adds	r3, r3, #1
+ 950 0108 0D93     		str	r3, [sp, #52]
+ 951              	.LVL103:
+ 952 010a C9E7     		b	.L72
+ 953              	.LVL104:
+ 954              	.L74:
+ 593:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 955              		.loc 1 593 0
+ 956 010c 48F00808 		orr	r8, r8, #8
+ 957              	.LVL105:
+ 594:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     n = 1U;
+ 958              		.loc 1 594 0
+ 959 0110 0133     		adds	r3, r3, #1
+ 960 0112 0D93     		str	r3, [sp, #52]
+ 961              	.LVL106:
+ 962 0114 C4E7     		b	.L72
+ 963              	.LVL107:
+ 964              	.L76:
+ 598:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 965              		.loc 1 598 0
+ 966 0116 48F01008 		orr	r8, r8, #16
+ 967              	.LVL108:
+ 599:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     n = 1U;
+ 968              		.loc 1 599 0
+ 969 011a 0133     		adds	r3, r3, #1
+ 970 011c 0D93     		str	r3, [sp, #52]
+ 971              	.LVL109:
+ 972 011e BFE7     		b	.L72
+ 973              	.LVL110:
+ 974              	.L162:
+ 611:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 975              		.loc 1 611 0
+ 976 0120 0DA8     		add	r0, sp, #52
+ 977 0122 FFF7FEFF 		bl	_atoi
+ 978              	.LVL111:
+ 979 0126 8346     		mov	fp, r0
+ 980              	.LVL112:
+ 981 0128 95E7     		b	.L83
+ 982              	.LVL113:
+ 983              	.L163:
+ 984              	.LBB29:
+ 614:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             if(w < 0) {
+ 985              		.loc 1 614 0
+ 986 012a 1A9B     		ldr	r3, [sp, #104]
+ 987 012c 1A1D     		adds	r2, r3, #4
+ 988 012e 1A92     		str	r2, [sp, #104]
+ 989 0130 1B68     		ldr	r3, [r3]
+ 615:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 flags |= FLAGS_LEFT;    // reverse padding
+ 990              		.loc 1 615 0
+ 991 0132 002B     		cmp	r3, #0
+ARM GAS  /tmp/ccYDvvkT.s 			page 34
+
+
+ 992 0134 04DB     		blt	.L165
+ 620:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 993              		.loc 1 620 0
+ 994 0136 9B46     		mov	fp, r3
+ 995              	.LVL114:
+ 996              	.L85:
+ 622:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 997              		.loc 1 622 0
+ 998 0138 0D9B     		ldr	r3, [sp, #52]
+ 999 013a 0133     		adds	r3, r3, #1
+ 1000 013c 0D93     		str	r3, [sp, #52]
+ 1001 013e 8AE7     		b	.L83
+ 1002              	.LVL115:
+ 1003              	.L165:
+ 616:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 width = (unsigned int) - w;
+ 1004              		.loc 1 616 0
+ 1005 0140 48F00208 		orr	r8, r8, #2
+ 1006              	.LVL116:
+ 617:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 1007              		.loc 1 617 0
+ 1008 0144 C3F1000B 		rsb	fp, r3, #0
+ 1009              	.LVL117:
+ 1010 0148 F6E7     		b	.L85
+ 1011              	.LVL118:
+ 1012              	.L164:
+ 1013              	.LBE29:
+ 628:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             format++;
+ 1014              		.loc 1 628 0
+ 1015 014a 48F48068 		orr	r8, r8, #1024
+ 1016              	.LVL119:
+ 629:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             if(_is_digit(*format)) {
+ 1017              		.loc 1 629 0
+ 1018 014e 5A1C     		adds	r2, r3, #1
+ 1019 0150 0D92     		str	r2, [sp, #52]
+ 630:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 precision = _atoi(&format);
+ 1020              		.loc 1 630 0
+ 1021 0152 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 1022              	.LVL120:
+ 1023              	.LBB30:
+ 1024              	.LBB31:
+ 154:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 1025              		.loc 1 154 0
+ 1026 0154 A2F13003 		sub	r3, r2, #48
+ 1027 0158 DBB2     		uxtb	r3, r3
+ 1028              	.LVL121:
+ 1029              	.LBE31:
+ 1030              	.LBE30:
+ 630:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 precision = _atoi(&format);
+ 1031              		.loc 1 630 0
+ 1032 015a 092B     		cmp	r3, #9
+ 1033 015c 04D9     		bls	.L166
+ 633:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 const int prec = (int)va_arg(va, int);
+ 1034              		.loc 1 633 0
+ 1035 015e 2A2A     		cmp	r2, #42
+ 1036 0160 07D0     		beq	.L167
+ 626:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         if(*format == '.') {
+ 1037              		.loc 1 626 0
+ARM GAS  /tmp/ccYDvvkT.s 			page 35
+
+
+ 1038 0162 0023     		movs	r3, #0
+ 1039 0164 0A93     		str	r3, [sp, #40]
+ 1040 0166 7CE7     		b	.L86
+ 1041              	.L166:
+ 631:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 1042              		.loc 1 631 0
+ 1043 0168 0DA8     		add	r0, sp, #52
+ 1044 016a FFF7FEFF 		bl	_atoi
+ 1045              	.LVL122:
+ 1046 016e 0A90     		str	r0, [sp, #40]
+ 1047              	.LVL123:
+ 1048 0170 77E7     		b	.L86
+ 1049              	.LVL124:
+ 1050              	.L167:
+ 1051              	.LBB32:
+ 634:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 precision = prec > 0 ? (unsigned int)prec : 0U;
+ 1052              		.loc 1 634 0
+ 1053 0172 1A9B     		ldr	r3, [sp, #104]
+ 1054 0174 1A1D     		adds	r2, r3, #4
+ 1055 0176 1A92     		str	r2, [sp, #104]
+ 1056 0178 1B68     		ldr	r3, [r3]
+ 635:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 1057              		.loc 1 635 0
+ 1058 017a 23EAE373 		bic	r3, r3, r3, asr #31
+ 1059 017e 0A93     		str	r3, [sp, #40]
+ 1060              	.LVL125:
+ 636:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             }
+ 1061              		.loc 1 636 0
+ 1062 0180 0D9B     		ldr	r3, [sp, #52]
+ 1063              	.LVL126:
+ 1064 0182 0133     		adds	r3, r3, #1
+ 1065 0184 0D93     		str	r3, [sp, #52]
+ 1066 0186 6CE7     		b	.L86
+ 1067              	.L92:
+ 1068              	.LBE32:
+ 643:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 1069              		.loc 1 643 0
+ 1070 0188 48F48071 		orr	r1, r8, #256
+ 1071              	.LVL127:
+ 644:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 if(*format == 'l') {
+ 1072              		.loc 1 644 0
+ 1073 018c 531C     		adds	r3, r2, #1
+ 1074 018e 0D93     		str	r3, [sp, #52]
+ 645:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     flags |= FLAGS_LONG_LONG;
+ 1075              		.loc 1 645 0
+ 1076 0190 5278     		ldrb	r2, [r2, #1]	@ zero_extendqisi2
+ 1077 0192 6C2A     		cmp	r2, #108
+ 1078 0194 01D0     		beq	.L168
+ 643:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 1079              		.loc 1 643 0
+ 1080 0196 8846     		mov	r8, r1
+ 1081 0198 16E0     		b	.L88
+ 1082              	.L168:
+ 646:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 1083              		.loc 1 646 0
+ 1084 019a 48F44078 		orr	r8, r8, #768
+ 1085              	.LVL128:
+ARM GAS  /tmp/ccYDvvkT.s 			page 36
+
+
+ 647:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 }
+ 1086              		.loc 1 647 0
+ 1087 019e 0133     		adds	r3, r3, #1
+ 1088 01a0 0D93     		str	r3, [sp, #52]
+ 1089 01a2 11E0     		b	.L88
+ 1090              	.L89:
+ 651:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 1091              		.loc 1 651 0
+ 1092 01a4 48F08001 		orr	r1, r8, #128
+ 1093              	.LVL129:
+ 652:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 if(*format == 'h') {
+ 1094              		.loc 1 652 0
+ 1095 01a8 531C     		adds	r3, r2, #1
+ 1096 01aa 0D93     		str	r3, [sp, #52]
+ 653:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     flags |= FLAGS_CHAR;
+ 1097              		.loc 1 653 0
+ 1098 01ac 5278     		ldrb	r2, [r2, #1]	@ zero_extendqisi2
+ 1099 01ae 682A     		cmp	r2, #104
+ 1100 01b0 01D0     		beq	.L169
+ 651:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 1101              		.loc 1 651 0
+ 1102 01b2 8846     		mov	r8, r1
+ 1103 01b4 08E0     		b	.L88
+ 1104              	.L169:
+ 654:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     format++;
+ 1105              		.loc 1 654 0
+ 1106 01b6 48F0C008 		orr	r8, r8, #192
+ 1107              	.LVL130:
+ 655:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 }
+ 1108              		.loc 1 655 0
+ 1109 01ba 0133     		adds	r3, r3, #1
+ 1110 01bc 0D93     		str	r3, [sp, #52]
+ 1111 01be 03E0     		b	.L88
+ 1112              	.L93:
+ 660:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 1113              		.loc 1 660 0
+ 1114 01c0 48F48078 		orr	r8, r8, #256
+ 1115              	.LVL131:
+ 661:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ 1116              		.loc 1 661 0
+ 1117 01c4 0132     		adds	r2, r2, #1
+ 1118 01c6 0D92     		str	r2, [sp, #52]
+ 1119              	.L88:
+ 677:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'd' :
+ 1120              		.loc 1 677 0
+ 1121 01c8 0D9A     		ldr	r2, [sp, #52]
+ 1122 01ca 1078     		ldrb	r0, [r2]	@ zero_extendqisi2
+ 1123 01cc A0F12503 		sub	r3, r0, #37
+ 1124 01d0 532B     		cmp	r3, #83
+ 1125 01d2 00F22282 		bhi	.L95
+ 1126 01d6 DFE813F0 		tbh	[pc, r3, lsl #1]
+ 1127              	.L97:
+ 1128 01da 1402     		.2byte	(.L96-.L97)/2
+ 1129 01dc 2002     		.2byte	(.L95-.L97)/2
+ 1130 01de 2002     		.2byte	(.L95-.L97)/2
+ 1131 01e0 2002     		.2byte	(.L95-.L97)/2
+ 1132 01e2 2002     		.2byte	(.L95-.L97)/2
+ARM GAS  /tmp/ccYDvvkT.s 			page 37
+
+
+ 1133 01e4 2002     		.2byte	(.L95-.L97)/2
+ 1134 01e6 2002     		.2byte	(.L95-.L97)/2
+ 1135 01e8 2002     		.2byte	(.L95-.L97)/2
+ 1136 01ea 2002     		.2byte	(.L95-.L97)/2
+ 1137 01ec 2002     		.2byte	(.L95-.L97)/2
+ 1138 01ee 2002     		.2byte	(.L95-.L97)/2
+ 1139 01f0 2002     		.2byte	(.L95-.L97)/2
+ 1140 01f2 2002     		.2byte	(.L95-.L97)/2
+ 1141 01f4 2002     		.2byte	(.L95-.L97)/2
+ 1142 01f6 2002     		.2byte	(.L95-.L97)/2
+ 1143 01f8 2002     		.2byte	(.L95-.L97)/2
+ 1144 01fa 2002     		.2byte	(.L95-.L97)/2
+ 1145 01fc 2002     		.2byte	(.L95-.L97)/2
+ 1146 01fe 2002     		.2byte	(.L95-.L97)/2
+ 1147 0200 2002     		.2byte	(.L95-.L97)/2
+ 1148 0202 2002     		.2byte	(.L95-.L97)/2
+ 1149 0204 2002     		.2byte	(.L95-.L97)/2
+ 1150 0206 2002     		.2byte	(.L95-.L97)/2
+ 1151 0208 2002     		.2byte	(.L95-.L97)/2
+ 1152 020a 2002     		.2byte	(.L95-.L97)/2
+ 1153 020c 2002     		.2byte	(.L95-.L97)/2
+ 1154 020e 2002     		.2byte	(.L95-.L97)/2
+ 1155 0210 2002     		.2byte	(.L95-.L97)/2
+ 1156 0212 2002     		.2byte	(.L95-.L97)/2
+ 1157 0214 2002     		.2byte	(.L95-.L97)/2
+ 1158 0216 2002     		.2byte	(.L95-.L97)/2
+ 1159 0218 2002     		.2byte	(.L95-.L97)/2
+ 1160 021a 2002     		.2byte	(.L95-.L97)/2
+ 1161 021c 2002     		.2byte	(.L95-.L97)/2
+ 1162 021e 2002     		.2byte	(.L95-.L97)/2
+ 1163 0220 2002     		.2byte	(.L95-.L97)/2
+ 1164 0222 2002     		.2byte	(.L95-.L97)/2
+ 1165 0224 2002     		.2byte	(.L95-.L97)/2
+ 1166 0226 2002     		.2byte	(.L95-.L97)/2
+ 1167 0228 2002     		.2byte	(.L95-.L97)/2
+ 1168 022a 2002     		.2byte	(.L95-.L97)/2
+ 1169 022c 2002     		.2byte	(.L95-.L97)/2
+ 1170 022e 2002     		.2byte	(.L95-.L97)/2
+ 1171 0230 5E00     		.2byte	(.L98-.L97)/2
+ 1172 0232 2002     		.2byte	(.L95-.L97)/2
+ 1173 0234 2002     		.2byte	(.L95-.L97)/2
+ 1174 0236 2002     		.2byte	(.L95-.L97)/2
+ 1175 0238 2002     		.2byte	(.L95-.L97)/2
+ 1176 023a 2002     		.2byte	(.L95-.L97)/2
+ 1177 023c 2002     		.2byte	(.L95-.L97)/2
+ 1178 023e 2002     		.2byte	(.L95-.L97)/2
+ 1179 0240 5E00     		.2byte	(.L98-.L97)/2
+ 1180 0242 2002     		.2byte	(.L95-.L97)/2
+ 1181 0244 2002     		.2byte	(.L95-.L97)/2
+ 1182 0246 2002     		.2byte	(.L95-.L97)/2
+ 1183 0248 2002     		.2byte	(.L95-.L97)/2
+ 1184 024a 2002     		.2byte	(.L95-.L97)/2
+ 1185 024c 2002     		.2byte	(.L95-.L97)/2
+ 1186 024e 2002     		.2byte	(.L95-.L97)/2
+ 1187 0250 2002     		.2byte	(.L95-.L97)/2
+ 1188 0252 2002     		.2byte	(.L95-.L97)/2
+ 1189 0254 5E00     		.2byte	(.L98-.L97)/2
+ARM GAS  /tmp/ccYDvvkT.s 			page 38
+
+
+ 1190 0256 7E01     		.2byte	(.L99-.L97)/2
+ 1191 0258 5E00     		.2byte	(.L98-.L97)/2
+ 1192 025a 2002     		.2byte	(.L95-.L97)/2
+ 1193 025c 2002     		.2byte	(.L95-.L97)/2
+ 1194 025e 2002     		.2byte	(.L95-.L97)/2
+ 1195 0260 2002     		.2byte	(.L95-.L97)/2
+ 1196 0262 5E00     		.2byte	(.L98-.L97)/2
+ 1197 0264 2002     		.2byte	(.L95-.L97)/2
+ 1198 0266 2002     		.2byte	(.L95-.L97)/2
+ 1199 0268 2002     		.2byte	(.L95-.L97)/2
+ 1200 026a 2002     		.2byte	(.L95-.L97)/2
+ 1201 026c 2002     		.2byte	(.L95-.L97)/2
+ 1202 026e 5E00     		.2byte	(.L98-.L97)/2
+ 1203 0270 5E00     		.2byte	(.L98-.L97)/2
+ 1204 0272 2002     		.2byte	(.L95-.L97)/2
+ 1205 0274 2002     		.2byte	(.L95-.L97)/2
+ 1206 0276 B601     		.2byte	(.L100-.L97)/2
+ 1207 0278 2002     		.2byte	(.L95-.L97)/2
+ 1208 027a 5E00     		.2byte	(.L98-.L97)/2
+ 1209 027c 2002     		.2byte	(.L95-.L97)/2
+ 1210 027e 2002     		.2byte	(.L95-.L97)/2
+ 1211 0280 5E00     		.2byte	(.L98-.L97)/2
+ 1212              		.p2align 1
+ 1213              	.L91:
+ 665:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 1214              		.loc 1 665 0
+ 1215 0282 48F40078 		orr	r8, r8, #512
+ 1216              	.LVL132:
+ 666:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ 1217              		.loc 1 666 0
+ 1218 0286 0132     		adds	r2, r2, #1
+ 1219 0288 0D92     		str	r2, [sp, #52]
+ 667:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             case 'z' :
+ 1220              		.loc 1 667 0
+ 1221 028a 9DE7     		b	.L88
+ 1222              	.L94:
+ 669:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 1223              		.loc 1 669 0
+ 1224 028c 48F48078 		orr	r8, r8, #256
+ 1225              	.LVL133:
+ 670:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ 1226              		.loc 1 670 0
+ 1227 0290 0132     		adds	r2, r2, #1
+ 1228 0292 0D92     		str	r2, [sp, #52]
+ 671:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             default :
+ 1229              		.loc 1 671 0
+ 1230 0294 98E7     		b	.L88
+ 1231              	.L98:
+ 1232              	.LBB33:
+ 689:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         base = 16U;
+ 1233              		.loc 1 689 0
+ 1234 0296 5828     		cmp	r0, #88
+ 1235 0298 18BF     		it	ne
+ 1236 029a 7828     		cmpne	r0, #120
+ 1237 029c 16D0     		beq	.L150
+ 692:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         base = 16U;
+ 1238              		.loc 1 692 0
+ARM GAS  /tmp/ccYDvvkT.s 			page 39
+
+
+ 1239 029e 5028     		cmp	r0, #80
+ 1240 02a0 18BF     		it	ne
+ 1241 02a2 7028     		cmpne	r0, #112
+ 1242 02a4 0AD1     		bne	.L102
+ 1243              	.LVL134:
+ 700:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 1244              		.loc 1 700 0
+ 1245 02a6 48F48878 		orr	r8, r8, #272
+ 1246              	.LVL135:
+ 702:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             format++;
+ 1247              		.loc 1 702 0
+ 1248 02aa 5378     		ldrb	r3, [r2, #1]	@ zero_extendqisi2
+ 1249 02ac 562B     		cmp	r3, #86
+ 1250 02ae 01D0     		beq	.L170
+ 693:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         flags |= FLAGS_HASH;   // always hash for pointer format
+ 1251              		.loc 1 693 0
+ 1252 02b0 1021     		movs	r1, #16
+ 1253 02b2 0CE0     		b	.L101
+ 1254              	.L170:
+ 703:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 1255              		.loc 1 703 0
+ 1256 02b4 0132     		adds	r2, r2, #1
+ 1257 02b6 0D92     		str	r2, [sp, #52]
+ 693:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         flags |= FLAGS_HASH;   // always hash for pointer format
+ 1258              		.loc 1 693 0
+ 1259 02b8 1021     		movs	r1, #16
+ 1260 02ba 08E0     		b	.L101
+ 1261              	.LVL136:
+ 1262              	.L102:
+ 705:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         base =  8U;
+ 1263              		.loc 1 705 0
+ 1264 02bc 6F28     		cmp	r0, #111
+ 1265 02be 43D0     		beq	.L152
+ 708:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         base =  2U;
+ 1266              		.loc 1 708 0
+ 1267 02c0 6228     		cmp	r0, #98
+ 1268 02c2 43D0     		beq	.L153
+ 1269              	.LVL137:
+ 713:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 1270              		.loc 1 713 0
+ 1271 02c4 28F01008 		bic	r8, r8, #16
+ 1272              	.LVL138:
+ 712:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         flags &= ~FLAGS_HASH;   // no hash for dec format
+ 1273              		.loc 1 712 0
+ 1274 02c8 0A21     		movs	r1, #10
+ 1275 02ca 00E0     		b	.L101
+ 1276              	.LVL139:
+ 1277              	.L150:
+ 690:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 1278              		.loc 1 690 0
+ 1279 02cc 1021     		movs	r1, #16
+ 1280              	.L101:
+ 1281              	.LVL140:
+ 716:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         flags |= FLAGS_UPPERCASE;
+ 1282              		.loc 1 716 0
+ 1283 02ce 0D9B     		ldr	r3, [sp, #52]
+ 1284 02d0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ARM GAS  /tmp/ccYDvvkT.s 			page 40
+
+
+ 1285 02d2 502B     		cmp	r3, #80
+ 1286 02d4 18BF     		it	ne
+ 1287 02d6 582B     		cmpne	r3, #88
+ 1288 02d8 01D1     		bne	.L103
+ 717:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 1289              		.loc 1 717 0
+ 1290 02da 48F02008 		orr	r8, r8, #32
+ 1291              	.LVL141:
+ 1292              	.L103:
+ 721:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         flags &= ~(FLAGS_PLUS | FLAGS_SPACE);
+ 1293              		.loc 1 721 0
+ 1294 02de 692B     		cmp	r3, #105
+ 1295 02e0 18BF     		it	ne
+ 1296 02e2 642B     		cmpne	r3, #100
+ 1297 02e4 01D0     		beq	.L104
+ 722:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 1298              		.loc 1 722 0
+ 1299 02e6 28F00C08 		bic	r8, r8, #12
+ 1300              	.LVL142:
+ 1301              	.L104:
+ 726:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         flags &= ~FLAGS_ZEROPAD;
+ 1302              		.loc 1 726 0
+ 1303 02ea 18F4806F 		tst	r8, #1024
+ 1304 02ee 01D0     		beq	.L105
+ 727:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 1305              		.loc 1 727 0
+ 1306 02f0 28F00108 		bic	r8, r8, #1
+ 1307              	.LVL143:
+ 1308              	.L105:
+ 731:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         // signed
+ 1309              		.loc 1 731 0
+ 1310 02f4 642B     		cmp	r3, #100
+ 1311 02f6 18BF     		it	ne
+ 1312 02f8 692B     		cmpne	r3, #105
+ 1313 02fa 7BD1     		bne	.L106
+ 733:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_LONG_LONG)
+ 1314              		.loc 1 733 0
+ 1315 02fc 18F4007F 		tst	r8, #512
+ 1316 0300 26D1     		bne	.L171
+ 740:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             const long value = va_arg(va, long);
+ 1317              		.loc 1 740 0
+ 1318 0302 18F4807F 		tst	r8, #256
+ 1319 0306 4DD1     		bne	.L172
+ 1320              	.LBB34:
+ 746:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                                                                                                    
+ 1321              		.loc 1 746 0
+ 1322 0308 18F0400F 		tst	r8, #64
+ 1323 030c 64D0     		beq	.L111
+ 1324 030e 1A9B     		ldr	r3, [sp, #104]
+ 1325 0310 1A1D     		adds	r2, r3, #4
+ 1326 0312 1A92     		str	r2, [sp, #104]
+ 1327 0314 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1328              	.L112:
+ 1329              	.LVL144:
+ 748:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                                              width, flags);
+ 1330              		.loc 1 748 0 discriminator 3
+ 1331 0316 83EAE372 		eor	r2, r3, r3, asr #31
+ARM GAS  /tmp/ccYDvvkT.s 			page 41
+
+
+ 1332 031a A2EBE372 		sub	r2, r2, r3, asr #31
+ 1333 031e DB0F     		lsrs	r3, r3, #31
+ 1334              	.LVL145:
+ 1335 0320 CDF81480 		str	r8, [sp, #20]
+ 1336 0324 CDF810B0 		str	fp, [sp, #16]
+ 1337 0328 0A98     		ldr	r0, [sp, #40]
+ 1338 032a 0390     		str	r0, [sp, #12]
+ 1339 032c 0291     		str	r1, [sp, #8]
+ 1340 032e 0193     		str	r3, [sp, #4]
+ 1341 0330 0092     		str	r2, [sp]
+ 1342 0332 2B46     		mov	r3, r5
+ 1343 0334 2246     		mov	r2, r4
+ 1344 0336 3946     		mov	r1, r7
+ 1345              	.LVL146:
+ 1346 0338 3046     		mov	r0, r6
+ 1347 033a FFF7FEFF 		bl	_ntoa_long
+ 1348              	.LVL147:
+ 1349 033e 0446     		mov	r4, r0
+ 1350              	.LVL148:
+ 1351              	.L109:
+ 1352              	.LBE34:
+ 776:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     break;
+ 1353              		.loc 1 776 0
+ 1354 0340 0D9B     		ldr	r3, [sp, #52]
+ 1355 0342 0133     		adds	r3, r3, #1
+ 1356 0344 0D93     		str	r3, [sp, #52]
+ 777:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 }
+ 1357              		.loc 1 777 0
+ 1358 0346 66E6     		b	.L141
+ 1359              	.L152:
+ 706:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 1360              		.loc 1 706 0
+ 1361 0348 0821     		movs	r1, #8
+ 1362 034a C0E7     		b	.L101
+ 1363              	.L153:
+ 709:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 1364              		.loc 1 709 0
+ 1365 034c 0221     		movs	r1, #2
+ 1366 034e BEE7     		b	.L101
+ 1367              	.LVL149:
+ 1368              	.L171:
+ 1369              	.LBB35:
+ 735:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long_long(out, buffer, idx, maxlen, (unsigned long long)(va
+ 1370              		.loc 1 735 0
+ 1371 0350 1A9B     		ldr	r3, [sp, #104]
+ 1372 0352 0733     		adds	r3, r3, #7
+ 1373 0354 23F00700 		bic	r0, r3, #7
+ 1374 0358 00F10803 		add	r3, r0, #8
+ 1375 035c 1A93     		str	r3, [sp, #104]
+ 1376 035e D0F804C0 		ldr	ip, [r0, #4]
+ 736:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                                                   precision, width, flags);
+ 1377              		.loc 1 736 0
+ 1378 0362 0268     		ldr	r2, [r0]
+ 1379 0364 6346     		mov	r3, ip
+ 1380 0366 002A     		cmp	r2, #0
+ 1381 0368 7CF10000 		sbcs	r0, ip, #0
+ 1382 036c 16DB     		blt	.L173
+ARM GAS  /tmp/ccYDvvkT.s 			page 42
+
+
+ 1383              	.L108:
+ 1384 036e 4FEADC7C 		lsr	ip, ip, #31
+ 1385 0372 CDF82080 		str	r8, [sp, #32]
+ 1386 0376 CDF81CB0 		str	fp, [sp, #28]
+ 1387 037a 0A98     		ldr	r0, [sp, #40]
+ 1388 037c 0690     		str	r0, [sp, #24]
+ 1389 037e 0491     		str	r1, [sp, #16]
+ 1390 0380 0021     		movs	r1, #0
+ 1391              	.LVL150:
+ 1392 0382 0591     		str	r1, [sp, #20]
+ 1393 0384 CDF808C0 		str	ip, [sp, #8]
+ 1394 0388 CDE90023 		strd	r2, [sp]
+ 1395 038c 2B46     		mov	r3, r5
+ 1396 038e 2246     		mov	r2, r4
+ 1397 0390 3946     		mov	r1, r7
+ 1398 0392 3046     		mov	r0, r6
+ 1399 0394 FFF7FEFF 		bl	_ntoa_long_long
+ 1400              	.LVL151:
+ 1401 0398 0446     		mov	r4, r0
+ 1402              	.LVL152:
+ 1403              	.LBE35:
+ 1404 039a D1E7     		b	.L109
+ 1405              	.LVL153:
+ 1406              	.L173:
+ 1407              	.LBB36:
+ 1408 039c 5242     		rsbs	r2, r2, #0
+ 1409 039e 6CEB4C03 		sbc	r3, ip, ip, lsl #1
+ 1410 03a2 E4E7     		b	.L108
+ 1411              	.L172:
+ 1412              	.LBE36:
+ 1413              	.LBB37:
+ 741:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long(out, buffer, idx, maxlen, (unsigned long)(value > 0 ? 
+ 1414              		.loc 1 741 0
+ 1415 03a4 1A9B     		ldr	r3, [sp, #104]
+ 1416 03a6 1A1D     		adds	r2, r3, #4
+ 1417 03a8 1A92     		str	r2, [sp, #104]
+ 1418 03aa 1B68     		ldr	r3, [r3]
+ 742:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                                              width, flags);
+ 1419              		.loc 1 742 0
+ 1420 03ac 83EAE372 		eor	r2, r3, r3, asr #31
+ 1421 03b0 A2EBE372 		sub	r2, r2, r3, asr #31
+ 1422 03b4 DB0F     		lsrs	r3, r3, #31
+ 1423 03b6 CDF81480 		str	r8, [sp, #20]
+ 1424 03ba CDF810B0 		str	fp, [sp, #16]
+ 1425 03be 0A98     		ldr	r0, [sp, #40]
+ 1426 03c0 0390     		str	r0, [sp, #12]
+ 1427 03c2 0291     		str	r1, [sp, #8]
+ 1428 03c4 0193     		str	r3, [sp, #4]
+ 1429 03c6 0092     		str	r2, [sp]
+ 1430 03c8 2B46     		mov	r3, r5
+ 1431 03ca 2246     		mov	r2, r4
+ 1432 03cc 3946     		mov	r1, r7
+ 1433              	.LVL154:
+ 1434 03ce 3046     		mov	r0, r6
+ 1435 03d0 FFF7FEFF 		bl	_ntoa_long
+ 1436              	.LVL155:
+ 1437 03d4 0446     		mov	r4, r0
+ARM GAS  /tmp/ccYDvvkT.s 			page 43
+
+
+ 1438              	.LVL156:
+ 1439              	.LBE37:
+ 1440 03d6 B3E7     		b	.L109
+ 1441              	.LVL157:
+ 1442              	.L111:
+ 1443              	.LBB38:
+ 747:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long(out, buffer, idx, maxlen, (unsigned int)(value > 0 ? v
+ 1444              		.loc 1 747 0 discriminator 2
+ 1445 03d8 18F0800F 		tst	r8, #128
+ 1446 03dc 05D0     		beq	.L113
+ 746:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                                                                                                    
+ 1447              		.loc 1 746 0
+ 1448 03de 1A9B     		ldr	r3, [sp, #104]
+ 1449 03e0 1A1D     		adds	r2, r3, #4
+ 1450 03e2 1A92     		str	r2, [sp, #104]
+ 1451 03e4 B3F90030 		ldrsh	r3, [r3]
+ 1452 03e8 95E7     		b	.L112
+ 1453              	.L113:
+ 747:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long(out, buffer, idx, maxlen, (unsigned int)(value > 0 ? v
+ 1454              		.loc 1 747 0
+ 1455 03ea 1A9B     		ldr	r3, [sp, #104]
+ 1456 03ec 1A1D     		adds	r2, r3, #4
+ 1457 03ee 1A92     		str	r2, [sp, #104]
+ 1458 03f0 1B68     		ldr	r3, [r3]
+ 1459 03f2 90E7     		b	.L112
+ 1460              	.L106:
+ 1461              	.LBE38:
+ 752:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         lv_vaformat_t * vaf = va_arg(va, lv_vaformat_t *);
+ 1462              		.loc 1 752 0
+ 1463 03f4 562B     		cmp	r3, #86
+ 1464 03f6 1ED0     		beq	.L174
+ 762:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #if defined(PRINTF_SUPPORT_LONG_LONG)
+ 1465              		.loc 1 762 0
+ 1466 03f8 18F4007F 		tst	r8, #512
+ 1467 03fc 2BD1     		bne	.L175
+ 767:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long(out, buffer, idx, maxlen, va_arg(va, unsigned long), f
+ 1468              		.loc 1 767 0
+ 1469 03fe 18F4807F 		tst	r8, #256
+ 1470 0402 45D1     		bne	.L176
+ 1471              	.LBB39:
+ 772:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long(out, buffer, idx, maxlen, value, false, base, precisio
+ 1472              		.loc 1 772 0
+ 1473 0404 18F0400F 		tst	r8, #64
+ 1474 0408 58D0     		beq	.L117
+ 771:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                                                                                                    
+ 1475              		.loc 1 771 0
+ 1476 040a 1A9B     		ldr	r3, [sp, #104]
+ 1477 040c 1A1D     		adds	r2, r3, #4
+ 1478 040e 1A92     		str	r2, [sp, #104]
+ 1479 0410 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1480              	.L118:
+ 1481              	.LVL158:
+ 773:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 1482              		.loc 1 773 0
+ 1483 0412 CDF81480 		str	r8, [sp, #20]
+ 1484 0416 CDF810B0 		str	fp, [sp, #16]
+ 1485 041a 0A9A     		ldr	r2, [sp, #40]
+ARM GAS  /tmp/ccYDvvkT.s 			page 44
+
+
+ 1486 041c 0392     		str	r2, [sp, #12]
+ 1487 041e 0291     		str	r1, [sp, #8]
+ 1488 0420 0022     		movs	r2, #0
+ 1489 0422 0192     		str	r2, [sp, #4]
+ 1490 0424 0093     		str	r3, [sp]
+ 1491 0426 2B46     		mov	r3, r5
+ 1492              	.LVL159:
+ 1493 0428 2246     		mov	r2, r4
+ 1494 042a 3946     		mov	r1, r7
+ 1495              	.LVL160:
+ 1496 042c 3046     		mov	r0, r6
+ 1497 042e FFF7FEFF 		bl	_ntoa_long
+ 1498              	.LVL161:
+ 1499 0432 0446     		mov	r4, r0
+ 1500              	.LVL162:
+ 1501 0434 84E7     		b	.L109
+ 1502              	.LVL163:
+ 1503              	.L174:
+ 1504              	.LBE39:
+ 1505              	.LBB40:
+ 753:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         va_list copy;
+ 1506              		.loc 1 753 0
+ 1507 0436 1A9B     		ldr	r3, [sp, #104]
+ 1508 0438 1A1D     		adds	r2, r3, #4
+ 1509 043a 1A92     		str	r2, [sp, #104]
+ 1510 043c 1B68     		ldr	r3, [r3]
+ 756:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         idx += _vsnprintf(out, buffer + idx, maxlen - idx, vaf->fmt, copy);
+ 1511              		.loc 1 756 0
+ 1512 043e 5A68     		ldr	r2, [r3, #4]
+ 1513 0440 1268     		ldr	r2, [r2]
+ 1514 0442 0F92     		str	r2, [sp, #60]
+ 757:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         va_end(copy);
+ 1515              		.loc 1 757 0
+ 1516 0444 1B68     		ldr	r3, [r3]
+ 1517 0446 0092     		str	r2, [sp]
+ 1518 0448 2A1B     		subs	r2, r5, r4
+ 1519 044a 3919     		adds	r1, r7, r4
+ 1520              	.LVL164:
+ 1521 044c 3046     		mov	r0, r6
+ 1522 044e FFF7D7FD 		bl	_vsnprintf
+ 1523              	.LVL165:
+ 1524 0452 0444     		add	r4, r4, r0
+ 1525              	.LVL166:
+ 1526              	.LBE40:
+ 1527 0454 74E7     		b	.L109
+ 1528              	.LVL167:
+ 1529              	.L175:
+ 764:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** #endif
+ 1530              		.loc 1 764 0
+ 1531 0456 1A9B     		ldr	r3, [sp, #104]
+ 1532 0458 0733     		adds	r3, r3, #7
+ 1533 045a 23F00703 		bic	r3, r3, #7
+ 1534 045e 03F10802 		add	r2, r3, #8
+ 1535 0462 1A92     		str	r2, [sp, #104]
+ 1536 0464 D3E9009A 		ldrd	r9, [r3]
+ 1537 0468 0020     		movs	r0, #0
+ 1538 046a CDF82080 		str	r8, [sp, #32]
+ARM GAS  /tmp/ccYDvvkT.s 			page 45
+
+
+ 1539 046e CDF81CB0 		str	fp, [sp, #28]
+ 1540 0472 0A9B     		ldr	r3, [sp, #40]
+ 1541 0474 0693     		str	r3, [sp, #24]
+ 1542 0476 0491     		str	r1, [sp, #16]
+ 1543 0478 0590     		str	r0, [sp, #20]
+ 1544 047a 0290     		str	r0, [sp, #8]
+ 1545 047c CDE9009A 		strd	r9, [sp]
+ 1546 0480 2B46     		mov	r3, r5
+ 1547 0482 2246     		mov	r2, r4
+ 1548 0484 3946     		mov	r1, r7
+ 1549              	.LVL168:
+ 1550 0486 3046     		mov	r0, r6
+ 1551 0488 FFF7FEFF 		bl	_ntoa_long_long
+ 1552              	.LVL169:
+ 1553 048c 0446     		mov	r4, r0
+ 1554              	.LVL170:
+ 1555 048e 57E7     		b	.L109
+ 1556              	.LVL171:
+ 1557              	.L176:
+ 768:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 1558              		.loc 1 768 0
+ 1559 0490 1A9B     		ldr	r3, [sp, #104]
+ 1560 0492 1A1D     		adds	r2, r3, #4
+ 1561 0494 1A92     		str	r2, [sp, #104]
+ 1562 0496 1B68     		ldr	r3, [r3]
+ 1563 0498 CDF81480 		str	r8, [sp, #20]
+ 1564 049c CDF810B0 		str	fp, [sp, #16]
+ 1565 04a0 0A9A     		ldr	r2, [sp, #40]
+ 1566 04a2 0392     		str	r2, [sp, #12]
+ 1567 04a4 0291     		str	r1, [sp, #8]
+ 1568 04a6 0022     		movs	r2, #0
+ 1569 04a8 0192     		str	r2, [sp, #4]
+ 1570 04aa 0093     		str	r3, [sp]
+ 1571 04ac 2B46     		mov	r3, r5
+ 1572 04ae 2246     		mov	r2, r4
+ 1573 04b0 3946     		mov	r1, r7
+ 1574              	.LVL172:
+ 1575 04b2 3046     		mov	r0, r6
+ 1576 04b4 FFF7FEFF 		bl	_ntoa_long
+ 1577              	.LVL173:
+ 1578 04b8 0446     		mov	r4, r0
+ 1579              	.LVL174:
+ 1580 04ba 41E7     		b	.L109
+ 1581              	.LVL175:
+ 1582              	.L117:
+ 1583              	.LBB41:
+ 772:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long(out, buffer, idx, maxlen, value, false, base, precisio
+ 1584              		.loc 1 772 0 discriminator 2
+ 1585 04bc 18F0800F 		tst	r8, #128
+ 1586 04c0 04D0     		beq	.L119
+ 772:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             idx = _ntoa_long(out, buffer, idx, maxlen, value, false, base, precisio
+ 1587              		.loc 1 772 0 is_stmt 0
+ 1588 04c2 1A9B     		ldr	r3, [sp, #104]
+ 1589 04c4 1A1D     		adds	r2, r3, #4
+ 1590 04c6 1A92     		str	r2, [sp, #104]
+ 1591 04c8 1B88     		ldrh	r3, [r3]
+ 1592 04ca A2E7     		b	.L118
+ARM GAS  /tmp/ccYDvvkT.s 			page 46
+
+
+ 1593              	.L119:
+ 1594 04cc 1A9B     		ldr	r3, [sp, #104]
+ 1595 04ce 1A1D     		adds	r2, r3, #4
+ 1596 04d0 1A92     		str	r2, [sp, #104]
+ 1597 04d2 1B68     		ldr	r3, [r3]
+ 1598 04d4 9DE7     		b	.L118
+ 1599              	.LVL176:
+ 1600              	.L99:
+ 1601              	.LBE41:
+ 1602              	.LBE33:
+ 1603              	.LBB42:
+ 801:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         while(l++ < width) {
+ 1604              		.loc 1 801 0 is_stmt 1
+ 1605 04d6 18F00208 		ands	r8, r8, #2
+ 1606              	.LVL177:
+ 1607 04da 21D0     		beq	.L154
+ 799:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // pre padding
+ 1608              		.loc 1 799 0
+ 1609 04dc 4FF00109 		mov	r9, #1
+ 1610              	.LVL178:
+ 1611              	.L121:
+ 807:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // post padding
+ 1612              		.loc 1 807 0
+ 1613 04e0 1A98     		ldr	r0, [sp, #104]
+ 1614 04e2 031D     		adds	r3, r0, #4
+ 1615 04e4 1A93     		str	r3, [sp, #104]
+ 1616 04e6 04F1010A 		add	r10, r4, #1
+ 1617              	.LVL179:
+ 1618 04ea 2B46     		mov	r3, r5
+ 1619 04ec 2246     		mov	r2, r4
+ 1620 04ee 3946     		mov	r1, r7
+ 1621 04f0 0078     		ldrb	r0, [r0]	@ zero_extendqisi2
+ 1622 04f2 B047     		blx	r6
+ 1623              	.LVL180:
+ 809:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         while(l++ < width) {
+ 1624              		.loc 1 809 0
+ 1625 04f4 B8F1000F 		cmp	r8, #0
+ 1626 04f8 15D1     		bne	.L177
+ 1627              	.LVL181:
+ 1628              	.L124:
+ 814:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     break;
+ 1629              		.loc 1 814 0
+ 1630 04fa 0D9B     		ldr	r3, [sp, #52]
+ 1631 04fc 0133     		adds	r3, r3, #1
+ 1632 04fe 0D93     		str	r3, [sp, #52]
+ 815:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 }
+ 1633              		.loc 1 815 0
+ 1634 0500 5446     		mov	r4, r10
+ 1635 0502 88E5     		b	.L141
+ 1636              	.LVL182:
+ 1637              	.L122:
+ 803:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 1638              		.loc 1 803 0
+ 1639 0504 02F1010A 		add	r10, r2, #1
+ 1640              	.LVL183:
+ 1641 0508 2B46     		mov	r3, r5
+ 1642 050a 3946     		mov	r1, r7
+ARM GAS  /tmp/ccYDvvkT.s 			page 47
+
+
+ 1643 050c 2020     		movs	r0, #32
+ 1644 050e B047     		blx	r6
+ 1645              	.LVL184:
+ 802:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             out(' ', buffer, idx++, maxlen);
+ 1646              		.loc 1 802 0
+ 1647 0510 4B46     		mov	r3, r9
+ 803:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 1648              		.loc 1 803 0
+ 1649 0512 5246     		mov	r2, r10
+ 1650              	.LVL185:
+ 1651              	.L120:
+ 802:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             out(' ', buffer, idx++, maxlen);
+ 1652              		.loc 1 802 0
+ 1653 0514 03F10109 		add	r9, r3, #1
+ 1654              	.LVL186:
+ 1655 0518 9B45     		cmp	fp, r3
+ 1656 051a F3D8     		bhi	.L122
+ 1657 051c 1446     		mov	r4, r2
+ 1658 051e DFE7     		b	.L121
+ 1659              	.LVL187:
+ 1660              	.L154:
+ 799:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // pre padding
+ 1661              		.loc 1 799 0
+ 1662 0520 0123     		movs	r3, #1
+ 1663 0522 2246     		mov	r2, r4
+ 1664 0524 F6E7     		b	.L120
+ 1665              	.LVL188:
+ 1666              	.L177:
+ 1667 0526 5246     		mov	r2, r10
+ 1668 0528 07E0     		b	.L123
+ 1669              	.LVL189:
+ 1670              	.L125:
+ 811:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 1671              		.loc 1 811 0
+ 1672 052a 02F10108 		add	r8, r2, #1
+ 1673              	.LVL190:
+ 1674 052e 2B46     		mov	r3, r5
+ 1675 0530 3946     		mov	r1, r7
+ 1676 0532 2020     		movs	r0, #32
+ 1677 0534 B047     		blx	r6
+ 1678              	.LVL191:
+ 810:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             out(' ', buffer, idx++, maxlen);
+ 1679              		.loc 1 810 0
+ 1680 0536 A146     		mov	r9, r4
+ 811:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 1681              		.loc 1 811 0
+ 1682 0538 4246     		mov	r2, r8
+ 1683              	.LVL192:
+ 1684              	.L123:
+ 810:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             out(' ', buffer, idx++, maxlen);
+ 1685              		.loc 1 810 0
+ 1686 053a 09F10104 		add	r4, r9, #1
+ 1687              	.LVL193:
+ 1688 053e CB45     		cmp	fp, r9
+ 1689 0540 F3D8     		bhi	.L125
+ 1690 0542 9246     		mov	r10, r2
+ 1691 0544 D9E7     		b	.L124
+ARM GAS  /tmp/ccYDvvkT.s 			page 48
+
+
+ 1692              	.LVL194:
+ 1693              	.L100:
+ 1694              	.LBE42:
+ 1695              	.LBB43:
+ 819:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     unsigned int l = _strnlen_s(p, precision ? precision : (size_t) -1);
+ 1696              		.loc 1 819 0
+ 1697 0546 1A9B     		ldr	r3, [sp, #104]
+ 1698 0548 1A1D     		adds	r2, r3, #4
+ 1699 054a 1A92     		str	r2, [sp, #104]
+ 1700 054c D3F80090 		ldr	r9, [r3]
+ 820:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // pre padding
+ 1701              		.loc 1 820 0
+ 1702 0550 0A9B     		ldr	r3, [sp, #40]
+ 1703 0552 EBB9     		cbnz	r3, .L126
+ 1704 0554 4FF0FF33 		mov	r3, #-1
+ 1705              	.L127:
+ 1706 0558 CA46     		mov	r10, r9
+ 1707 055a 02E0     		b	.L128
+ 1708              	.LVL195:
+ 1709              	.L130:
+ 1710              	.LBB44:
+ 1711              	.LBB45:
+ 146:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     return (unsigned int)(s - str);
+ 1712              		.loc 1 146 0
+ 1713 055c 0AF1010A 		add	r10, r10, #1
+ 1714              	.LVL196:
+ 1715 0560 1346     		mov	r3, r2
+ 1716              	.LVL197:
+ 1717              	.L128:
+ 1718 0562 9AF80020 		ldrb	r2, [r10]	@ zero_extendqisi2
+ 1719 0566 12B1     		cbz	r2, .L129
+ 1720 0568 5A1E     		subs	r2, r3, #1
+ 1721              	.LVL198:
+ 1722 056a 002B     		cmp	r3, #0
+ 1723 056c F6D1     		bne	.L130
+ 1724              	.LVL199:
+ 1725              	.L129:
+ 147:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 1726              		.loc 1 147 0
+ 1727 056e AAEB090A 		sub	r10, r10, r9
+ 1728              	.LVL200:
+ 1729              	.LBE45:
+ 1730              	.LBE44:
+ 822:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         l = (l < precision ? l : precision);
+ 1731              		.loc 1 822 0
+ 1732 0572 18F48063 		ands	r3, r8, #1024
+ 1733 0576 0C93     		str	r3, [sp, #48]
+ 1734 0578 03D0     		beq	.L131
+ 823:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 1735              		.loc 1 823 0
+ 1736 057a 0A9B     		ldr	r3, [sp, #40]
+ 1737 057c 9A45     		cmp	r10, r3
+ 1738 057e 28BF     		it	cs
+ 1739 0580 9A46     		movcs	r10, r3
+ 1740              	.LVL201:
+ 1741              	.L131:
+ 825:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         while(l++ < width) {
+ARM GAS  /tmp/ccYDvvkT.s 			page 49
+
+
+ 1742              		.loc 1 825 0
+ 1743 0582 18F00203 		ands	r3, r8, #2
+ 1744 0586 0B93     		str	r3, [sp, #44]
+ 1745 0588 04D0     		beq	.L178
+ 1746 058a 2246     		mov	r2, r4
+ 1747 058c 0C9C     		ldr	r4, [sp, #48]
+ 1748              	.LVL202:
+ 1749 058e 1AE0     		b	.L135
+ 1750              	.LVL203:
+ 1751              	.L126:
+ 820:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     // pre padding
+ 1752              		.loc 1 820 0
+ 1753 0590 0A9B     		ldr	r3, [sp, #40]
+ 1754 0592 E1E7     		b	.L127
+ 1755              	.LVL204:
+ 1756              	.L178:
+ 1757 0594 2246     		mov	r2, r4
+ 1758 0596 06E0     		b	.L132
+ 1759              	.LVL205:
+ 1760              	.L134:
+ 827:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 1761              		.loc 1 827 0
+ 1762 0598 541C     		adds	r4, r2, #1
+ 1763              	.LVL206:
+ 1764 059a 2B46     		mov	r3, r5
+ 1765 059c 3946     		mov	r1, r7
+ 1766 059e 2020     		movs	r0, #32
+ 1767 05a0 B047     		blx	r6
+ 1768              	.LVL207:
+ 826:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             out(' ', buffer, idx++, maxlen);
+ 1769              		.loc 1 826 0
+ 1770 05a2 C246     		mov	r10, r8
+ 827:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 1771              		.loc 1 827 0
+ 1772 05a4 2246     		mov	r2, r4
+ 1773              	.LVL208:
+ 1774              	.L132:
+ 826:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             out(' ', buffer, idx++, maxlen);
+ 1775              		.loc 1 826 0
+ 1776 05a6 0AF10108 		add	r8, r10, #1
+ 1777              	.LVL209:
+ 1778 05aa D345     		cmp	fp, r10
+ 1779 05ac F4D8     		bhi	.L134
+ 1780 05ae C246     		mov	r10, r8
+ 1781 05b0 0C9C     		ldr	r4, [sp, #48]
+ 1782 05b2 08E0     		b	.L135
+ 1783              	.LVL210:
+ 1784              	.L155:
+ 831:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         out(*(p++), buffer, idx++, maxlen);
+ 1785              		.loc 1 831 0
+ 1786 05b4 0A93     		str	r3, [sp, #40]
+ 1787              	.LVL211:
+ 1788              	.L137:
+ 832:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     }
+ 1789              		.loc 1 832 0
+ 1790 05b6 09F10109 		add	r9, r9, #1
+ 1791              	.LVL212:
+ARM GAS  /tmp/ccYDvvkT.s 			page 50
+
+
+ 1792 05ba 02F10108 		add	r8, r2, #1
+ 1793              	.LVL213:
+ 1794 05be 2B46     		mov	r3, r5
+ 1795 05c0 3946     		mov	r1, r7
+ 1796 05c2 B047     		blx	r6
+ 1797              	.LVL214:
+ 1798 05c4 4246     		mov	r2, r8
+ 1799              	.LVL215:
+ 1800              	.L135:
+ 831:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         out(*(p++), buffer, idx++, maxlen);
+ 1801              		.loc 1 831 0
+ 1802 05c6 99F80000 		ldrb	r0, [r9]	@ zero_extendqisi2
+ 1803 05ca 28B1     		cbz	r0, .L136
+ 831:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         out(*(p++), buffer, idx++, maxlen);
+ 1804              		.loc 1 831 0 is_stmt 0 discriminator 1
+ 1805 05cc 002C     		cmp	r4, #0
+ 1806 05ce F2D0     		beq	.L137
+ 831:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         out(*(p++), buffer, idx++, maxlen);
+ 1807              		.loc 1 831 0 discriminator 2
+ 1808 05d0 0A99     		ldr	r1, [sp, #40]
+ 1809 05d2 4B1E     		subs	r3, r1, #1
+ 1810              	.LVL216:
+ 1811 05d4 0029     		cmp	r1, #0
+ 1812 05d6 EDD1     		bne	.L155
+ 1813              	.LVL217:
+ 1814              	.L136:
+ 1815 05d8 1446     		mov	r4, r2
+ 835:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         while(l++ < width) {
+ 1816              		.loc 1 835 0 is_stmt 1
+ 1817 05da 0B9B     		ldr	r3, [sp, #44]
+ 1818 05dc 5BB9     		cbnz	r3, .L138
+ 1819              	.LVL218:
+ 1820              	.L139:
+ 840:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                     break;
+ 1821              		.loc 1 840 0
+ 1822 05de 0D9B     		ldr	r3, [sp, #52]
+ 1823 05e0 0133     		adds	r3, r3, #1
+ 1824 05e2 0D93     		str	r3, [sp, #52]
+ 841:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 }
+ 1825              		.loc 1 841 0
+ 1826 05e4 17E5     		b	.L141
+ 1827              	.LVL219:
+ 1828              	.L140:
+ 837:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 1829              		.loc 1 837 0
+ 1830 05e6 02F10108 		add	r8, r2, #1
+ 1831              	.LVL220:
+ 1832 05ea 2B46     		mov	r3, r5
+ 1833 05ec 3946     		mov	r1, r7
+ 1834 05ee 2020     		movs	r0, #32
+ 1835 05f0 B047     		blx	r6
+ 1836              	.LVL221:
+ 836:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             out(' ', buffer, idx++, maxlen);
+ 1837              		.loc 1 836 0
+ 1838 05f2 A246     		mov	r10, r4
+ 837:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                         }
+ 1839              		.loc 1 837 0
+ARM GAS  /tmp/ccYDvvkT.s 			page 51
+
+
+ 1840 05f4 4246     		mov	r2, r8
+ 1841              	.LVL222:
+ 1842              	.L138:
+ 836:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                             out(' ', buffer, idx++, maxlen);
+ 1843              		.loc 1 836 0
+ 1844 05f6 0AF10104 		add	r4, r10, #1
+ 1845              	.LVL223:
+ 1846 05fa D345     		cmp	fp, r10
+ 1847 05fc F3D8     		bhi	.L140
+ 1848 05fe 1446     		mov	r4, r2
+ 1849              	.LVL224:
+ 1850 0600 EDE7     		b	.L139
+ 1851              	.LVL225:
+ 1852              	.L96:
+ 1853              	.LBE43:
+ 1854              		.loc 1 845 0
+ 1855 0602 04F10108 		add	r8, r4, #1
+ 1856              	.LVL226:
+ 1857 0606 2B46     		mov	r3, r5
+ 1858 0608 2246     		mov	r2, r4
+ 1859 060a 3946     		mov	r1, r7
+ 1860 060c 2520     		movs	r0, #37
+ 1861 060e B047     		blx	r6
+ 1862              	.LVL227:
+ 846:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 1863              		.loc 1 846 0
+ 1864 0610 0D9B     		ldr	r3, [sp, #52]
+ 1865 0612 0133     		adds	r3, r3, #1
+ 1866 0614 0D93     		str	r3, [sp, #52]
+ 845:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 1867              		.loc 1 845 0
+ 1868 0616 4446     		mov	r4, r8
+ 847:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ 1869              		.loc 1 847 0
+ 1870 0618 FDE4     		b	.L141
+ 1871              	.LVL228:
+ 1872              	.L95:
+ 848:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 849:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****             default :
+ 850:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 out(*format, buffer, idx++, maxlen);
+ 1873              		.loc 1 850 0
+ 1874 061a 04F10108 		add	r8, r4, #1
+ 1875              	.LVL229:
+ 1876 061e 2B46     		mov	r3, r5
+ 1877 0620 2246     		mov	r2, r4
+ 1878 0622 3946     		mov	r1, r7
+ 1879 0624 B047     		blx	r6
+ 1880              	.LVL230:
+ 851:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 1881              		.loc 1 851 0
+ 1882 0626 0D9B     		ldr	r3, [sp, #52]
+ 1883 0628 0133     		adds	r3, r3, #1
+ 1884 062a 0D93     		str	r3, [sp, #52]
+ 850:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 format++;
+ 1885              		.loc 1 850 0
+ 1886 062c 4446     		mov	r4, r8
+ 852:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****                 break;
+ARM GAS  /tmp/ccYDvvkT.s 			page 52
+
+
+ 1887              		.loc 1 852 0
+ 1888 062e F2E4     		b	.L141
+ 1889              	.LVL231:
+ 1890              	.L160:
+ 557:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 1891              		.loc 1 557 0
+ 1892 0630 074E     		ldr	r6, .L179
+ 1893 0632 EFE4     		b	.L68
+ 1894              	.LVL232:
+ 1895              	.L161:
+ 853:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****         }
+ 854:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     }
+ 855:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 856:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // termination
+ 857:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     out((char)0, buffer, idx < maxlen ? idx : maxlen - 1U, maxlen);
+ 1896              		.loc 1 857 0
+ 1897 0634 AC42     		cmp	r4, r5
+ 1898 0636 08D3     		bcc	.L156
+ 1899              		.loc 1 857 0 is_stmt 0 discriminator 1
+ 1900 0638 6A1E     		subs	r2, r5, #1
+ 1901              	.L143:
+ 1902              		.loc 1 857 0 discriminator 4
+ 1903 063a 2B46     		mov	r3, r5
+ 1904 063c 3946     		mov	r1, r7
+ 1905 063e 0020     		movs	r0, #0
+ 1906 0640 B047     		blx	r6
+ 1907              	.LVL233:
+ 858:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 859:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     // return written chars without terminating \0
+ 860:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     return (int)idx;
+ 861:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 1908              		.loc 1 861 0 is_stmt 1 discriminator 4
+ 1909 0642 2046     		mov	r0, r4
+ 1910 0644 11B0     		add	sp, sp, #68
+ 1911              	.LCFI15:
+ 1912              		.cfi_remember_state
+ 1913              		.cfi_def_cfa_offset 36
+ 1914              		@ sp needed
+ 1915 0646 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 1916              	.LVL234:
+ 1917              	.L156:
+ 1918              	.LCFI16:
+ 1919              		.cfi_restore_state
+ 857:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 1920              		.loc 1 857 0
+ 1921 064a 2246     		mov	r2, r4
+ 1922 064c F5E7     		b	.L143
+ 1923              	.L180:
+ 1924 064e 00BF     		.align	2
+ 1925              	.L179:
+ 1926 0650 00000000 		.word	_out_null
+ 1927              		.cfi_endproc
+ 1928              	.LFE9:
+ 1930              		.section	.text.lv_snprintf,"ax",%progbits
+ 1931              		.align	1
+ 1932              		.global	lv_snprintf
+ 1933              		.syntax unified
+ARM GAS  /tmp/ccYDvvkT.s 			page 53
+
+
+ 1934              		.thumb
+ 1935              		.thumb_func
+ 1936              		.fpu fpv5-d16
+ 1938              	lv_snprintf:
+ 1939              	.LFB10:
+ 862:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 863:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** ///////////////////////////////////////////////////////////////////////////////
+ 864:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 865:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** int lv_snprintf(char * buffer, size_t count, const char * format, ...)
+ 866:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+ 1940              		.loc 1 866 0
+ 1941              		.cfi_startproc
+ 1942              		@ args = 4, pretend = 8, frame = 8
+ 1943              		@ frame_needed = 0, uses_anonymous_args = 1
+ 1944              	.LVL235:
+ 1945 0000 0CB4     		push	{r2, r3}
+ 1946              	.LCFI17:
+ 1947              		.cfi_def_cfa_offset 8
+ 1948              		.cfi_offset 2, -8
+ 1949              		.cfi_offset 3, -4
+ 1950 0002 00B5     		push	{lr}
+ 1951              	.LCFI18:
+ 1952              		.cfi_def_cfa_offset 12
+ 1953              		.cfi_offset 14, -12
+ 1954 0004 85B0     		sub	sp, sp, #20
+ 1955              	.LCFI19:
+ 1956              		.cfi_def_cfa_offset 32
+ 1957 0006 06AA     		add	r2, sp, #24
+ 1958 0008 52F8043B 		ldr	r3, [r2], #4
+ 867:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     va_list va;
+ 868:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     va_start(va, format);
+ 1959              		.loc 1 868 0
+ 1960 000c 0392     		str	r2, [sp, #12]
+ 869:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     const int ret = _vsnprintf(_out_buffer, buffer, count, format, va);
+ 1961              		.loc 1 869 0
+ 1962 000e 0092     		str	r2, [sp]
+ 1963 0010 0A46     		mov	r2, r1
+ 1964 0012 0146     		mov	r1, r0
+ 1965              	.LVL236:
+ 1966 0014 0348     		ldr	r0, .L183
+ 1967              	.LVL237:
+ 1968 0016 FFF7FEFF 		bl	_vsnprintf
+ 1969              	.LVL238:
+ 870:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     va_end(va);
+ 871:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     return ret;
+ 872:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 1970              		.loc 1 872 0
+ 1971 001a 05B0     		add	sp, sp, #20
+ 1972              	.LCFI20:
+ 1973              		.cfi_def_cfa_offset 12
+ 1974              		@ sp needed
+ 1975 001c 5DF804EB 		ldr	lr, [sp], #4
+ 1976              	.LCFI21:
+ 1977              		.cfi_restore 14
+ 1978              		.cfi_def_cfa_offset 8
+ 1979 0020 02B0     		add	sp, sp, #8
+ 1980              	.LCFI22:
+ARM GAS  /tmp/ccYDvvkT.s 			page 54
+
+
+ 1981              		.cfi_restore 3
+ 1982              		.cfi_restore 2
+ 1983              		.cfi_def_cfa_offset 0
+ 1984 0022 7047     		bx	lr
+ 1985              	.L184:
+ 1986              		.align	2
+ 1987              	.L183:
+ 1988 0024 00000000 		.word	_out_buffer
+ 1989              		.cfi_endproc
+ 1990              	.LFE10:
+ 1992              		.section	.text.lv_vsnprintf,"ax",%progbits
+ 1993              		.align	1
+ 1994              		.global	lv_vsnprintf
+ 1995              		.syntax unified
+ 1996              		.thumb
+ 1997              		.thumb_func
+ 1998              		.fpu fpv5-d16
+ 2000              	lv_vsnprintf:
+ 2001              	.LFB11:
+ 873:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** 
+ 874:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** int lv_vsnprintf(char * buffer, size_t count, const char * format, va_list va)
+ 875:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** {
+ 2002              		.loc 1 875 0
+ 2003              		.cfi_startproc
+ 2004              		@ args = 0, pretend = 0, frame = 0
+ 2005              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2006              	.LVL239:
+ 2007 0000 00B5     		push	{lr}
+ 2008              	.LCFI23:
+ 2009              		.cfi_def_cfa_offset 4
+ 2010              		.cfi_offset 14, -4
+ 2011 0002 83B0     		sub	sp, sp, #12
+ 2012              	.LCFI24:
+ 2013              		.cfi_def_cfa_offset 16
+ 876:Drivers/lvgl/lvgl/src/misc/lv_printf.c ****     return _vsnprintf(_out_buffer, buffer, count, format, va);
+ 2014              		.loc 1 876 0
+ 2015 0004 0093     		str	r3, [sp]
+ 2016 0006 1346     		mov	r3, r2
+ 2017              	.LVL240:
+ 2018 0008 0A46     		mov	r2, r1
+ 2019              	.LVL241:
+ 2020 000a 0146     		mov	r1, r0
+ 2021              	.LVL242:
+ 2022 000c 0248     		ldr	r0, .L187
+ 2023              	.LVL243:
+ 2024 000e FFF7FEFF 		bl	_vsnprintf
+ 2025              	.LVL244:
+ 877:Drivers/lvgl/lvgl/src/misc/lv_printf.c **** }
+ 2026              		.loc 1 877 0
+ 2027 0012 03B0     		add	sp, sp, #12
+ 2028              	.LCFI25:
+ 2029              		.cfi_def_cfa_offset 4
+ 2030              		@ sp needed
+ 2031 0014 5DF804FB 		ldr	pc, [sp], #4
+ 2032              	.L188:
+ 2033              		.align	2
+ 2034              	.L187:
+ARM GAS  /tmp/ccYDvvkT.s 			page 55
+
+
+ 2035 0018 00000000 		.word	_out_buffer
+ 2036              		.cfi_endproc
+ 2037              	.LFE11:
+ 2039              		.text
+ 2040              	.Letext0:
+ 2041              		.file 2 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stdarg.h"
+ 2042              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 2043              		.file 4 "Drivers/lvgl/lvgl/src/misc/lv_printf.h"
+ 2044              		.file 5 "<built-in>"
+ARM GAS  /tmp/ccYDvvkT.s 			page 56
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_printf.c
+     /tmp/ccYDvvkT.s:17     .text._out_buffer:0000000000000000 $t
+     /tmp/ccYDvvkT.s:23     .text._out_buffer:0000000000000000 _out_buffer
+     /tmp/ccYDvvkT.s:44     .text._out_null:0000000000000000 $t
+     /tmp/ccYDvvkT.s:50     .text._out_null:0000000000000000 _out_null
+     /tmp/ccYDvvkT.s:64     .text._atoi:0000000000000000 $t
+     /tmp/ccYDvvkT.s:70     .text._atoi:0000000000000000 _atoi
+     /tmp/ccYDvvkT.s:119    .text._out_rev:0000000000000000 $t
+     /tmp/ccYDvvkT.s:125    .text._out_rev:0000000000000000 _out_rev
+     /tmp/ccYDvvkT.s:238    .text._ntoa_format:0000000000000000 $t
+     /tmp/ccYDvvkT.s:244    .text._ntoa_format:0000000000000000 _ntoa_format
+     /tmp/ccYDvvkT.s:474    .text._ntoa_long:0000000000000000 $t
+     /tmp/ccYDvvkT.s:480    .text._ntoa_long:0000000000000000 _ntoa_long
+     /tmp/ccYDvvkT.s:607    .text._ntoa_long_long:0000000000000000 $t
+     /tmp/ccYDvvkT.s:613    .text._ntoa_long_long:0000000000000000 _ntoa_long_long
+     /tmp/ccYDvvkT.s:764    .text._vsnprintf:0000000000000000 $t
+     /tmp/ccYDvvkT.s:770    .text._vsnprintf:0000000000000000 _vsnprintf
+     /tmp/ccYDvvkT.s:876    .text._vsnprintf:0000000000000072 $d
+     /tmp/ccYDvvkT.s:896    .text._vsnprintf:0000000000000098 $t
+     /tmp/ccYDvvkT.s:916    .text._vsnprintf:00000000000000b4 $d
+     /tmp/ccYDvvkT.s:933    .text._vsnprintf:00000000000000f8 $t
+     /tmp/ccYDvvkT.s:1128   .text._vsnprintf:00000000000001da $d
+     /tmp/ccYDvvkT.s:1212   .text._vsnprintf:0000000000000282 $t
+     /tmp/ccYDvvkT.s:1926   .text._vsnprintf:0000000000000650 $d
+     /tmp/ccYDvvkT.s:1931   .text.lv_snprintf:0000000000000000 $t
+     /tmp/ccYDvvkT.s:1938   .text.lv_snprintf:0000000000000000 lv_snprintf
+     /tmp/ccYDvvkT.s:1988   .text.lv_snprintf:0000000000000024 $d
+     /tmp/ccYDvvkT.s:1993   .text.lv_vsnprintf:0000000000000000 $t
+     /tmp/ccYDvvkT.s:2000   .text.lv_vsnprintf:0000000000000000 lv_vsnprintf
+     /tmp/ccYDvvkT.s:2035   .text.lv_vsnprintf:0000000000000018 $d
+
+UNDEFINED SYMBOLS
+__aeabi_uldivmod

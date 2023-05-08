@@ -1,0 +1,811 @@
+ARM GAS  /tmp/ccY5uoiz.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_theme.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.apply_theme,"ax",%progbits
+  17              		.align	1
+  18              		.syntax unified
+  19              		.thumb
+  20              		.thumb_func
+  21              		.fpu fpv5-d16
+  23              	apply_theme:
+  24              	.LFB211:
+  25              		.file 1 "Drivers/lvgl/lvgl/src/core/lv_theme.c"
+   1:Drivers/lvgl/lvgl/src/core/lv_theme.c **** /**
+   2:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  * @file lv_theme.c
+   3:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  *
+   4:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  */
+   5:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+   6:Drivers/lvgl/lvgl/src/core/lv_theme.c **** /*********************
+   7:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  *      INCLUDES
+   8:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  *********************/
+   9:Drivers/lvgl/lvgl/src/core/lv_theme.c **** #include "../../lvgl.h"
+  10:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  11:Drivers/lvgl/lvgl/src/core/lv_theme.c **** /*********************
+  12:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  *      DEFINES
+  13:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  *********************/
+  14:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  15:Drivers/lvgl/lvgl/src/core/lv_theme.c **** /**********************
+  16:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  *      TYPEDEFS
+  17:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  **********************/
+  18:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  19:Drivers/lvgl/lvgl/src/core/lv_theme.c **** /**********************
+  20:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  *  STATIC PROTOTYPES
+  21:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  **********************/
+  22:Drivers/lvgl/lvgl/src/core/lv_theme.c **** static void apply_theme(lv_theme_t * th, lv_obj_t * obj);
+  23:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  24:Drivers/lvgl/lvgl/src/core/lv_theme.c **** /**********************
+  25:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  *  STATIC VARIABLES
+  26:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  **********************/
+  27:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  28:Drivers/lvgl/lvgl/src/core/lv_theme.c **** /**********************
+  29:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  *      MACROS
+  30:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  **********************/
+  31:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  32:Drivers/lvgl/lvgl/src/core/lv_theme.c **** /**********************
+  33:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  *   GLOBAL FUNCTIONS
+ARM GAS  /tmp/ccY5uoiz.s 			page 2
+
+
+  34:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  **********************/
+  35:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  36:Drivers/lvgl/lvgl/src/core/lv_theme.c **** lv_theme_t  * lv_theme_get_from_obj(lv_obj_t * obj)
+  37:Drivers/lvgl/lvgl/src/core/lv_theme.c **** {
+  38:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_disp_t * disp = obj ? lv_obj_get_disp(obj) : lv_disp_get_default();
+  39:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return lv_disp_get_theme(disp);
+  40:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+  41:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  42:Drivers/lvgl/lvgl/src/core/lv_theme.c **** /**
+  43:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  * Apply the active theme on an object
+  44:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  * @param obj pointer to an object
+  45:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  * @param name the name of the theme element to apply. E.g. `LV_THEME_BTN`
+  46:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  */
+  47:Drivers/lvgl/lvgl/src/core/lv_theme.c **** void lv_theme_apply(lv_obj_t * obj)
+  48:Drivers/lvgl/lvgl/src/core/lv_theme.c **** {
+  49:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_theme_t * th = lv_theme_get_from_obj(obj);
+  50:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     if(th == NULL) return;
+  51:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  52:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_obj_remove_style_all(obj);
+  53:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  54:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     apply_theme(th, obj);    /*Apply the theme including the base theme(s)*/
+  55:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+  56:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  57:Drivers/lvgl/lvgl/src/core/lv_theme.c **** /**
+  58:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  * Set a base theme for a theme.
+  59:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  * The styles from the base them will be added before the styles of the current theme.
+  60:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  * Arbitrary long chain of themes can be created by setting base themes.
+  61:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  * @param new_theme pointer to theme which base should be set
+  62:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  * @param base pointer to the base theme
+  63:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  */
+  64:Drivers/lvgl/lvgl/src/core/lv_theme.c **** void lv_theme_set_parent(lv_theme_t * new_theme, lv_theme_t * base)
+  65:Drivers/lvgl/lvgl/src/core/lv_theme.c **** {
+  66:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     new_theme->parent = base;
+  67:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+  68:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  69:Drivers/lvgl/lvgl/src/core/lv_theme.c **** /**
+  70:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  * Set a callback for a theme.
+  71:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  * The callback is used to add styles to different objects
+  72:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  * @param theme pointer to theme which callback should be set
+  73:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  * @param cb pointer to the callback
+  74:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  */
+  75:Drivers/lvgl/lvgl/src/core/lv_theme.c **** void lv_theme_set_apply_cb(lv_theme_t * theme, lv_theme_apply_cb_t apply_cb)
+  76:Drivers/lvgl/lvgl/src/core/lv_theme.c **** {
+  77:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     theme->apply_cb = apply_cb;
+  78:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+  79:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  80:Drivers/lvgl/lvgl/src/core/lv_theme.c **** const lv_font_t * lv_theme_get_font_small(lv_obj_t * obj)
+  81:Drivers/lvgl/lvgl/src/core/lv_theme.c **** {
+  82:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_theme_t * th = lv_theme_get_from_obj(obj);
+  83:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return th ? th->font_small : LV_FONT_DEFAULT;
+  84:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+  85:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  86:Drivers/lvgl/lvgl/src/core/lv_theme.c **** const lv_font_t * lv_theme_get_font_normal(lv_obj_t * obj)
+  87:Drivers/lvgl/lvgl/src/core/lv_theme.c **** {
+  88:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_theme_t * th = lv_theme_get_from_obj(obj);
+  89:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return th ? th->font_normal : LV_FONT_DEFAULT;
+  90:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ARM GAS  /tmp/ccY5uoiz.s 			page 3
+
+
+  91:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  92:Drivers/lvgl/lvgl/src/core/lv_theme.c **** const lv_font_t * lv_theme_get_font_large(lv_obj_t * obj)
+  93:Drivers/lvgl/lvgl/src/core/lv_theme.c **** {
+  94:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_theme_t * th = lv_theme_get_from_obj(obj);
+  95:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return th ? th->font_large : LV_FONT_DEFAULT;
+  96:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+  97:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  98:Drivers/lvgl/lvgl/src/core/lv_theme.c **** lv_color_t lv_theme_get_color_primary(lv_obj_t * obj)
+  99:Drivers/lvgl/lvgl/src/core/lv_theme.c **** {
+ 100:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_theme_t * th = lv_theme_get_from_obj(obj);
+ 101:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return th ? th->color_primary : lv_palette_main(LV_PALETTE_BLUE_GREY);
+ 102:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 103:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+ 104:Drivers/lvgl/lvgl/src/core/lv_theme.c **** lv_color_t lv_theme_get_color_secondary(lv_obj_t * obj)
+ 105:Drivers/lvgl/lvgl/src/core/lv_theme.c **** {
+ 106:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_theme_t * th = lv_theme_get_from_obj(obj);
+ 107:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return th ? th->color_secondary : lv_palette_main(LV_PALETTE_BLUE);
+ 108:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 109:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+ 110:Drivers/lvgl/lvgl/src/core/lv_theme.c **** /**********************
+ 111:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  *   STATIC FUNCTIONS
+ 112:Drivers/lvgl/lvgl/src/core/lv_theme.c ****  **********************/
+ 113:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+ 114:Drivers/lvgl/lvgl/src/core/lv_theme.c **** static void apply_theme(lv_theme_t * th, lv_obj_t * obj)
+ 115:Drivers/lvgl/lvgl/src/core/lv_theme.c **** {
+  26              		.loc 1 115 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 38B5     		push	{r3, r4, r5, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 16
+  34              		.cfi_offset 3, -16
+  35              		.cfi_offset 4, -12
+  36              		.cfi_offset 5, -8
+  37              		.cfi_offset 14, -4
+  38 0002 0446     		mov	r4, r0
+  39 0004 0D46     		mov	r5, r1
+ 116:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     if(th->parent) apply_theme(th->parent, obj);
+  40              		.loc 1 116 0
+  41 0006 4068     		ldr	r0, [r0, #4]
+  42              	.LVL1:
+  43 0008 28B9     		cbnz	r0, .L5
+  44              	.LVL2:
+  45              	.L2:
+ 117:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     if(th->apply_cb) th->apply_cb(th, obj);
+  46              		.loc 1 117 0
+  47 000a 2368     		ldr	r3, [r4]
+  48 000c 13B1     		cbz	r3, .L1
+  49              		.loc 1 117 0 is_stmt 0 discriminator 1
+  50 000e 2946     		mov	r1, r5
+  51 0010 2046     		mov	r0, r4
+  52 0012 9847     		blx	r3
+  53              	.LVL3:
+  54              	.L1:
+ 118:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ARM GAS  /tmp/ccY5uoiz.s 			page 4
+
+
+  55              		.loc 1 118 0 is_stmt 1
+  56 0014 38BD     		pop	{r3, r4, r5, pc}
+  57              	.LVL4:
+  58              	.L5:
+ 116:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     if(th->parent) apply_theme(th->parent, obj);
+  59              		.loc 1 116 0 discriminator 1
+  60 0016 FFF7F3FF 		bl	apply_theme
+  61              	.LVL5:
+  62 001a F6E7     		b	.L2
+  63              		.cfi_endproc
+  64              	.LFE211:
+  66              		.section	.text.lv_theme_get_from_obj,"ax",%progbits
+  67              		.align	1
+  68              		.global	lv_theme_get_from_obj
+  69              		.syntax unified
+  70              		.thumb
+  71              		.thumb_func
+  72              		.fpu fpv5-d16
+  74              	lv_theme_get_from_obj:
+  75              	.LFB202:
+  37:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_disp_t * disp = obj ? lv_obj_get_disp(obj) : lv_disp_get_default();
+  76              		.loc 1 37 0
+  77              		.cfi_startproc
+  78              		@ args = 0, pretend = 0, frame = 0
+  79              		@ frame_needed = 0, uses_anonymous_args = 0
+  80              	.LVL6:
+  81 0000 08B5     		push	{r3, lr}
+  82              	.LCFI1:
+  83              		.cfi_def_cfa_offset 8
+  84              		.cfi_offset 3, -8
+  85              		.cfi_offset 14, -4
+  38:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return lv_disp_get_theme(disp);
+  86              		.loc 1 38 0
+  87 0002 20B1     		cbz	r0, .L7
+  38:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return lv_disp_get_theme(disp);
+  88              		.loc 1 38 0 is_stmt 0 discriminator 1
+  89 0004 FFF7FEFF 		bl	lv_obj_get_disp
+  90              	.LVL7:
+  91              	.L8:
+  39:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+  92              		.loc 1 39 0 is_stmt 1 discriminator 4
+  93 0008 FFF7FEFF 		bl	lv_disp_get_theme
+  94              	.LVL8:
+  40:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+  95              		.loc 1 40 0 discriminator 4
+  96 000c 08BD     		pop	{r3, pc}
+  97              	.LVL9:
+  98              	.L7:
+  38:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return lv_disp_get_theme(disp);
+  99              		.loc 1 38 0 discriminator 2
+ 100 000e FFF7FEFF 		bl	lv_disp_get_default
+ 101              	.LVL10:
+ 102 0012 F9E7     		b	.L8
+ 103              		.cfi_endproc
+ 104              	.LFE202:
+ 106              		.section	.text.lv_theme_apply,"ax",%progbits
+ 107              		.align	1
+ARM GAS  /tmp/ccY5uoiz.s 			page 5
+
+
+ 108              		.global	lv_theme_apply
+ 109              		.syntax unified
+ 110              		.thumb
+ 111              		.thumb_func
+ 112              		.fpu fpv5-d16
+ 114              	lv_theme_apply:
+ 115              	.LFB203:
+  48:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_theme_t * th = lv_theme_get_from_obj(obj);
+ 116              		.loc 1 48 0
+ 117              		.cfi_startproc
+ 118              		@ args = 0, pretend = 0, frame = 0
+ 119              		@ frame_needed = 0, uses_anonymous_args = 0
+ 120              	.LVL11:
+ 121 0000 38B5     		push	{r3, r4, r5, lr}
+ 122              	.LCFI2:
+ 123              		.cfi_def_cfa_offset 16
+ 124              		.cfi_offset 3, -16
+ 125              		.cfi_offset 4, -12
+ 126              		.cfi_offset 5, -8
+ 127              		.cfi_offset 14, -4
+ 128 0002 0446     		mov	r4, r0
+  49:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     if(th == NULL) return;
+ 129              		.loc 1 49 0
+ 130 0004 FFF7FEFF 		bl	lv_theme_get_from_obj
+ 131              	.LVL12:
+  50:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+ 132              		.loc 1 50 0
+ 133 0008 48B1     		cbz	r0, .L10
+ 134 000a 0546     		mov	r5, r0
+ 135              	.LVL13:
+ 136              	.LBB4:
+ 137              	.LBB5:
+ 138              		.file 2 "Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h"
+   1:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** /**
+   2:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * @file lv_obj_style.h
+   3:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  *
+   4:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  */
+   5:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+   6:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** #ifndef LV_OBJ_STYLE_H
+   7:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** #define LV_OBJ_STYLE_H
+   8:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+   9:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** #ifdef __cplusplus
+  10:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** extern "C" {
+  11:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** #endif
+  12:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+  13:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** /*********************
+  14:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  *      INCLUDES
+  15:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  *********************/
+  16:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** #include <stdint.h>
+  17:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** #include <stdbool.h>
+  18:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** #include "../misc/lv_bidi.h"
+  19:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+  20:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** /*********************
+  21:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  *      DEFINES
+  22:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  *********************/
+  23:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+  24:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** /**********************
+ARM GAS  /tmp/ccY5uoiz.s 			page 6
+
+
+  25:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  *      TYPEDEFS
+  26:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  **********************/
+  27:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** /*Can't include lv_obj.h because it includes this header file*/
+  28:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** struct _lv_obj_t;
+  29:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+  30:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** typedef enum {
+  31:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     _LV_STYLE_STATE_CMP_SAME,           /*The style properties in the 2 states are identical*/
+  32:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     _LV_STYLE_STATE_CMP_DIFF_REDRAW,    /*The differences can be shown with a simple redraw*/
+  33:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     _LV_STYLE_STATE_CMP_DIFF_DRAW_PAD,  /*The differences can be shown with a simple redraw*/
+  34:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     _LV_STYLE_STATE_CMP_DIFF_LAYOUT,    /*The differences can be shown with a simple redraw*/
+  35:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** } _lv_style_state_cmp_t;
+  36:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+  37:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** typedef uint32_t lv_style_selector_t;
+  38:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+  39:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** typedef struct {
+  40:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     lv_style_t * style;
+  41:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     uint32_t selector : 24;
+  42:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     uint32_t is_local : 1;
+  43:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     uint32_t is_trans : 1;
+  44:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** } _lv_obj_style_t;
+  45:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+  46:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** typedef struct {
+  47:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     uint16_t time;
+  48:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     uint16_t delay;
+  49:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     lv_style_selector_t selector;
+  50:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     lv_style_prop_t prop;
+  51:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     lv_anim_path_cb_t path_cb;
+  52:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** #if LV_USE_USER_DATA
+  53:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     void * user_data;
+  54:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** #endif
+  55:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** } _lv_obj_style_transition_dsc_t;
+  56:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+  57:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** /**********************
+  58:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * GLOBAL PROTOTYPES
+  59:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  **********************/
+  60:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+  61:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** /**
+  62:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * Initialize the object related style manager module.
+  63:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * Called by LVGL in `lv_init()`
+  64:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  */
+  65:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** void _lv_obj_style_init(void);
+  66:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+  67:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** /**
+  68:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * Add a style to an object.
+  69:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * @param obj       pointer to an object
+  70:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * @param style     pointer to a style to add
+  71:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * @param selector  OR-ed value of parts and state to which the style should be added
+  72:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * @example         lv_obj_add_style(btn, &style_btn, 0); //Default button style
+  73:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * @example         lv_obj_add_style(btn, &btn_red, LV_STATE_PRESSED); //Overwrite only some colors
+  74:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  */
+  75:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** void lv_obj_add_style(struct _lv_obj_t * obj, lv_style_t * style, lv_style_selector_t selector);
+  76:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+  77:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** /**
+  78:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * Add a style to an object.
+  79:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * @param obj       pointer to an object
+  80:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * @param style     pointer to a style to remove. Can be NULL to check only the selector
+  81:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * @param selector  OR-ed values of states and a part to remove only styles with matching selectors
+ARM GAS  /tmp/ccY5uoiz.s 			page 7
+
+
+  82:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * @example lv_obj_remove_style(obj, &style, LV_PART_ANY | LV_STATE_ANY); //Remove a specific style
+  83:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * @example lv_obj_remove_style(obj, NULL, LV_PART_MAIN | LV_STATE_ANY); //Remove all styles from t
+  84:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * @example lv_obj_remove_style(obj, NULL, LV_PART_ANY | LV_STATE_ANY); //Remove all styles
+  85:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  */
+  86:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** void lv_obj_remove_style(struct _lv_obj_t * obj, lv_style_t * style, lv_style_selector_t selector);
+  87:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** 
+  88:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** /**
+  89:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * Remove all styles from an object
+  90:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  * @param obj       pointer to an object
+  91:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****  */
+  92:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** static inline void lv_obj_remove_style_all(struct _lv_obj_t * obj)
+  93:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h **** {
+  94:Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_style.h ****     lv_obj_remove_style(obj, NULL, LV_PART_ANY | LV_STATE_ANY);
+ 139              		.loc 2 94 0
+ 140 000c 044A     		ldr	r2, .L13
+ 141 000e 0021     		movs	r1, #0
+ 142 0010 2046     		mov	r0, r4
+ 143              	.LVL14:
+ 144 0012 FFF7FEFF 		bl	lv_obj_remove_style
+ 145              	.LVL15:
+ 146              	.LBE5:
+ 147              	.LBE4:
+  54:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 148              		.loc 1 54 0
+ 149 0016 2146     		mov	r1, r4
+ 150 0018 2846     		mov	r0, r5
+ 151 001a FFF7FEFF 		bl	apply_theme
+ 152              	.LVL16:
+ 153              	.L10:
+  55:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+ 154              		.loc 1 55 0
+ 155 001e 38BD     		pop	{r3, r4, r5, pc}
+ 156              	.LVL17:
+ 157              	.L14:
+ 158              		.align	2
+ 159              	.L13:
+ 160 0020 FFFF0F00 		.word	1048575
+ 161              		.cfi_endproc
+ 162              	.LFE203:
+ 164              		.section	.text.lv_theme_set_parent,"ax",%progbits
+ 165              		.align	1
+ 166              		.global	lv_theme_set_parent
+ 167              		.syntax unified
+ 168              		.thumb
+ 169              		.thumb_func
+ 170              		.fpu fpv5-d16
+ 172              	lv_theme_set_parent:
+ 173              	.LFB204:
+  65:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     new_theme->parent = base;
+ 174              		.loc 1 65 0
+ 175              		.cfi_startproc
+ 176              		@ args = 0, pretend = 0, frame = 0
+ 177              		@ frame_needed = 0, uses_anonymous_args = 0
+ 178              		@ link register save eliminated.
+ 179              	.LVL18:
+  66:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 180              		.loc 1 66 0
+ARM GAS  /tmp/ccY5uoiz.s 			page 8
+
+
+ 181 0000 4160     		str	r1, [r0, #4]
+  67:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+ 182              		.loc 1 67 0
+ 183 0002 7047     		bx	lr
+ 184              		.cfi_endproc
+ 185              	.LFE204:
+ 187              		.section	.text.lv_theme_set_apply_cb,"ax",%progbits
+ 188              		.align	1
+ 189              		.global	lv_theme_set_apply_cb
+ 190              		.syntax unified
+ 191              		.thumb
+ 192              		.thumb_func
+ 193              		.fpu fpv5-d16
+ 195              	lv_theme_set_apply_cb:
+ 196              	.LFB205:
+  76:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     theme->apply_cb = apply_cb;
+ 197              		.loc 1 76 0
+ 198              		.cfi_startproc
+ 199              		@ args = 0, pretend = 0, frame = 0
+ 200              		@ frame_needed = 0, uses_anonymous_args = 0
+ 201              		@ link register save eliminated.
+ 202              	.LVL19:
+  77:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 203              		.loc 1 77 0
+ 204 0000 0160     		str	r1, [r0]
+  78:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+ 205              		.loc 1 78 0
+ 206 0002 7047     		bx	lr
+ 207              		.cfi_endproc
+ 208              	.LFE205:
+ 210              		.section	.text.lv_theme_get_font_small,"ax",%progbits
+ 211              		.align	1
+ 212              		.global	lv_theme_get_font_small
+ 213              		.syntax unified
+ 214              		.thumb
+ 215              		.thumb_func
+ 216              		.fpu fpv5-d16
+ 218              	lv_theme_get_font_small:
+ 219              	.LFB206:
+  81:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_theme_t * th = lv_theme_get_from_obj(obj);
+ 220              		.loc 1 81 0
+ 221              		.cfi_startproc
+ 222              		@ args = 0, pretend = 0, frame = 0
+ 223              		@ frame_needed = 0, uses_anonymous_args = 0
+ 224              	.LVL20:
+ 225 0000 08B5     		push	{r3, lr}
+ 226              	.LCFI3:
+ 227              		.cfi_def_cfa_offset 8
+ 228              		.cfi_offset 3, -8
+ 229              		.cfi_offset 14, -4
+  82:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return th ? th->font_small : LV_FONT_DEFAULT;
+ 230              		.loc 1 82 0
+ 231 0002 FFF7FEFF 		bl	lv_theme_get_from_obj
+ 232              	.LVL21:
+  83:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 233              		.loc 1 83 0
+ 234 0006 08B1     		cbz	r0, .L19
+ARM GAS  /tmp/ccY5uoiz.s 			page 9
+
+
+  83:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 235              		.loc 1 83 0 is_stmt 0 discriminator 1
+ 236 0008 4069     		ldr	r0, [r0, #20]
+ 237              	.LVL22:
+ 238              	.L17:
+  84:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+ 239              		.loc 1 84 0 is_stmt 1
+ 240 000a 08BD     		pop	{r3, pc}
+ 241              	.LVL23:
+ 242              	.L19:
+  83:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 243              		.loc 1 83 0
+ 244 000c 0048     		ldr	r0, .L21
+ 245              	.LVL24:
+ 246 000e FCE7     		b	.L17
+ 247              	.L22:
+ 248              		.align	2
+ 249              	.L21:
+ 250 0010 00000000 		.word	lv_font_montserrat_14
+ 251              		.cfi_endproc
+ 252              	.LFE206:
+ 254              		.section	.text.lv_theme_get_font_normal,"ax",%progbits
+ 255              		.align	1
+ 256              		.global	lv_theme_get_font_normal
+ 257              		.syntax unified
+ 258              		.thumb
+ 259              		.thumb_func
+ 260              		.fpu fpv5-d16
+ 262              	lv_theme_get_font_normal:
+ 263              	.LFB207:
+  87:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_theme_t * th = lv_theme_get_from_obj(obj);
+ 264              		.loc 1 87 0
+ 265              		.cfi_startproc
+ 266              		@ args = 0, pretend = 0, frame = 0
+ 267              		@ frame_needed = 0, uses_anonymous_args = 0
+ 268              	.LVL25:
+ 269 0000 08B5     		push	{r3, lr}
+ 270              	.LCFI4:
+ 271              		.cfi_def_cfa_offset 8
+ 272              		.cfi_offset 3, -8
+ 273              		.cfi_offset 14, -4
+  88:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return th ? th->font_normal : LV_FONT_DEFAULT;
+ 274              		.loc 1 88 0
+ 275 0002 FFF7FEFF 		bl	lv_theme_get_from_obj
+ 276              	.LVL26:
+  89:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 277              		.loc 1 89 0
+ 278 0006 08B1     		cbz	r0, .L25
+  89:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 279              		.loc 1 89 0 is_stmt 0 discriminator 1
+ 280 0008 8069     		ldr	r0, [r0, #24]
+ 281              	.LVL27:
+ 282              	.L23:
+  90:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+ 283              		.loc 1 90 0 is_stmt 1
+ 284 000a 08BD     		pop	{r3, pc}
+ 285              	.LVL28:
+ARM GAS  /tmp/ccY5uoiz.s 			page 10
+
+
+ 286              	.L25:
+  89:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 287              		.loc 1 89 0
+ 288 000c 0048     		ldr	r0, .L27
+ 289              	.LVL29:
+ 290 000e FCE7     		b	.L23
+ 291              	.L28:
+ 292              		.align	2
+ 293              	.L27:
+ 294 0010 00000000 		.word	lv_font_montserrat_14
+ 295              		.cfi_endproc
+ 296              	.LFE207:
+ 298              		.section	.text.lv_theme_get_font_large,"ax",%progbits
+ 299              		.align	1
+ 300              		.global	lv_theme_get_font_large
+ 301              		.syntax unified
+ 302              		.thumb
+ 303              		.thumb_func
+ 304              		.fpu fpv5-d16
+ 306              	lv_theme_get_font_large:
+ 307              	.LFB208:
+  93:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_theme_t * th = lv_theme_get_from_obj(obj);
+ 308              		.loc 1 93 0
+ 309              		.cfi_startproc
+ 310              		@ args = 0, pretend = 0, frame = 0
+ 311              		@ frame_needed = 0, uses_anonymous_args = 0
+ 312              	.LVL30:
+ 313 0000 08B5     		push	{r3, lr}
+ 314              	.LCFI5:
+ 315              		.cfi_def_cfa_offset 8
+ 316              		.cfi_offset 3, -8
+ 317              		.cfi_offset 14, -4
+  94:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return th ? th->font_large : LV_FONT_DEFAULT;
+ 318              		.loc 1 94 0
+ 319 0002 FFF7FEFF 		bl	lv_theme_get_from_obj
+ 320              	.LVL31:
+  95:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 321              		.loc 1 95 0
+ 322 0006 08B1     		cbz	r0, .L31
+  95:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 323              		.loc 1 95 0 is_stmt 0 discriminator 1
+ 324 0008 C069     		ldr	r0, [r0, #28]
+ 325              	.LVL32:
+ 326              	.L29:
+  96:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+ 327              		.loc 1 96 0 is_stmt 1
+ 328 000a 08BD     		pop	{r3, pc}
+ 329              	.LVL33:
+ 330              	.L31:
+  95:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 331              		.loc 1 95 0
+ 332 000c 0048     		ldr	r0, .L33
+ 333              	.LVL34:
+ 334 000e FCE7     		b	.L29
+ 335              	.L34:
+ 336              		.align	2
+ 337              	.L33:
+ARM GAS  /tmp/ccY5uoiz.s 			page 11
+
+
+ 338 0010 00000000 		.word	lv_font_montserrat_14
+ 339              		.cfi_endproc
+ 340              	.LFE208:
+ 342              		.section	.text.lv_theme_get_color_primary,"ax",%progbits
+ 343              		.align	1
+ 344              		.global	lv_theme_get_color_primary
+ 345              		.syntax unified
+ 346              		.thumb
+ 347              		.thumb_func
+ 348              		.fpu fpv5-d16
+ 350              	lv_theme_get_color_primary:
+ 351              	.LFB209:
+  99:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_theme_t * th = lv_theme_get_from_obj(obj);
+ 352              		.loc 1 99 0
+ 353              		.cfi_startproc
+ 354              		@ args = 0, pretend = 0, frame = 0
+ 355              		@ frame_needed = 0, uses_anonymous_args = 0
+ 356              	.LVL35:
+ 357 0000 08B5     		push	{r3, lr}
+ 358              	.LCFI6:
+ 359              		.cfi_def_cfa_offset 8
+ 360              		.cfi_offset 3, -8
+ 361              		.cfi_offset 14, -4
+ 100:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return th ? th->color_primary : lv_palette_main(LV_PALETTE_BLUE_GREY);
+ 362              		.loc 1 100 0
+ 363 0002 FFF7FEFF 		bl	lv_theme_get_from_obj
+ 364              	.LVL36:
+ 101:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 365              		.loc 1 101 0
+ 366 0006 08B1     		cbz	r0, .L36
+ 101:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 367              		.loc 1 101 0 is_stmt 0 discriminator 1
+ 368 0008 008A     		ldrh	r0, [r0, #16]
+ 369              	.LVL37:
+ 370              	.L37:
+ 102:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+ 371              		.loc 1 102 0 is_stmt 1
+ 372 000a 08BD     		pop	{r3, pc}
+ 373              	.LVL38:
+ 374              	.L36:
+ 101:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 375              		.loc 1 101 0 discriminator 2
+ 376 000c 1120     		movs	r0, #17
+ 377              	.LVL39:
+ 378 000e FFF7FEFF 		bl	lv_palette_main
+ 379              	.LVL40:
+ 380 0012 FAE7     		b	.L37
+ 381              		.cfi_endproc
+ 382              	.LFE209:
+ 384              		.section	.text.lv_theme_get_color_secondary,"ax",%progbits
+ 385              		.align	1
+ 386              		.global	lv_theme_get_color_secondary
+ 387              		.syntax unified
+ 388              		.thumb
+ 389              		.thumb_func
+ 390              		.fpu fpv5-d16
+ 392              	lv_theme_get_color_secondary:
+ARM GAS  /tmp/ccY5uoiz.s 			page 12
+
+
+ 393              	.LFB210:
+ 105:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     lv_theme_t * th = lv_theme_get_from_obj(obj);
+ 394              		.loc 1 105 0
+ 395              		.cfi_startproc
+ 396              		@ args = 0, pretend = 0, frame = 0
+ 397              		@ frame_needed = 0, uses_anonymous_args = 0
+ 398              	.LVL41:
+ 399 0000 08B5     		push	{r3, lr}
+ 400              	.LCFI7:
+ 401              		.cfi_def_cfa_offset 8
+ 402              		.cfi_offset 3, -8
+ 403              		.cfi_offset 14, -4
+ 106:Drivers/lvgl/lvgl/src/core/lv_theme.c ****     return th ? th->color_secondary : lv_palette_main(LV_PALETTE_BLUE);
+ 404              		.loc 1 106 0
+ 405 0002 FFF7FEFF 		bl	lv_theme_get_from_obj
+ 406              	.LVL42:
+ 107:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 407              		.loc 1 107 0
+ 408 0006 08B1     		cbz	r0, .L40
+ 107:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 409              		.loc 1 107 0 is_stmt 0 discriminator 1
+ 410 0008 408A     		ldrh	r0, [r0, #18]
+ 411              	.LVL43:
+ 412              	.L41:
+ 108:Drivers/lvgl/lvgl/src/core/lv_theme.c **** 
+ 413              		.loc 1 108 0 is_stmt 1
+ 414 000a 08BD     		pop	{r3, pc}
+ 415              	.LVL44:
+ 416              	.L40:
+ 107:Drivers/lvgl/lvgl/src/core/lv_theme.c **** }
+ 417              		.loc 1 107 0 discriminator 2
+ 418 000c 0520     		movs	r0, #5
+ 419              	.LVL45:
+ 420 000e FFF7FEFF 		bl	lv_palette_main
+ 421              	.LVL46:
+ 422 0012 FAE7     		b	.L41
+ 423              		.cfi_endproc
+ 424              	.LFE210:
+ 426              		.text
+ 427              	.Letext0:
+ 428              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 429              		.file 4 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ 430              		.file 5 "Drivers/lvgl/lvgl/src/core/../../src/misc/lv_types.h"
+ 431              		.file 6 "Drivers/lvgl/lvgl/src/core/../../src/misc/lv_timer.h"
+ 432              		.file 7 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 433              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+ 434              		.file 9 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+ 435              		.file 10 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+ 436              		.file 11 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/../misc/../font/../misc/lv_area.h"
+ 437              		.file 12 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/../misc/../font/lv_font.h"
+ 438              		.file 13 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/../misc/lv_color.h"
+ 439              		.file 14 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/../misc/lv_txt.h"
+ 440              		.file 15 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/../misc/lv_bidi.h"
+ 441              		.file 16 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/../misc/lv_style.h"
+ 442              		.file 17 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/lv_img_buf.h"
+ 443              		.file 18 "Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj.h"
+ 444              		.file 19 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/lv_draw_rect.h"
+ARM GAS  /tmp/ccY5uoiz.s 			page 13
+
+
+ 445              		.file 20 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/lv_draw_label.h"
+ 446              		.file 21 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/lv_draw_img.h"
+ 447              		.file 22 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/lv_draw_line.h"
+ 448              		.file 23 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/lv_draw_arc.h"
+ 449              		.file 24 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/lv_draw_layer.h"
+ 450              		.file 25 "Drivers/lvgl/lvgl/src/core/../../src/hal/../draw/lv_draw.h"
+ 451              		.file 26 "Drivers/lvgl/lvgl/src/core/../../src/hal/../misc/lv_ll.h"
+ 452              		.file 27 "Drivers/lvgl/lvgl/src/core/../../src/hal/lv_hal_disp.h"
+ 453              		.file 28 "Drivers/lvgl/lvgl/src/core/../../src/core/lv_theme.h"
+ 454              		.file 29 "Drivers/lvgl/lvgl/src/core/../../src/core/lv_group.h"
+ 455              		.file 30 "Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_scroll.h"
+ 456              		.file 31 "Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_class.h"
+ 457              		.file 32 "Drivers/lvgl/lvgl/src/core/../../src/core/lv_event.h"
+ 458              		.file 33 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_arc.h"
+ 459              		.file 34 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_btn.h"
+ 460              		.file 35 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_img.h"
+ 461              		.file 36 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_label.h"
+ 462              		.file 37 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_line.h"
+ 463              		.file 38 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_table.h"
+ 464              		.file 39 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_checkbox.h"
+ 465              		.file 40 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_bar.h"
+ 466              		.file 41 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_slider.h"
+ 467              		.file 42 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_btnmatrix.h"
+ 468              		.file 43 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_dropdown.h"
+ 469              		.file 44 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_roller.h"
+ 470              		.file 45 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_textarea.h"
+ 471              		.file 46 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_canvas.h"
+ 472              		.file 47 "Drivers/lvgl/lvgl/src/core/../../src/widgets/lv_switch.h"
+ 473              		.file 48 "Drivers/lvgl/lvgl/src/core/../../src/extra/layouts/flex/lv_flex.h"
+ 474              		.file 49 "Drivers/lvgl/lvgl/src/core/../../src/extra/layouts/grid/lv_grid.h"
+ 475              		.file 50 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/animimg/lv_animimg.h"
+ 476              		.file 51 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/calendar/lv_calendar.h"
+ 477              		.file 52 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/calendar/lv_calendar_header_arrow.h"
+ 478              		.file 53 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/calendar/lv_calendar_header_dropdown.
+ 479              		.file 54 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/chart/lv_chart.h"
+ 480              		.file 55 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/keyboard/lv_keyboard.h"
+ 481              		.file 56 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/list/lv_list.h"
+ 482              		.file 57 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/menu/lv_menu.h"
+ 483              		.file 58 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/msgbox/lv_msgbox.h"
+ 484              		.file 59 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/meter/lv_meter.h"
+ 485              		.file 60 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/spinbox/lv_spinbox.h"
+ 486              		.file 61 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/spinner/lv_spinner.h"
+ 487              		.file 62 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/tabview/lv_tabview.h"
+ 488              		.file 63 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/tileview/lv_tileview.h"
+ 489              		.file 64 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/win/lv_win.h"
+ 490              		.file 65 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/colorwheel/lv_colorwheel.h"
+ 491              		.file 66 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/led/lv_led.h"
+ 492              		.file 67 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/imgbtn/lv_imgbtn.h"
+ 493              		.file 68 "Drivers/lvgl/lvgl/src/core/../../src/extra/widgets/span/lv_span.h"
+ 494              		.file 69 "Drivers/lvgl/lvgl/src/core/../../src/core/lv_obj_tree.h"
+ 495              		.file 70 "Drivers/lvgl/lvgl/src/core/../../src/core/lv_disp.h"
+ARM GAS  /tmp/ccY5uoiz.s 			page 14
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_theme.c
+     /tmp/ccY5uoiz.s:17     .text.apply_theme:0000000000000000 $t
+     /tmp/ccY5uoiz.s:23     .text.apply_theme:0000000000000000 apply_theme
+     /tmp/ccY5uoiz.s:67     .text.lv_theme_get_from_obj:0000000000000000 $t
+     /tmp/ccY5uoiz.s:74     .text.lv_theme_get_from_obj:0000000000000000 lv_theme_get_from_obj
+     /tmp/ccY5uoiz.s:107    .text.lv_theme_apply:0000000000000000 $t
+     /tmp/ccY5uoiz.s:114    .text.lv_theme_apply:0000000000000000 lv_theme_apply
+     /tmp/ccY5uoiz.s:160    .text.lv_theme_apply:0000000000000020 $d
+     /tmp/ccY5uoiz.s:165    .text.lv_theme_set_parent:0000000000000000 $t
+     /tmp/ccY5uoiz.s:172    .text.lv_theme_set_parent:0000000000000000 lv_theme_set_parent
+     /tmp/ccY5uoiz.s:188    .text.lv_theme_set_apply_cb:0000000000000000 $t
+     /tmp/ccY5uoiz.s:195    .text.lv_theme_set_apply_cb:0000000000000000 lv_theme_set_apply_cb
+     /tmp/ccY5uoiz.s:211    .text.lv_theme_get_font_small:0000000000000000 $t
+     /tmp/ccY5uoiz.s:218    .text.lv_theme_get_font_small:0000000000000000 lv_theme_get_font_small
+     /tmp/ccY5uoiz.s:250    .text.lv_theme_get_font_small:0000000000000010 $d
+     /tmp/ccY5uoiz.s:255    .text.lv_theme_get_font_normal:0000000000000000 $t
+     /tmp/ccY5uoiz.s:262    .text.lv_theme_get_font_normal:0000000000000000 lv_theme_get_font_normal
+     /tmp/ccY5uoiz.s:294    .text.lv_theme_get_font_normal:0000000000000010 $d
+     /tmp/ccY5uoiz.s:299    .text.lv_theme_get_font_large:0000000000000000 $t
+     /tmp/ccY5uoiz.s:306    .text.lv_theme_get_font_large:0000000000000000 lv_theme_get_font_large
+     /tmp/ccY5uoiz.s:338    .text.lv_theme_get_font_large:0000000000000010 $d
+     /tmp/ccY5uoiz.s:343    .text.lv_theme_get_color_primary:0000000000000000 $t
+     /tmp/ccY5uoiz.s:350    .text.lv_theme_get_color_primary:0000000000000000 lv_theme_get_color_primary
+     /tmp/ccY5uoiz.s:385    .text.lv_theme_get_color_secondary:0000000000000000 $t
+     /tmp/ccY5uoiz.s:392    .text.lv_theme_get_color_secondary:0000000000000000 lv_theme_get_color_secondary
+
+UNDEFINED SYMBOLS
+lv_obj_get_disp
+lv_disp_get_theme
+lv_disp_get_default
+lv_obj_remove_style
+lv_font_montserrat_14
+lv_palette_main

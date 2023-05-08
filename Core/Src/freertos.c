@@ -26,6 +26,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "lvgl.h"
+#include "lv_demos.h"
+#include "st7789.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -169,7 +171,8 @@ void StartLEDTask(void *argument)
   for(;;)
   {
     osDelay(50);
-    LL_GPIO_TogglePin(BLUE_LED_GPIO_Port,BLUE_LED_Pin);
+    // LL_GPIO_TogglePin(BLUE_LED_GPIO_Port,BLUE_LED_Pin);
+    HAL_GPIO_TogglePin(BLUE_LED_GPIO_Port,BLUE_LED_Pin);
     osDelay(50);
   }
   /* USER CODE END StartLEDTask */
@@ -188,7 +191,7 @@ void StartLvglTimerTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    // lv_timer_handler();
+    lv_timer_handler();
     osDelay(5);
   }
   /* USER CODE END StartLvglTimerTask */
@@ -204,11 +207,19 @@ void StartLvglTimerTask(void *argument)
 void StartLVGLTask(void *argument)
 {
   /* USER CODE BEGIN StartLVGLTask */
+  lv_init();					//LVGL初始化
+	// lv_port_disp_init();
+// lv_port_indev_init();
+  // ST7789_Init();
+  Display_init(0);
+  // osDelay(50);
+  //  ST7789_Test();
+  lv_demo_stress();
   /* Infinite loop */
   for(;;)
   {
-    // LCD_ShowChinese(0,0,"中景园电子",RED,WHITE,32,0);
-    osDelay(1000);
+    // osDelay(500);
+    osDelay(1);
   }
   /* USER CODE END StartLVGLTask */
 }
@@ -217,7 +228,7 @@ void StartLVGLTask(void *argument)
 /* USER CODE BEGIN Application */
 void vApplicationTickHook(void)
 {
-  // lv_tick_inc(1);
+  lv_tick_inc(1);
 }
 /* USER CODE END Application */
 

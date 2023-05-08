@@ -1,0 +1,1653 @@
+ARM GAS  /tmp/ccYh3fOp.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_ll.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.node_set_prev,"ax",%progbits
+  17              		.align	1
+  18              		.syntax unified
+  19              		.thumb
+  20              		.thumb_func
+  21              		.fpu fpv5-d16
+  23              	node_set_prev:
+  24              	.LFB15:
+  25              		.file 1 "Drivers/lvgl/lvgl/src/misc/lv_ll.c"
+   1:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+   2:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @file lv_ll.c
+   3:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Handle linked lists.
+   4:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * The nodes are dynamically allocated by the 'lv_mem' module,
+   5:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+   6:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+   7:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /*********************
+   8:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  *      INCLUDES
+   9:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  *********************/
+  10:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** #include "lv_ll.h"
+  11:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** #include "lv_mem.h"
+  12:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  13:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /*********************
+  14:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  *      DEFINES
+  15:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  *********************/
+  16:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** #define LL_NODE_META_SIZE (sizeof(lv_ll_node_t *) + sizeof(lv_ll_node_t *))
+  17:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** #define LL_PREV_P_OFFSET(ll_p) (ll_p->n_size)
+  18:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** #define LL_NEXT_P_OFFSET(ll_p) (ll_p->n_size + sizeof(lv_ll_node_t *))
+  19:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  20:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**********************
+  21:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  *      TYPEDEFS
+  22:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  **********************/
+  23:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  24:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**********************
+  25:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  *  STATIC PROTOTYPES
+  26:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  **********************/
+  27:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** static void node_set_prev(lv_ll_t * ll_p, lv_ll_node_t * act, lv_ll_node_t * prev);
+  28:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** static void node_set_next(lv_ll_t * ll_p, lv_ll_node_t * act, lv_ll_node_t * next);
+  29:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  30:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**********************
+  31:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  *  STATIC VARIABLES
+  32:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  **********************/
+  33:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ARM GAS  /tmp/ccYh3fOp.s 			page 2
+
+
+  34:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**********************
+  35:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  *      MACROS
+  36:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  **********************/
+  37:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  38:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**********************
+  39:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  *   GLOBAL FUNCTIONS
+  40:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  **********************/
+  41:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  42:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+  43:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Initialize linked list
+  44:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to lv_ll_t variable
+  45:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param node_size the size of 1 node in bytes
+  46:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+  47:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** void _lv_ll_init(lv_ll_t * ll_p, uint32_t node_size)
+  48:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+  49:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     ll_p->head = NULL;
+  50:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     ll_p->tail = NULL;
+  51:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** #ifdef LV_ARCH_64
+  52:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     /*Round the size up to 8*/
+  53:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     node_size = (node_size + 7) & (~0x7);
+  54:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** #else
+  55:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     /*Round the size up to 4*/
+  56:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     node_size = (node_size + 3) & (~0x3);
+  57:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** #endif
+  58:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  59:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     ll_p->n_size = node_size;
+  60:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+  61:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  62:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+  63:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Add a new head to a linked list
+  64:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to linked list
+  65:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @return pointer to the new head
+  66:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+  67:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** void * _lv_ll_ins_head(lv_ll_t * ll_p)
+  68:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+  69:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     lv_ll_node_t * n_new;
+  70:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  71:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     n_new = lv_mem_alloc(ll_p->n_size + LL_NODE_META_SIZE);
+  72:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  73:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(n_new != NULL) {
+  74:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_prev(ll_p, n_new, NULL);       /*No prev. before the new head*/
+  75:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_next(ll_p, n_new, ll_p->head); /*After new comes the old head*/
+  76:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  77:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_p->head != NULL) { /*If there is old head then before it goes the new*/
+  78:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             node_set_prev(ll_p, ll_p->head, n_new);
+  79:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+  80:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  81:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         ll_p->head = n_new;      /*Set the new head in the dsc.*/
+  82:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_p->tail == NULL) { /*If there is no tail (1. node) set the tail too*/
+  83:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             ll_p->tail = n_new;
+  84:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+  85:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+  86:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  87:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return n_new;
+  88:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+  89:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+  90:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ARM GAS  /tmp/ccYh3fOp.s 			page 3
+
+
+  91:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Insert a new node in front of the n_act node
+  92:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to linked list
+  93:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param n_act pointer a node
+  94:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @return pointer to the new node
+  95:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+  96:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** void * _lv_ll_ins_prev(lv_ll_t * ll_p, void * n_act)
+  97:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+  98:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     lv_ll_node_t * n_new;
+  99:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 100:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(NULL == ll_p || NULL == n_act) return NULL;
+ 101:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 102:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(_lv_ll_get_head(ll_p) == n_act) {
+ 103:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         n_new = _lv_ll_ins_head(ll_p);
+ 104:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(n_new == NULL) return NULL;
+ 105:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 106:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     else {
+ 107:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         n_new = lv_mem_alloc(ll_p->n_size + LL_NODE_META_SIZE);
+ 108:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(n_new == NULL) return NULL;
+ 109:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 110:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         lv_ll_node_t * n_prev;
+ 111:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         n_prev = _lv_ll_get_prev(ll_p, n_act);
+ 112:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_next(ll_p, n_prev, n_new);
+ 113:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_prev(ll_p, n_new, n_prev);
+ 114:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_prev(ll_p, n_act, n_new);
+ 115:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_next(ll_p, n_new, n_act);
+ 116:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 117:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 118:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return n_new;
+ 119:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 120:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 121:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ 122:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Add a new tail to a linked list
+ 123:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to linked list
+ 124:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @return pointer to the new tail
+ 125:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+ 126:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** void * _lv_ll_ins_tail(lv_ll_t * ll_p)
+ 127:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+ 128:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     lv_ll_node_t * n_new;
+ 129:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 130:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     n_new = lv_mem_alloc(ll_p->n_size + LL_NODE_META_SIZE);
+ 131:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 132:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(n_new != NULL) {
+ 133:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_next(ll_p, n_new, NULL);       /*No next after the new tail*/
+ 134:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_prev(ll_p, n_new, ll_p->tail); /*The prev. before new is the old tail*/
+ 135:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_p->tail != NULL) {                /*If there is old tail then the new comes after it*
+ 136:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             node_set_next(ll_p, ll_p->tail, n_new);
+ 137:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 138:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 139:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         ll_p->tail = n_new;      /*Set the new tail in the dsc.*/
+ 140:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_p->head == NULL) { /*If there is no head (1. node) set the head too*/
+ 141:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             ll_p->head = n_new;
+ 142:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 143:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 144:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 145:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return n_new;
+ 146:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 147:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ARM GAS  /tmp/ccYh3fOp.s 			page 4
+
+
+ 148:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ 149:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Remove the node 'node_p' from 'll_p' linked list.
+ 150:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * It does not free the memory of node.
+ 151:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to the linked list of 'node_p'
+ 152:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param node_p pointer to node in 'll_p' linked list
+ 153:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+ 154:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** void _lv_ll_remove(lv_ll_t * ll_p, void * node_p)
+ 155:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+ 156:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(ll_p == NULL) return;
+ 157:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 158:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(_lv_ll_get_head(ll_p) == node_p) {
+ 159:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         /*The new head will be the node after 'n_act'*/
+ 160:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         ll_p->head = _lv_ll_get_next(ll_p, node_p);
+ 161:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_p->head == NULL) {
+ 162:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             ll_p->tail = NULL;
+ 163:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 164:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         else {
+ 165:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             node_set_prev(ll_p, ll_p->head, NULL);
+ 166:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 167:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 168:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     else if(_lv_ll_get_tail(ll_p) == node_p) {
+ 169:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         /*The new tail will be the node before 'n_act'*/
+ 170:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         ll_p->tail = _lv_ll_get_prev(ll_p, node_p);
+ 171:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_p->tail == NULL) {
+ 172:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             ll_p->head = NULL;
+ 173:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 174:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         else {
+ 175:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             node_set_next(ll_p, ll_p->tail, NULL);
+ 176:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 177:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 178:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     else {
+ 179:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         lv_ll_node_t * n_prev = _lv_ll_get_prev(ll_p, node_p);
+ 180:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         lv_ll_node_t * n_next = _lv_ll_get_next(ll_p, node_p);
+ 181:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 182:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_next(ll_p, n_prev, n_next);
+ 183:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_prev(ll_p, n_next, n_prev);
+ 184:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 185:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 186:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 187:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ 188:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Remove and free all elements from a linked list. The list remain valid but become empty.
+ 189:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to linked list
+ 190:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+ 191:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** void _lv_ll_clear(lv_ll_t * ll_p)
+ 192:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+ 193:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     void * i;
+ 194:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     void * i_next;
+ 195:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 196:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     i      = _lv_ll_get_head(ll_p);
+ 197:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     i_next = NULL;
+ 198:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 199:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     while(i != NULL) {
+ 200:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         i_next = _lv_ll_get_next(ll_p, i);
+ 201:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 202:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         _lv_ll_remove(ll_p, i);
+ 203:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         lv_mem_free(i);
+ 204:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ARM GAS  /tmp/ccYh3fOp.s 			page 5
+
+
+ 205:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         i = i_next;
+ 206:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 207:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 208:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 209:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ 210:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Move a node to a new linked list
+ 211:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_ori_p pointer to the original (old) linked list
+ 212:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_new_p pointer to the new linked list
+ 213:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param node pointer to a node
+ 214:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param head true: be the head in the new list
+ 215:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  *             false be the tail in the new list
+ 216:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+ 217:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** void _lv_ll_chg_list(lv_ll_t * ll_ori_p, lv_ll_t * ll_new_p, void * node, bool head)
+ 218:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+ 219:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     _lv_ll_remove(ll_ori_p, node);
+ 220:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 221:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(head) {
+ 222:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         /*Set node as head*/
+ 223:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_prev(ll_new_p, node, NULL);
+ 224:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_next(ll_new_p, node, ll_new_p->head);
+ 225:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 226:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_new_p->head != NULL) { /*If there is old head then before it goes the new*/
+ 227:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             node_set_prev(ll_new_p, ll_new_p->head, node);
+ 228:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 229:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 230:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         ll_new_p->head = node;       /*Set the new head in the dsc.*/
+ 231:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_new_p->tail == NULL) { /*If there is no tail (first node) set the tail too*/
+ 232:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             ll_new_p->tail = node;
+ 233:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 234:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 235:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     else {
+ 236:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         /*Set node as tail*/
+ 237:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_prev(ll_new_p, node, ll_new_p->tail);
+ 238:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_next(ll_new_p, node, NULL);
+ 239:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 240:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_new_p->tail != NULL) { /*If there is old tail then after it goes the new*/
+ 241:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             node_set_next(ll_new_p, ll_new_p->tail, node);
+ 242:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 243:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 244:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         ll_new_p->tail = node;       /*Set the new tail in the dsc.*/
+ 245:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_new_p->head == NULL) { /*If there is no head (first node) set the head too*/
+ 246:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             ll_new_p->head = node;
+ 247:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 248:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 249:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 250:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 251:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ 252:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Return with head node of the linked list
+ 253:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to linked list
+ 254:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @return pointer to the head of 'll_p'
+ 255:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+ 256:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** void * _lv_ll_get_head(const lv_ll_t * ll_p)
+ 257:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+ 258:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(ll_p == NULL) return NULL;
+ 259:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return ll_p->head;
+ 260:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 261:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ARM GAS  /tmp/ccYh3fOp.s 			page 6
+
+
+ 262:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ 263:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Return with tail node of the linked list
+ 264:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to linked list
+ 265:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @return pointer to the tail of 'll_p'
+ 266:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+ 267:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** void * _lv_ll_get_tail(const lv_ll_t * ll_p)
+ 268:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+ 269:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(ll_p == NULL) return NULL;
+ 270:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return ll_p->tail;
+ 271:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 272:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 273:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ 274:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Return with the pointer of the next node after 'n_act'
+ 275:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to linked list
+ 276:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param n_act pointer a node
+ 277:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @return pointer to the next node
+ 278:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+ 279:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** void * _lv_ll_get_next(const lv_ll_t * ll_p, const void * n_act)
+ 280:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+ 281:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     /*Pointer to the next node is stored in the end of this node.
+ 282:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****      *Go there and return the address found there*/
+ 283:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     const lv_ll_node_t * n_act_d = n_act;
+ 284:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     n_act_d += LL_NEXT_P_OFFSET(ll_p);
+ 285:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return *((lv_ll_node_t **)n_act_d);
+ 286:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 287:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 288:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ 289:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Return with the pointer of the previous node before 'n_act'
+ 290:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to linked list
+ 291:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param n_act pointer a node
+ 292:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @return pointer to the previous node
+ 293:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+ 294:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** void * _lv_ll_get_prev(const lv_ll_t * ll_p, const void * n_act)
+ 295:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+ 296:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     /*Pointer to the prev. node is stored in the end of this node.
+ 297:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****      *Go there and return the address found there*/
+ 298:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     const lv_ll_node_t * n_act_d = n_act;
+ 299:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     n_act_d += LL_PREV_P_OFFSET(ll_p);
+ 300:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return *((lv_ll_node_t **)n_act_d);
+ 301:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 302:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 303:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ 304:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Return the length of the linked list.
+ 305:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to linked list
+ 306:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @return length of the linked list
+ 307:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+ 308:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** uint32_t _lv_ll_get_len(const lv_ll_t * ll_p)
+ 309:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+ 310:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     uint32_t len = 0;
+ 311:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     void * node;
+ 312:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 313:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     for(node = _lv_ll_get_head(ll_p); node != NULL; node = _lv_ll_get_next(ll_p, node)) {
+ 314:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         len++;
+ 315:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 316:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 317:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return len;
+ 318:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ARM GAS  /tmp/ccYh3fOp.s 			page 7
+
+
+ 319:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 320:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ 321:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Move a node before an other node in the same linked list
+ 322:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to a linked list
+ 323:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param n_act pointer to node to move
+ 324:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param n_after pointer to a node which should be after `n_act`
+ 325:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+ 326:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** void _lv_ll_move_before(lv_ll_t * ll_p, void * n_act, void * n_after)
+ 327:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+ 328:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(n_act == n_after) return; /*Can't move before itself*/
+ 329:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 330:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     void * n_before;
+ 331:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(n_after != NULL)
+ 332:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         n_before = _lv_ll_get_prev(ll_p, n_after);
+ 333:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     else
+ 334:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         n_before = _lv_ll_get_tail(ll_p); /*if `n_after` is NULL `n_act` should be the new tail*/
+ 335:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 336:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(n_act == n_before) return; /*Already before `n_after`*/
+ 337:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 338:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     /*It's much easier to remove from the list and add again*/
+ 339:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     _lv_ll_remove(ll_p, n_act);
+ 340:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 341:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     /*Add again by setting the prev. and next nodes*/
+ 342:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     node_set_next(ll_p, n_before, n_act);
+ 343:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     node_set_prev(ll_p, n_act, n_before);
+ 344:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     node_set_prev(ll_p, n_after, n_act);
+ 345:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     node_set_next(ll_p, n_act, n_after);
+ 346:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 347:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     /*If `n_act` was moved before NULL then it become the new tail*/
+ 348:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(n_after == NULL) ll_p->tail = n_act;
+ 349:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 350:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     /*If `n_act` was moved before `NULL` then it's the new head*/
+ 351:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(n_before == NULL) ll_p->head = n_act;
+ 352:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 353:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 354:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ 355:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Check if a linked list is empty
+ 356:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to a linked list
+ 357:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @return true: the linked list is empty; false: not empty
+ 358:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+ 359:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** bool _lv_ll_is_empty(lv_ll_t * ll_p)
+ 360:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+ 361:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(ll_p == NULL) return true;
+ 362:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 363:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(ll_p->head == NULL && ll_p->tail == NULL) return true;
+ 364:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 365:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return false;
+ 366:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 367:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 368:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**********************
+ 369:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  *   STATIC FUNCTIONS
+ 370:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  **********************/
+ 371:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 372:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ 373:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Set the previous node pointer of a node
+ 374:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to linked list
+ 375:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param act pointer to a node which prev. node pointer should be set
+ARM GAS  /tmp/ccYh3fOp.s 			page 8
+
+
+ 376:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param prev pointer to a node which should be the previous node before 'act'
+ 377:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+ 378:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** static void node_set_prev(lv_ll_t * ll_p, lv_ll_node_t * act, lv_ll_node_t * prev)
+ 379:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+  26              		.loc 1 379 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              	.LVL0:
+ 380:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(act == NULL) return; /*Can't set the prev node of `NULL`*/
+  32              		.loc 1 380 0
+  33 0000 0B46     		mov	r3, r1
+  34 0002 09B1     		cbz	r1, .L1
+  35              	.LVL1:
+ 381:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 382:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     uint8_t * act8 = (uint8_t *)act;
+ 383:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 384:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     act8 += LL_PREV_P_OFFSET(ll_p);
+  36              		.loc 1 384 0
+  37 0004 0168     		ldr	r1, [r0]
+  38              	.LVL2:
+ 385:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 386:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     lv_ll_node_t ** act_node_p = (lv_ll_node_t **) act8;
+ 387:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     lv_ll_node_t ** prev_node_p = (lv_ll_node_t **) &prev;
+ 388:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 389:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     *act_node_p = *prev_node_p;
+  39              		.loc 1 389 0
+  40 0006 5A50     		str	r2, [r3, r1]
+  41              	.LVL3:
+  42              	.L1:
+ 390:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+  43              		.loc 1 390 0
+  44 0008 7047     		bx	lr
+  45              		.cfi_endproc
+  46              	.LFE15:
+  48              		.section	.text.node_set_next,"ax",%progbits
+  49              		.align	1
+  50              		.syntax unified
+  51              		.thumb
+  52              		.thumb_func
+  53              		.fpu fpv5-d16
+  55              	node_set_next:
+  56              	.LFB16:
+ 391:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 392:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** /**
+ 393:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * Set the 'next node pointer' of a node
+ 394:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param ll_p pointer to linked list
+ 395:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param act pointer to a node which next node pointer should be set
+ 396:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  * @param next pointer to a node which should be the next node before 'act'
+ 397:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****  */
+ 398:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** static void node_set_next(lv_ll_t * ll_p, lv_ll_node_t * act, lv_ll_node_t * next)
+ 399:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** {
+  57              		.loc 1 399 0
+  58              		.cfi_startproc
+  59              		@ args = 0, pretend = 0, frame = 0
+  60              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/ccYh3fOp.s 			page 9
+
+
+  61              		@ link register save eliminated.
+  62              	.LVL4:
+ 400:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(act == NULL) return; /*Can't set the next node of `NULL`*/
+  63              		.loc 1 400 0
+  64 0000 31B1     		cbz	r1, .L6
+ 399:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(act == NULL) return; /*Can't set the next node of `NULL`*/
+  65              		.loc 1 399 0
+  66 0002 10B4     		push	{r4}
+  67              	.LCFI0:
+  68              		.cfi_def_cfa_offset 4
+  69              		.cfi_offset 4, -4
+  70              	.LVL5:
+ 401:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     uint8_t * act8 = (uint8_t *)act;
+ 402:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 403:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     act8 += LL_NEXT_P_OFFSET(ll_p);
+  71              		.loc 1 403 0
+  72 0004 0368     		ldr	r3, [r0]
+  73 0006 0433     		adds	r3, r3, #4
+  74              	.LVL6:
+ 404:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     lv_ll_node_t ** act_node_p = (lv_ll_node_t **) act8;
+ 405:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     lv_ll_node_t ** next_node_p = (lv_ll_node_t **) &next;
+ 406:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 407:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     *act_node_p = *next_node_p;
+  75              		.loc 1 407 0
+  76 0008 CA50     		str	r2, [r1, r3]
+ 408:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+  77              		.loc 1 408 0
+  78 000a 5DF8044B 		ldr	r4, [sp], #4
+  79              	.LCFI1:
+  80              		.cfi_restore 4
+  81              		.cfi_def_cfa_offset 0
+  82 000e 7047     		bx	lr
+  83              	.LVL7:
+  84              	.L6:
+  85 0010 7047     		bx	lr
+  86              		.cfi_endproc
+  87              	.LFE16:
+  89              		.section	.text._lv_ll_init,"ax",%progbits
+  90              		.align	1
+  91              		.global	_lv_ll_init
+  92              		.syntax unified
+  93              		.thumb
+  94              		.thumb_func
+  95              		.fpu fpv5-d16
+  97              	_lv_ll_init:
+  98              	.LFB1:
+  48:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     ll_p->head = NULL;
+  99              		.loc 1 48 0
+ 100              		.cfi_startproc
+ 101              		@ args = 0, pretend = 0, frame = 0
+ 102              		@ frame_needed = 0, uses_anonymous_args = 0
+ 103              		@ link register save eliminated.
+ 104              	.LVL8:
+  49:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     ll_p->tail = NULL;
+ 105              		.loc 1 49 0
+ 106 0000 0023     		movs	r3, #0
+ 107 0002 4360     		str	r3, [r0, #4]
+ARM GAS  /tmp/ccYh3fOp.s 			page 10
+
+
+  50:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** #ifdef LV_ARCH_64
+ 108              		.loc 1 50 0
+ 109 0004 8360     		str	r3, [r0, #8]
+  56:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** #endif
+ 110              		.loc 1 56 0
+ 111 0006 0331     		adds	r1, r1, #3
+ 112              	.LVL9:
+ 113 0008 21F00301 		bic	r1, r1, #3
+ 114              	.LVL10:
+  59:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 115              		.loc 1 59 0
+ 116 000c 0160     		str	r1, [r0]
+  60:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 117              		.loc 1 60 0
+ 118 000e 7047     		bx	lr
+ 119              		.cfi_endproc
+ 120              	.LFE1:
+ 122              		.section	.text._lv_ll_ins_head,"ax",%progbits
+ 123              		.align	1
+ 124              		.global	_lv_ll_ins_head
+ 125              		.syntax unified
+ 126              		.thumb
+ 127              		.thumb_func
+ 128              		.fpu fpv5-d16
+ 130              	_lv_ll_ins_head:
+ 131              	.LFB2:
+  68:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     lv_ll_node_t * n_new;
+ 132              		.loc 1 68 0
+ 133              		.cfi_startproc
+ 134              		@ args = 0, pretend = 0, frame = 0
+ 135              		@ frame_needed = 0, uses_anonymous_args = 0
+ 136              	.LVL11:
+ 137 0000 38B5     		push	{r3, r4, r5, lr}
+ 138              	.LCFI2:
+ 139              		.cfi_def_cfa_offset 16
+ 140              		.cfi_offset 3, -16
+ 141              		.cfi_offset 4, -12
+ 142              		.cfi_offset 5, -8
+ 143              		.cfi_offset 14, -4
+ 144 0002 0446     		mov	r4, r0
+  71:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 145              		.loc 1 71 0
+ 146 0004 0068     		ldr	r0, [r0]
+ 147              	.LVL12:
+ 148 0006 0830     		adds	r0, r0, #8
+ 149 0008 FFF7FEFF 		bl	lv_mem_alloc
+ 150              	.LVL13:
+  73:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_prev(ll_p, n_new, NULL);       /*No prev. before the new head*/
+ 151              		.loc 1 73 0
+ 152 000c 0546     		mov	r5, r0
+ 153 000e 90B1     		cbz	r0, .L10
+  74:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_next(ll_p, n_new, ll_p->head); /*After new comes the old head*/
+ 154              		.loc 1 74 0
+ 155 0010 0022     		movs	r2, #0
+ 156 0012 0146     		mov	r1, r0
+ 157 0014 2046     		mov	r0, r4
+ 158              	.LVL14:
+ARM GAS  /tmp/ccYh3fOp.s 			page 11
+
+
+ 159 0016 FFF7FEFF 		bl	node_set_prev
+ 160              	.LVL15:
+  75:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 161              		.loc 1 75 0
+ 162 001a 6268     		ldr	r2, [r4, #4]
+ 163 001c 2946     		mov	r1, r5
+ 164 001e 2046     		mov	r0, r4
+ 165 0020 FFF7FEFF 		bl	node_set_next
+ 166              	.LVL16:
+  77:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             node_set_prev(ll_p, ll_p->head, n_new);
+ 167              		.loc 1 77 0
+ 168 0024 6168     		ldr	r1, [r4, #4]
+ 169 0026 19B1     		cbz	r1, .L12
+  78:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 170              		.loc 1 78 0
+ 171 0028 2A46     		mov	r2, r5
+ 172 002a 2046     		mov	r0, r4
+ 173 002c FFF7FEFF 		bl	node_set_prev
+ 174              	.LVL17:
+ 175              	.L12:
+  81:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_p->tail == NULL) { /*If there is no tail (1. node) set the tail too*/
+ 176              		.loc 1 81 0
+ 177 0030 6560     		str	r5, [r4, #4]
+  82:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             ll_p->tail = n_new;
+ 178              		.loc 1 82 0
+ 179 0032 A368     		ldr	r3, [r4, #8]
+ 180 0034 0BB1     		cbz	r3, .L14
+ 181              	.L10:
+  88:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 182              		.loc 1 88 0
+ 183 0036 2846     		mov	r0, r5
+ 184 0038 38BD     		pop	{r3, r4, r5, pc}
+ 185              	.LVL18:
+ 186              	.L14:
+  83:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 187              		.loc 1 83 0
+ 188 003a A560     		str	r5, [r4, #8]
+  87:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 189              		.loc 1 87 0
+ 190 003c FBE7     		b	.L10
+ 191              		.cfi_endproc
+ 192              	.LFE2:
+ 194              		.section	.text._lv_ll_ins_tail,"ax",%progbits
+ 195              		.align	1
+ 196              		.global	_lv_ll_ins_tail
+ 197              		.syntax unified
+ 198              		.thumb
+ 199              		.thumb_func
+ 200              		.fpu fpv5-d16
+ 202              	_lv_ll_ins_tail:
+ 203              	.LFB4:
+ 127:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     lv_ll_node_t * n_new;
+ 204              		.loc 1 127 0
+ 205              		.cfi_startproc
+ 206              		@ args = 0, pretend = 0, frame = 0
+ 207              		@ frame_needed = 0, uses_anonymous_args = 0
+ 208              	.LVL19:
+ARM GAS  /tmp/ccYh3fOp.s 			page 12
+
+
+ 209 0000 38B5     		push	{r3, r4, r5, lr}
+ 210              	.LCFI3:
+ 211              		.cfi_def_cfa_offset 16
+ 212              		.cfi_offset 3, -16
+ 213              		.cfi_offset 4, -12
+ 214              		.cfi_offset 5, -8
+ 215              		.cfi_offset 14, -4
+ 216 0002 0446     		mov	r4, r0
+ 130:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 217              		.loc 1 130 0
+ 218 0004 0068     		ldr	r0, [r0]
+ 219              	.LVL20:
+ 220 0006 0830     		adds	r0, r0, #8
+ 221 0008 FFF7FEFF 		bl	lv_mem_alloc
+ 222              	.LVL21:
+ 132:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_next(ll_p, n_new, NULL);       /*No next after the new tail*/
+ 223              		.loc 1 132 0
+ 224 000c 0546     		mov	r5, r0
+ 225 000e 90B1     		cbz	r0, .L15
+ 133:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_prev(ll_p, n_new, ll_p->tail); /*The prev. before new is the old tail*/
+ 226              		.loc 1 133 0
+ 227 0010 0022     		movs	r2, #0
+ 228 0012 0146     		mov	r1, r0
+ 229 0014 2046     		mov	r0, r4
+ 230              	.LVL22:
+ 231 0016 FFF7FEFF 		bl	node_set_next
+ 232              	.LVL23:
+ 134:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_p->tail != NULL) {                /*If there is old tail then the new comes after it*
+ 233              		.loc 1 134 0
+ 234 001a A268     		ldr	r2, [r4, #8]
+ 235 001c 2946     		mov	r1, r5
+ 236 001e 2046     		mov	r0, r4
+ 237 0020 FFF7FEFF 		bl	node_set_prev
+ 238              	.LVL24:
+ 135:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             node_set_next(ll_p, ll_p->tail, n_new);
+ 239              		.loc 1 135 0
+ 240 0024 A168     		ldr	r1, [r4, #8]
+ 241 0026 19B1     		cbz	r1, .L17
+ 136:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 242              		.loc 1 136 0
+ 243 0028 2A46     		mov	r2, r5
+ 244 002a 2046     		mov	r0, r4
+ 245 002c FFF7FEFF 		bl	node_set_next
+ 246              	.LVL25:
+ 247              	.L17:
+ 139:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_p->head == NULL) { /*If there is no head (1. node) set the head too*/
+ 248              		.loc 1 139 0
+ 249 0030 A560     		str	r5, [r4, #8]
+ 140:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             ll_p->head = n_new;
+ 250              		.loc 1 140 0
+ 251 0032 6368     		ldr	r3, [r4, #4]
+ 252 0034 0BB1     		cbz	r3, .L19
+ 253              	.L15:
+ 146:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 254              		.loc 1 146 0
+ 255 0036 2846     		mov	r0, r5
+ 256 0038 38BD     		pop	{r3, r4, r5, pc}
+ARM GAS  /tmp/ccYh3fOp.s 			page 13
+
+
+ 257              	.LVL26:
+ 258              	.L19:
+ 141:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 259              		.loc 1 141 0
+ 260 003a 6560     		str	r5, [r4, #4]
+ 145:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 261              		.loc 1 145 0
+ 262 003c FBE7     		b	.L15
+ 263              		.cfi_endproc
+ 264              	.LFE4:
+ 266              		.section	.text._lv_ll_get_head,"ax",%progbits
+ 267              		.align	1
+ 268              		.global	_lv_ll_get_head
+ 269              		.syntax unified
+ 270              		.thumb
+ 271              		.thumb_func
+ 272              		.fpu fpv5-d16
+ 274              	_lv_ll_get_head:
+ 275              	.LFB8:
+ 257:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(ll_p == NULL) return NULL;
+ 276              		.loc 1 257 0
+ 277              		.cfi_startproc
+ 278              		@ args = 0, pretend = 0, frame = 0
+ 279              		@ frame_needed = 0, uses_anonymous_args = 0
+ 280              		@ link register save eliminated.
+ 281              	.LVL27:
+ 258:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return ll_p->head;
+ 282              		.loc 1 258 0
+ 283 0000 08B1     		cbz	r0, .L22
+ 259:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 284              		.loc 1 259 0
+ 285 0002 4068     		ldr	r0, [r0, #4]
+ 286              	.LVL28:
+ 287 0004 7047     		bx	lr
+ 288              	.LVL29:
+ 289              	.L22:
+ 258:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return ll_p->head;
+ 290              		.loc 1 258 0
+ 291 0006 0020     		movs	r0, #0
+ 292              	.LVL30:
+ 260:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 293              		.loc 1 260 0
+ 294 0008 7047     		bx	lr
+ 295              		.cfi_endproc
+ 296              	.LFE8:
+ 298              		.section	.text._lv_ll_get_tail,"ax",%progbits
+ 299              		.align	1
+ 300              		.global	_lv_ll_get_tail
+ 301              		.syntax unified
+ 302              		.thumb
+ 303              		.thumb_func
+ 304              		.fpu fpv5-d16
+ 306              	_lv_ll_get_tail:
+ 307              	.LFB9:
+ 268:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(ll_p == NULL) return NULL;
+ 308              		.loc 1 268 0
+ 309              		.cfi_startproc
+ARM GAS  /tmp/ccYh3fOp.s 			page 14
+
+
+ 310              		@ args = 0, pretend = 0, frame = 0
+ 311              		@ frame_needed = 0, uses_anonymous_args = 0
+ 312              		@ link register save eliminated.
+ 313              	.LVL31:
+ 269:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return ll_p->tail;
+ 314              		.loc 1 269 0
+ 315 0000 08B1     		cbz	r0, .L25
+ 270:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 316              		.loc 1 270 0
+ 317 0002 8068     		ldr	r0, [r0, #8]
+ 318              	.LVL32:
+ 319 0004 7047     		bx	lr
+ 320              	.LVL33:
+ 321              	.L25:
+ 269:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return ll_p->tail;
+ 322              		.loc 1 269 0
+ 323 0006 0020     		movs	r0, #0
+ 324              	.LVL34:
+ 271:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 325              		.loc 1 271 0
+ 326 0008 7047     		bx	lr
+ 327              		.cfi_endproc
+ 328              	.LFE9:
+ 330              		.section	.text._lv_ll_get_next,"ax",%progbits
+ 331              		.align	1
+ 332              		.global	_lv_ll_get_next
+ 333              		.syntax unified
+ 334              		.thumb
+ 335              		.thumb_func
+ 336              		.fpu fpv5-d16
+ 338              	_lv_ll_get_next:
+ 339              	.LFB10:
+ 280:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     /*Pointer to the next node is stored in the end of this node.
+ 340              		.loc 1 280 0
+ 341              		.cfi_startproc
+ 342              		@ args = 0, pretend = 0, frame = 0
+ 343              		@ frame_needed = 0, uses_anonymous_args = 0
+ 344              		@ link register save eliminated.
+ 345              	.LVL35:
+ 284:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return *((lv_ll_node_t **)n_act_d);
+ 346              		.loc 1 284 0
+ 347 0000 0368     		ldr	r3, [r0]
+ 348 0002 0433     		adds	r3, r3, #4
+ 349              	.LVL36:
+ 286:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 350              		.loc 1 286 0
+ 351 0004 C858     		ldr	r0, [r1, r3]
+ 352              	.LVL37:
+ 353 0006 7047     		bx	lr
+ 354              		.cfi_endproc
+ 355              	.LFE10:
+ 357              		.section	.text._lv_ll_get_prev,"ax",%progbits
+ 358              		.align	1
+ 359              		.global	_lv_ll_get_prev
+ 360              		.syntax unified
+ 361              		.thumb
+ 362              		.thumb_func
+ARM GAS  /tmp/ccYh3fOp.s 			page 15
+
+
+ 363              		.fpu fpv5-d16
+ 365              	_lv_ll_get_prev:
+ 366              	.LFB11:
+ 295:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     /*Pointer to the prev. node is stored in the end of this node.
+ 367              		.loc 1 295 0
+ 368              		.cfi_startproc
+ 369              		@ args = 0, pretend = 0, frame = 0
+ 370              		@ frame_needed = 0, uses_anonymous_args = 0
+ 371              		@ link register save eliminated.
+ 372              	.LVL38:
+ 299:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     return *((lv_ll_node_t **)n_act_d);
+ 373              		.loc 1 299 0
+ 374 0000 0368     		ldr	r3, [r0]
+ 375              	.LVL39:
+ 301:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 376              		.loc 1 301 0
+ 377 0002 C858     		ldr	r0, [r1, r3]
+ 378              	.LVL40:
+ 379 0004 7047     		bx	lr
+ 380              		.cfi_endproc
+ 381              	.LFE11:
+ 383              		.section	.text._lv_ll_ins_prev,"ax",%progbits
+ 384              		.align	1
+ 385              		.global	_lv_ll_ins_prev
+ 386              		.syntax unified
+ 387              		.thumb
+ 388              		.thumb_func
+ 389              		.fpu fpv5-d16
+ 391              	_lv_ll_ins_prev:
+ 392              	.LFB3:
+  97:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     lv_ll_node_t * n_new;
+ 393              		.loc 1 97 0
+ 394              		.cfi_startproc
+ 395              		@ args = 0, pretend = 0, frame = 0
+ 396              		@ frame_needed = 0, uses_anonymous_args = 0
+ 397              	.LVL41:
+ 398 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 399              	.LCFI4:
+ 400              		.cfi_def_cfa_offset 24
+ 401              		.cfi_offset 3, -24
+ 402              		.cfi_offset 4, -20
+ 403              		.cfi_offset 5, -16
+ 404              		.cfi_offset 6, -12
+ 405              		.cfi_offset 7, -8
+ 406              		.cfi_offset 14, -4
+ 100:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 407              		.loc 1 100 0
+ 408 0002 0446     		mov	r4, r0
+ 409 0004 0D46     		mov	r5, r1
+ 410 0006 B1FA81F1 		clz	r1, r1
+ 411              	.LVL42:
+ 412 000a 4909     		lsrs	r1, r1, #5
+ 413 000c 0028     		cmp	r0, #0
+ 414 000e 14BF     		ite	ne
+ 415 0010 0846     		movne	r0, r1
+ 416 0012 0120     		moveq	r0, #1
+ 417              	.LVL43:
+ARM GAS  /tmp/ccYh3fOp.s 			page 16
+
+
+ 418 0014 68BB     		cbnz	r0, .L31
+ 102:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         n_new = _lv_ll_ins_head(ll_p);
+ 419              		.loc 1 102 0
+ 420 0016 2046     		mov	r0, r4
+ 421 0018 FFF7FEFF 		bl	_lv_ll_get_head
+ 422              	.LVL44:
+ 423 001c 8542     		cmp	r5, r0
+ 424 001e 20D0     		beq	.L34
+ 425              	.LBB2:
+ 107:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(n_new == NULL) return NULL;
+ 426              		.loc 1 107 0
+ 427 0020 2068     		ldr	r0, [r4]
+ 428 0022 0830     		adds	r0, r0, #8
+ 429 0024 FFF7FEFF 		bl	lv_mem_alloc
+ 430              	.LVL45:
+ 108:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 431              		.loc 1 108 0
+ 432 0028 0646     		mov	r6, r0
+ 433 002a 20B3     		cbz	r0, .L32
+ 111:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_next(ll_p, n_prev, n_new);
+ 434              		.loc 1 111 0
+ 435 002c 2946     		mov	r1, r5
+ 436 002e 2046     		mov	r0, r4
+ 437              	.LVL46:
+ 438 0030 FFF7FEFF 		bl	_lv_ll_get_prev
+ 439              	.LVL47:
+ 440 0034 0746     		mov	r7, r0
+ 441              	.LVL48:
+ 112:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_prev(ll_p, n_new, n_prev);
+ 442              		.loc 1 112 0
+ 443 0036 3246     		mov	r2, r6
+ 444 0038 0146     		mov	r1, r0
+ 445 003a 2046     		mov	r0, r4
+ 446              	.LVL49:
+ 447 003c FFF7FEFF 		bl	node_set_next
+ 448              	.LVL50:
+ 113:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_prev(ll_p, n_act, n_new);
+ 449              		.loc 1 113 0
+ 450 0040 3A46     		mov	r2, r7
+ 451 0042 3146     		mov	r1, r6
+ 452 0044 2046     		mov	r0, r4
+ 453 0046 FFF7FEFF 		bl	node_set_prev
+ 454              	.LVL51:
+ 114:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_next(ll_p, n_new, n_act);
+ 455              		.loc 1 114 0
+ 456 004a 3246     		mov	r2, r6
+ 457 004c 2946     		mov	r1, r5
+ 458 004e 2046     		mov	r0, r4
+ 459 0050 FFF7FEFF 		bl	node_set_prev
+ 460              	.LVL52:
+ 115:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 461              		.loc 1 115 0
+ 462 0054 2A46     		mov	r2, r5
+ 463 0056 3146     		mov	r1, r6
+ 464 0058 2046     		mov	r0, r4
+ 465 005a FFF7FEFF 		bl	node_set_next
+ 466              	.LVL53:
+ARM GAS  /tmp/ccYh3fOp.s 			page 17
+
+
+ 467              	.L28:
+ 468              	.LBE2:
+ 119:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 469              		.loc 1 119 0
+ 470 005e 3046     		mov	r0, r6
+ 471 0060 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 472              	.LVL54:
+ 473              	.L34:
+ 103:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(n_new == NULL) return NULL;
+ 474              		.loc 1 103 0
+ 475 0062 2046     		mov	r0, r4
+ 476 0064 FFF7FEFF 		bl	_lv_ll_ins_head
+ 477              	.LVL55:
+ 104:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 478              		.loc 1 104 0
+ 479 0068 0646     		mov	r6, r0
+ 480 006a 0028     		cmp	r0, #0
+ 481 006c F7D1     		bne	.L28
+ 482 006e 0026     		movs	r6, #0
+ 483 0070 F5E7     		b	.L28
+ 484              	.LVL56:
+ 485              	.L31:
+ 100:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 486              		.loc 1 100 0
+ 487 0072 0026     		movs	r6, #0
+ 488 0074 F3E7     		b	.L28
+ 489              	.LVL57:
+ 490              	.L32:
+ 491              	.LBB3:
+ 108:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 492              		.loc 1 108 0
+ 493 0076 0026     		movs	r6, #0
+ 494 0078 F1E7     		b	.L28
+ 495              	.LBE3:
+ 496              		.cfi_endproc
+ 497              	.LFE3:
+ 499              		.section	.text._lv_ll_remove,"ax",%progbits
+ 500              		.align	1
+ 501              		.global	_lv_ll_remove
+ 502              		.syntax unified
+ 503              		.thumb
+ 504              		.thumb_func
+ 505              		.fpu fpv5-d16
+ 507              	_lv_ll_remove:
+ 508              	.LFB5:
+ 155:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(ll_p == NULL) return;
+ 509              		.loc 1 155 0
+ 510              		.cfi_startproc
+ 511              		@ args = 0, pretend = 0, frame = 0
+ 512              		@ frame_needed = 0, uses_anonymous_args = 0
+ 513              	.LVL58:
+ 156:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 514              		.loc 1 156 0
+ 515 0000 0028     		cmp	r0, #0
+ 516 0002 3ED0     		beq	.L42
+ 155:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(ll_p == NULL) return;
+ 517              		.loc 1 155 0
+ARM GAS  /tmp/ccYh3fOp.s 			page 18
+
+
+ 518 0004 70B5     		push	{r4, r5, r6, lr}
+ 519              	.LCFI5:
+ 520              		.cfi_def_cfa_offset 16
+ 521              		.cfi_offset 4, -16
+ 522              		.cfi_offset 5, -12
+ 523              		.cfi_offset 6, -8
+ 524              		.cfi_offset 14, -4
+ 525 0006 0446     		mov	r4, r0
+ 526 0008 0D46     		mov	r5, r1
+ 158:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         /*The new head will be the node after 'n_act'*/
+ 527              		.loc 1 158 0
+ 528 000a FFF7FEFF 		bl	_lv_ll_get_head
+ 529              	.LVL59:
+ 530 000e 8542     		cmp	r5, r0
+ 531 0010 19D0     		beq	.L45
+ 168:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         /*The new tail will be the node before 'n_act'*/
+ 532              		.loc 1 168 0
+ 533 0012 2046     		mov	r0, r4
+ 534 0014 FFF7FEFF 		bl	_lv_ll_get_tail
+ 535              	.LVL60:
+ 536 0018 8542     		cmp	r5, r0
+ 537 001a 23D0     		beq	.L46
+ 538              	.LBB4:
+ 179:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         lv_ll_node_t * n_next = _lv_ll_get_next(ll_p, node_p);
+ 539              		.loc 1 179 0
+ 540 001c 2946     		mov	r1, r5
+ 541 001e 2046     		mov	r0, r4
+ 542 0020 FFF7FEFF 		bl	_lv_ll_get_prev
+ 543              	.LVL61:
+ 544 0024 0646     		mov	r6, r0
+ 545              	.LVL62:
+ 180:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 546              		.loc 1 180 0
+ 547 0026 2946     		mov	r1, r5
+ 548 0028 2046     		mov	r0, r4
+ 549              	.LVL63:
+ 550 002a FFF7FEFF 		bl	_lv_ll_get_next
+ 551              	.LVL64:
+ 552 002e 0546     		mov	r5, r0
+ 553              	.LVL65:
+ 182:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_prev(ll_p, n_next, n_prev);
+ 554              		.loc 1 182 0
+ 555 0030 0246     		mov	r2, r0
+ 556 0032 3146     		mov	r1, r6
+ 557 0034 2046     		mov	r0, r4
+ 558              	.LVL66:
+ 559 0036 FFF7FEFF 		bl	node_set_next
+ 560              	.LVL67:
+ 183:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 561              		.loc 1 183 0
+ 562 003a 3246     		mov	r2, r6
+ 563 003c 2946     		mov	r1, r5
+ 564 003e 2046     		mov	r0, r4
+ 565 0040 FFF7FEFF 		bl	node_set_prev
+ 566              	.LVL68:
+ 567              	.L35:
+ 568              	.LBE4:
+ARM GAS  /tmp/ccYh3fOp.s 			page 19
+
+
+ 185:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 569              		.loc 1 185 0
+ 570 0044 70BD     		pop	{r4, r5, r6, pc}
+ 571              	.LVL69:
+ 572              	.L45:
+ 160:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_p->head == NULL) {
+ 573              		.loc 1 160 0
+ 574 0046 2946     		mov	r1, r5
+ 575 0048 2046     		mov	r0, r4
+ 576 004a FFF7FEFF 		bl	_lv_ll_get_next
+ 577              	.LVL70:
+ 578 004e 6060     		str	r0, [r4, #4]
+ 161:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             ll_p->tail = NULL;
+ 579              		.loc 1 161 0
+ 580 0050 28B1     		cbz	r0, .L47
+ 165:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 581              		.loc 1 165 0
+ 582 0052 0022     		movs	r2, #0
+ 583 0054 0146     		mov	r1, r0
+ 584 0056 2046     		mov	r0, r4
+ 585 0058 FFF7FEFF 		bl	node_set_prev
+ 586              	.LVL71:
+ 587 005c F2E7     		b	.L35
+ 588              	.L47:
+ 162:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 589              		.loc 1 162 0
+ 590 005e 0023     		movs	r3, #0
+ 591 0060 A360     		str	r3, [r4, #8]
+ 592 0062 EFE7     		b	.L35
+ 593              	.L46:
+ 170:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_p->tail == NULL) {
+ 594              		.loc 1 170 0
+ 595 0064 2946     		mov	r1, r5
+ 596 0066 2046     		mov	r0, r4
+ 597 0068 FFF7FEFF 		bl	_lv_ll_get_prev
+ 598              	.LVL72:
+ 599 006c A060     		str	r0, [r4, #8]
+ 171:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             ll_p->head = NULL;
+ 600              		.loc 1 171 0
+ 601 006e 28B1     		cbz	r0, .L48
+ 175:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 602              		.loc 1 175 0
+ 603 0070 0022     		movs	r2, #0
+ 604 0072 0146     		mov	r1, r0
+ 605 0074 2046     		mov	r0, r4
+ 606 0076 FFF7FEFF 		bl	node_set_next
+ 607              	.LVL73:
+ 608 007a E3E7     		b	.L35
+ 609              	.L48:
+ 172:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 610              		.loc 1 172 0
+ 611 007c 0023     		movs	r3, #0
+ 612 007e 6360     		str	r3, [r4, #4]
+ 613 0080 E0E7     		b	.L35
+ 614              	.LVL74:
+ 615              	.L42:
+ 616              	.LCFI6:
+ARM GAS  /tmp/ccYh3fOp.s 			page 20
+
+
+ 617              		.cfi_def_cfa_offset 0
+ 618              		.cfi_restore 4
+ 619              		.cfi_restore 5
+ 620              		.cfi_restore 6
+ 621              		.cfi_restore 14
+ 622 0082 7047     		bx	lr
+ 623              		.cfi_endproc
+ 624              	.LFE5:
+ 626              		.section	.text._lv_ll_clear,"ax",%progbits
+ 627              		.align	1
+ 628              		.global	_lv_ll_clear
+ 629              		.syntax unified
+ 630              		.thumb
+ 631              		.thumb_func
+ 632              		.fpu fpv5-d16
+ 634              	_lv_ll_clear:
+ 635              	.LFB6:
+ 192:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     void * i;
+ 636              		.loc 1 192 0
+ 637              		.cfi_startproc
+ 638              		@ args = 0, pretend = 0, frame = 0
+ 639              		@ frame_needed = 0, uses_anonymous_args = 0
+ 640              	.LVL75:
+ 641 0000 70B5     		push	{r4, r5, r6, lr}
+ 642              	.LCFI7:
+ 643              		.cfi_def_cfa_offset 16
+ 644              		.cfi_offset 4, -16
+ 645              		.cfi_offset 5, -12
+ 646              		.cfi_offset 6, -8
+ 647              		.cfi_offset 14, -4
+ 648 0002 0546     		mov	r5, r0
+ 196:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     i_next = NULL;
+ 649              		.loc 1 196 0
+ 650 0004 FFF7FEFF 		bl	_lv_ll_get_head
+ 651              	.LVL76:
+ 652 0008 0446     		mov	r4, r0
+ 653              	.LVL77:
+ 199:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         i_next = _lv_ll_get_next(ll_p, i);
+ 654              		.loc 1 199 0
+ 655 000a 0CE0     		b	.L50
+ 656              	.LVL78:
+ 657              	.L51:
+ 200:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 658              		.loc 1 200 0
+ 659 000c 2146     		mov	r1, r4
+ 660 000e 2846     		mov	r0, r5
+ 661 0010 FFF7FEFF 		bl	_lv_ll_get_next
+ 662              	.LVL79:
+ 663 0014 0646     		mov	r6, r0
+ 664              	.LVL80:
+ 202:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         lv_mem_free(i);
+ 665              		.loc 1 202 0
+ 666 0016 2146     		mov	r1, r4
+ 667 0018 2846     		mov	r0, r5
+ 668              	.LVL81:
+ 669 001a FFF7FEFF 		bl	_lv_ll_remove
+ 670              	.LVL82:
+ARM GAS  /tmp/ccYh3fOp.s 			page 21
+
+
+ 203:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 671              		.loc 1 203 0
+ 672 001e 2046     		mov	r0, r4
+ 673 0020 FFF7FEFF 		bl	lv_mem_free
+ 674              	.LVL83:
+ 205:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 675              		.loc 1 205 0
+ 676 0024 3446     		mov	r4, r6
+ 677              	.LVL84:
+ 678              	.L50:
+ 199:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         i_next = _lv_ll_get_next(ll_p, i);
+ 679              		.loc 1 199 0
+ 680 0026 002C     		cmp	r4, #0
+ 681 0028 F0D1     		bne	.L51
+ 207:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 682              		.loc 1 207 0
+ 683 002a 70BD     		pop	{r4, r5, r6, pc}
+ 684              		.cfi_endproc
+ 685              	.LFE6:
+ 687              		.section	.text._lv_ll_chg_list,"ax",%progbits
+ 688              		.align	1
+ 689              		.global	_lv_ll_chg_list
+ 690              		.syntax unified
+ 691              		.thumb
+ 692              		.thumb_func
+ 693              		.fpu fpv5-d16
+ 695              	_lv_ll_chg_list:
+ 696              	.LFB7:
+ 218:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     _lv_ll_remove(ll_ori_p, node);
+ 697              		.loc 1 218 0
+ 698              		.cfi_startproc
+ 699              		@ args = 0, pretend = 0, frame = 0
+ 700              		@ frame_needed = 0, uses_anonymous_args = 0
+ 701              	.LVL85:
+ 702 0000 70B5     		push	{r4, r5, r6, lr}
+ 703              	.LCFI8:
+ 704              		.cfi_def_cfa_offset 16
+ 705              		.cfi_offset 4, -16
+ 706              		.cfi_offset 5, -12
+ 707              		.cfi_offset 6, -8
+ 708              		.cfi_offset 14, -4
+ 709 0002 0C46     		mov	r4, r1
+ 710 0004 1546     		mov	r5, r2
+ 711 0006 1E46     		mov	r6, r3
+ 219:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 712              		.loc 1 219 0
+ 713 0008 1146     		mov	r1, r2
+ 714              	.LVL86:
+ 715 000a FFF7FEFF 		bl	_lv_ll_remove
+ 716              	.LVL87:
+ 221:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         /*Set node as head*/
+ 717              		.loc 1 221 0
+ 718 000e AEB1     		cbz	r6, .L54
+ 223:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_next(ll_new_p, node, ll_new_p->head);
+ 719              		.loc 1 223 0
+ 720 0010 0022     		movs	r2, #0
+ 721 0012 2946     		mov	r1, r5
+ARM GAS  /tmp/ccYh3fOp.s 			page 22
+
+
+ 722 0014 2046     		mov	r0, r4
+ 723 0016 FFF7FEFF 		bl	node_set_prev
+ 724              	.LVL88:
+ 224:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 725              		.loc 1 224 0
+ 726 001a 6268     		ldr	r2, [r4, #4]
+ 727 001c 2946     		mov	r1, r5
+ 728 001e 2046     		mov	r0, r4
+ 729 0020 FFF7FEFF 		bl	node_set_next
+ 730              	.LVL89:
+ 226:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             node_set_prev(ll_new_p, ll_new_p->head, node);
+ 731              		.loc 1 226 0
+ 732 0024 6168     		ldr	r1, [r4, #4]
+ 733 0026 19B1     		cbz	r1, .L55
+ 227:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 734              		.loc 1 227 0
+ 735 0028 2A46     		mov	r2, r5
+ 736 002a 2046     		mov	r0, r4
+ 737 002c FFF7FEFF 		bl	node_set_prev
+ 738              	.LVL90:
+ 739              	.L55:
+ 230:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_new_p->tail == NULL) { /*If there is no tail (first node) set the tail too*/
+ 740              		.loc 1 230 0
+ 741 0030 6560     		str	r5, [r4, #4]
+ 231:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             ll_new_p->tail = node;
+ 742              		.loc 1 231 0
+ 743 0032 A368     		ldr	r3, [r4, #8]
+ 744 0034 03B1     		cbz	r3, .L59
+ 745              	.L53:
+ 249:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 746              		.loc 1 249 0
+ 747 0036 70BD     		pop	{r4, r5, r6, pc}
+ 748              	.LVL91:
+ 749              	.L59:
+ 232:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 750              		.loc 1 232 0
+ 751 0038 A560     		str	r5, [r4, #8]
+ 752 003a FCE7     		b	.L53
+ 753              	.L54:
+ 237:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         node_set_next(ll_new_p, node, NULL);
+ 754              		.loc 1 237 0
+ 755 003c A268     		ldr	r2, [r4, #8]
+ 756 003e 2946     		mov	r1, r5
+ 757 0040 2046     		mov	r0, r4
+ 758 0042 FFF7FEFF 		bl	node_set_prev
+ 759              	.LVL92:
+ 238:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 760              		.loc 1 238 0
+ 761 0046 0022     		movs	r2, #0
+ 762 0048 2946     		mov	r1, r5
+ 763 004a 2046     		mov	r0, r4
+ 764 004c FFF7FEFF 		bl	node_set_next
+ 765              	.LVL93:
+ 240:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             node_set_next(ll_new_p, ll_new_p->tail, node);
+ 766              		.loc 1 240 0
+ 767 0050 A168     		ldr	r1, [r4, #8]
+ 768 0052 19B1     		cbz	r1, .L57
+ARM GAS  /tmp/ccYh3fOp.s 			page 23
+
+
+ 241:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 769              		.loc 1 241 0
+ 770 0054 2A46     		mov	r2, r5
+ 771 0056 2046     		mov	r0, r4
+ 772 0058 FFF7FEFF 		bl	node_set_next
+ 773              	.LVL94:
+ 774              	.L57:
+ 244:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         if(ll_new_p->head == NULL) { /*If there is no head (first node) set the head too*/
+ 775              		.loc 1 244 0
+ 776 005c A560     		str	r5, [r4, #8]
+ 245:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****             ll_new_p->head = node;
+ 777              		.loc 1 245 0
+ 778 005e 6368     		ldr	r3, [r4, #4]
+ 779 0060 002B     		cmp	r3, #0
+ 780 0062 E8D1     		bne	.L53
+ 246:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         }
+ 781              		.loc 1 246 0
+ 782 0064 6560     		str	r5, [r4, #4]
+ 249:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 783              		.loc 1 249 0
+ 784 0066 E6E7     		b	.L53
+ 785              		.cfi_endproc
+ 786              	.LFE7:
+ 788              		.section	.text._lv_ll_get_len,"ax",%progbits
+ 789              		.align	1
+ 790              		.global	_lv_ll_get_len
+ 791              		.syntax unified
+ 792              		.thumb
+ 793              		.thumb_func
+ 794              		.fpu fpv5-d16
+ 796              	_lv_ll_get_len:
+ 797              	.LFB12:
+ 309:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     uint32_t len = 0;
+ 798              		.loc 1 309 0
+ 799              		.cfi_startproc
+ 800              		@ args = 0, pretend = 0, frame = 0
+ 801              		@ frame_needed = 0, uses_anonymous_args = 0
+ 802              	.LVL95:
+ 803 0000 38B5     		push	{r3, r4, r5, lr}
+ 804              	.LCFI9:
+ 805              		.cfi_def_cfa_offset 16
+ 806              		.cfi_offset 3, -16
+ 807              		.cfi_offset 4, -12
+ 808              		.cfi_offset 5, -8
+ 809              		.cfi_offset 14, -4
+ 810 0002 0546     		mov	r5, r0
+ 811              	.LVL96:
+ 313:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         len++;
+ 812              		.loc 1 313 0
+ 813 0004 FFF7FEFF 		bl	_lv_ll_get_head
+ 814              	.LVL97:
+ 310:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     void * node;
+ 815              		.loc 1 310 0
+ 816 0008 0024     		movs	r4, #0
+ 313:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         len++;
+ 817              		.loc 1 313 0
+ 818 000a 04E0     		b	.L61
+ARM GAS  /tmp/ccYh3fOp.s 			page 24
+
+
+ 819              	.LVL98:
+ 820              	.L62:
+ 314:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     }
+ 821              		.loc 1 314 0 discriminator 3
+ 822 000c 0134     		adds	r4, r4, #1
+ 823              	.LVL99:
+ 313:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         len++;
+ 824              		.loc 1 313 0 discriminator 3
+ 825 000e 0146     		mov	r1, r0
+ 826 0010 2846     		mov	r0, r5
+ 827              	.LVL100:
+ 828 0012 FFF7FEFF 		bl	_lv_ll_get_next
+ 829              	.LVL101:
+ 830              	.L61:
+ 313:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         len++;
+ 831              		.loc 1 313 0 is_stmt 0 discriminator 1
+ 832 0016 0028     		cmp	r0, #0
+ 833 0018 F8D1     		bne	.L62
+ 318:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 834              		.loc 1 318 0 is_stmt 1
+ 835 001a 2046     		mov	r0, r4
+ 836              	.LVL102:
+ 837 001c 38BD     		pop	{r3, r4, r5, pc}
+ 838              		.cfi_endproc
+ 839              	.LFE12:
+ 841              		.section	.text._lv_ll_move_before,"ax",%progbits
+ 842              		.align	1
+ 843              		.global	_lv_ll_move_before
+ 844              		.syntax unified
+ 845              		.thumb
+ 846              		.thumb_func
+ 847              		.fpu fpv5-d16
+ 849              	_lv_ll_move_before:
+ 850              	.LFB13:
+ 327:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(n_act == n_after) return; /*Can't move before itself*/
+ 851              		.loc 1 327 0
+ 852              		.cfi_startproc
+ 853              		@ args = 0, pretend = 0, frame = 0
+ 854              		@ frame_needed = 0, uses_anonymous_args = 0
+ 855              	.LVL103:
+ 328:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 856              		.loc 1 328 0
+ 857 0000 9142     		cmp	r1, r2
+ 858 0002 2DD0     		beq	.L70
+ 327:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(n_act == n_after) return; /*Can't move before itself*/
+ 859              		.loc 1 327 0
+ 860 0004 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 861              	.LCFI10:
+ 862              		.cfi_def_cfa_offset 24
+ 863              		.cfi_offset 3, -24
+ 864              		.cfi_offset 4, -20
+ 865              		.cfi_offset 5, -16
+ 866              		.cfi_offset 6, -12
+ 867              		.cfi_offset 7, -8
+ 868              		.cfi_offset 14, -4
+ 869 0006 1546     		mov	r5, r2
+ 870 0008 0C46     		mov	r4, r1
+ARM GAS  /tmp/ccYh3fOp.s 			page 25
+
+
+ 871 000a 0646     		mov	r6, r0
+ 331:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****         n_before = _lv_ll_get_prev(ll_p, n_after);
+ 872              		.loc 1 331 0
+ 873 000c 02B3     		cbz	r2, .L66
+ 332:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     else
+ 874              		.loc 1 332 0
+ 875 000e 1146     		mov	r1, r2
+ 876              	.LVL104:
+ 877 0010 FFF7FEFF 		bl	_lv_ll_get_prev
+ 878              	.LVL105:
+ 879 0014 0746     		mov	r7, r0
+ 880              	.LVL106:
+ 881              	.L67:
+ 336:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 882              		.loc 1 336 0
+ 883 0016 A742     		cmp	r7, r4
+ 884 0018 19D0     		beq	.L64
+ 339:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 885              		.loc 1 339 0
+ 886 001a 2146     		mov	r1, r4
+ 887 001c 3046     		mov	r0, r6
+ 888              	.LVL107:
+ 889 001e FFF7FEFF 		bl	_lv_ll_remove
+ 890              	.LVL108:
+ 342:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     node_set_prev(ll_p, n_act, n_before);
+ 891              		.loc 1 342 0
+ 892 0022 2246     		mov	r2, r4
+ 893 0024 3946     		mov	r1, r7
+ 894 0026 3046     		mov	r0, r6
+ 895 0028 FFF7FEFF 		bl	node_set_next
+ 896              	.LVL109:
+ 343:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     node_set_prev(ll_p, n_after, n_act);
+ 897              		.loc 1 343 0
+ 898 002c 3A46     		mov	r2, r7
+ 899 002e 2146     		mov	r1, r4
+ 900 0030 3046     		mov	r0, r6
+ 901 0032 FFF7FEFF 		bl	node_set_prev
+ 902              	.LVL110:
+ 344:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     node_set_next(ll_p, n_act, n_after);
+ 903              		.loc 1 344 0
+ 904 0036 2246     		mov	r2, r4
+ 905 0038 2946     		mov	r1, r5
+ 906 003a 3046     		mov	r0, r6
+ 907 003c FFF7FEFF 		bl	node_set_prev
+ 908              	.LVL111:
+ 345:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 909              		.loc 1 345 0
+ 910 0040 2A46     		mov	r2, r5
+ 911 0042 2146     		mov	r1, r4
+ 912 0044 3046     		mov	r0, r6
+ 913 0046 FFF7FEFF 		bl	node_set_next
+ 914              	.LVL112:
+ 348:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 915              		.loc 1 348 0
+ 916 004a 2DB1     		cbz	r5, .L73
+ 917              	.L68:
+ 351:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ARM GAS  /tmp/ccYh3fOp.s 			page 26
+
+
+ 918              		.loc 1 351 0
+ 919 004c 37B1     		cbz	r7, .L74
+ 920              	.L64:
+ 352:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 921              		.loc 1 352 0
+ 922 004e F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 923              	.LVL113:
+ 924              	.L66:
+ 334:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 925              		.loc 1 334 0
+ 926 0050 FFF7FEFF 		bl	_lv_ll_get_tail
+ 927              	.LVL114:
+ 928 0054 0746     		mov	r7, r0
+ 929              	.LVL115:
+ 930 0056 DEE7     		b	.L67
+ 931              	.LVL116:
+ 932              	.L73:
+ 348:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 933              		.loc 1 348 0 discriminator 1
+ 934 0058 B460     		str	r4, [r6, #8]
+ 935 005a F7E7     		b	.L68
+ 936              	.L74:
+ 351:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 937              		.loc 1 351 0 discriminator 1
+ 938 005c 7460     		str	r4, [r6, #4]
+ 939 005e F6E7     		b	.L64
+ 940              	.LVL117:
+ 941              	.L70:
+ 942              	.LCFI11:
+ 943              		.cfi_def_cfa_offset 0
+ 944              		.cfi_restore 3
+ 945              		.cfi_restore 4
+ 946              		.cfi_restore 5
+ 947              		.cfi_restore 6
+ 948              		.cfi_restore 7
+ 949              		.cfi_restore 14
+ 950 0060 7047     		bx	lr
+ 951              		.cfi_endproc
+ 952              	.LFE13:
+ 954              		.section	.text._lv_ll_is_empty,"ax",%progbits
+ 955              		.align	1
+ 956              		.global	_lv_ll_is_empty
+ 957              		.syntax unified
+ 958              		.thumb
+ 959              		.thumb_func
+ 960              		.fpu fpv5-d16
+ 962              	_lv_ll_is_empty:
+ 963              	.LFB14:
+ 360:Drivers/lvgl/lvgl/src/misc/lv_ll.c ****     if(ll_p == NULL) return true;
+ 964              		.loc 1 360 0
+ 965              		.cfi_startproc
+ 966              		@ args = 0, pretend = 0, frame = 0
+ 967              		@ frame_needed = 0, uses_anonymous_args = 0
+ 968              		@ link register save eliminated.
+ 969              	.LVL118:
+ 361:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 970              		.loc 1 361 0
+ARM GAS  /tmp/ccYh3fOp.s 			page 27
+
+
+ 971 0000 38B1     		cbz	r0, .L77
+ 363:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 972              		.loc 1 363 0
+ 973 0002 4268     		ldr	r2, [r0, #4]
+ 974 0004 0AB1     		cbz	r2, .L80
+ 365:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 975              		.loc 1 365 0
+ 976 0006 0020     		movs	r0, #0
+ 977              	.LVL119:
+ 978 0008 7047     		bx	lr
+ 979              	.LVL120:
+ 980              	.L80:
+ 363:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 981              		.loc 1 363 0 discriminator 1
+ 982 000a 8368     		ldr	r3, [r0, #8]
+ 983 000c 1BB1     		cbz	r3, .L79
+ 365:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** }
+ 984              		.loc 1 365 0
+ 985 000e 0020     		movs	r0, #0
+ 986              	.LVL121:
+ 987 0010 7047     		bx	lr
+ 988              	.LVL122:
+ 989              	.L77:
+ 361:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 990              		.loc 1 361 0
+ 991 0012 0120     		movs	r0, #1
+ 992              	.LVL123:
+ 993 0014 7047     		bx	lr
+ 994              	.LVL124:
+ 995              	.L79:
+ 363:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 996              		.loc 1 363 0
+ 997 0016 0120     		movs	r0, #1
+ 998              	.LVL125:
+ 366:Drivers/lvgl/lvgl/src/misc/lv_ll.c **** 
+ 999              		.loc 1 366 0
+ 1000 0018 7047     		bx	lr
+ 1001              		.cfi_endproc
+ 1002              	.LFE14:
+ 1004              		.text
+ 1005              	.Letext0:
+ 1006              		.file 2 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 1007              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ 1008              		.file 4 "Drivers/lvgl/lvgl/src/misc/lv_ll.h"
+ 1009              		.file 5 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+ 1010              		.file 6 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+ 1011              		.file 7 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 1012              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+ 1013              		.file 9 "Drivers/lvgl/lvgl/src/misc/lv_mem.h"
+ARM GAS  /tmp/ccYh3fOp.s 			page 28
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_ll.c
+     /tmp/ccYh3fOp.s:17     .text.node_set_prev:0000000000000000 $t
+     /tmp/ccYh3fOp.s:23     .text.node_set_prev:0000000000000000 node_set_prev
+     /tmp/ccYh3fOp.s:49     .text.node_set_next:0000000000000000 $t
+     /tmp/ccYh3fOp.s:55     .text.node_set_next:0000000000000000 node_set_next
+     /tmp/ccYh3fOp.s:90     .text._lv_ll_init:0000000000000000 $t
+     /tmp/ccYh3fOp.s:97     .text._lv_ll_init:0000000000000000 _lv_ll_init
+     /tmp/ccYh3fOp.s:123    .text._lv_ll_ins_head:0000000000000000 $t
+     /tmp/ccYh3fOp.s:130    .text._lv_ll_ins_head:0000000000000000 _lv_ll_ins_head
+     /tmp/ccYh3fOp.s:195    .text._lv_ll_ins_tail:0000000000000000 $t
+     /tmp/ccYh3fOp.s:202    .text._lv_ll_ins_tail:0000000000000000 _lv_ll_ins_tail
+     /tmp/ccYh3fOp.s:267    .text._lv_ll_get_head:0000000000000000 $t
+     /tmp/ccYh3fOp.s:274    .text._lv_ll_get_head:0000000000000000 _lv_ll_get_head
+     /tmp/ccYh3fOp.s:299    .text._lv_ll_get_tail:0000000000000000 $t
+     /tmp/ccYh3fOp.s:306    .text._lv_ll_get_tail:0000000000000000 _lv_ll_get_tail
+     /tmp/ccYh3fOp.s:331    .text._lv_ll_get_next:0000000000000000 $t
+     /tmp/ccYh3fOp.s:338    .text._lv_ll_get_next:0000000000000000 _lv_ll_get_next
+     /tmp/ccYh3fOp.s:358    .text._lv_ll_get_prev:0000000000000000 $t
+     /tmp/ccYh3fOp.s:365    .text._lv_ll_get_prev:0000000000000000 _lv_ll_get_prev
+     /tmp/ccYh3fOp.s:384    .text._lv_ll_ins_prev:0000000000000000 $t
+     /tmp/ccYh3fOp.s:391    .text._lv_ll_ins_prev:0000000000000000 _lv_ll_ins_prev
+     /tmp/ccYh3fOp.s:500    .text._lv_ll_remove:0000000000000000 $t
+     /tmp/ccYh3fOp.s:507    .text._lv_ll_remove:0000000000000000 _lv_ll_remove
+     /tmp/ccYh3fOp.s:627    .text._lv_ll_clear:0000000000000000 $t
+     /tmp/ccYh3fOp.s:634    .text._lv_ll_clear:0000000000000000 _lv_ll_clear
+     /tmp/ccYh3fOp.s:688    .text._lv_ll_chg_list:0000000000000000 $t
+     /tmp/ccYh3fOp.s:695    .text._lv_ll_chg_list:0000000000000000 _lv_ll_chg_list
+     /tmp/ccYh3fOp.s:789    .text._lv_ll_get_len:0000000000000000 $t
+     /tmp/ccYh3fOp.s:796    .text._lv_ll_get_len:0000000000000000 _lv_ll_get_len
+     /tmp/ccYh3fOp.s:842    .text._lv_ll_move_before:0000000000000000 $t
+     /tmp/ccYh3fOp.s:849    .text._lv_ll_move_before:0000000000000000 _lv_ll_move_before
+     /tmp/ccYh3fOp.s:955    .text._lv_ll_is_empty:0000000000000000 $t
+     /tmp/ccYh3fOp.s:962    .text._lv_ll_is_empty:0000000000000000 _lv_ll_is_empty
+
+UNDEFINED SYMBOLS
+lv_mem_alloc
+lv_mem_free

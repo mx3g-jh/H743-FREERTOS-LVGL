@@ -1,0 +1,2288 @@
+ARM GAS  /tmp/ccNhdHYE.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_keyboard.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.lv_keyboard_update_ctrl_map,"ax",%progbits
+  17              		.align	1
+  18              		.syntax unified
+  19              		.thumb
+  20              		.thumb_func
+  21              		.fpu fpv5-d16
+  23              	lv_keyboard_update_ctrl_map:
+  24              	.LFB173:
+  25              		.file 1 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c"
+   1:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+   2:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**
+   3:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @file lv_keyboard.c
+   4:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *
+   5:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  */
+   6:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+   7:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /*********************
+   8:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *      INCLUDES
+   9:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *********************/
+  10:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** #include "lv_keyboard.h"
+  11:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** #if LV_USE_KEYBOARD
+  12:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  13:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** #include "../../../widgets/lv_textarea.h"
+  14:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** #include "../../../misc/lv_assert.h"
+  15:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  16:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** #include <stdlib.h>
+  17:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  18:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /*********************
+  19:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *      DEFINES
+  20:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *********************/
+  21:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** #define MY_CLASS    &lv_keyboard_class
+  22:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** #define LV_KB_BTN(width) LV_BTNMATRIX_CTRL_POPOVER | width
+  23:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  24:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**********************
+  25:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *      TYPEDEFS
+  26:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  **********************/
+  27:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  28:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**********************
+  29:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *  STATIC PROTOTYPES
+  30:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  **********************/
+  31:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static void lv_keyboard_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj);
+  32:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  33:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static void lv_keyboard_update_map(lv_obj_t * obj);
+ARM GAS  /tmp/ccNhdHYE.s 			page 2
+
+
+  34:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  35:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static void lv_keyboard_update_ctrl_map(lv_obj_t * obj);
+  36:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  37:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**********************
+  38:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *  STATIC VARIABLES
+  39:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  **********************/
+  40:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** const lv_obj_class_t lv_keyboard_class = {
+  41:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     .constructor_cb = lv_keyboard_constructor,
+  42:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     .width_def = LV_PCT(100),
+  43:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     .height_def = LV_PCT(50),
+  44:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     .instance_size = sizeof(lv_keyboard_t),
+  45:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     .editable = 1,
+  46:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     .base_class = &lv_btnmatrix_class
+  47:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** };
+  48:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  49:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static const char * const default_kb_map_lc[] = {"1#", "q", "w", "e", "r", "t", "y", "u", "i", "o",
+  50:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                  "ABC", "a", "s", "d", "f", "g", "h", "j", "k", "l"
+  51:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                  "_", "-", "z", "x", "c", "v", "b", "n", "m", ".", 
+  52:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                  LV_SYMBOL_KEYBOARD, LV_SYMBOL_LEFT, " ", LV_SYMBOL
+  53:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                 };
+  54:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  55:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static const lv_btnmatrix_ctrl_t default_kb_ctrl_lc_map[] = {
+  56:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_KEYBOARD_CTRL_BTN_FLAGS | 5, LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_B
+  57:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_KEYBOARD_CTRL_BTN_FLAGS | 6, LV_KB_BTN(3), LV_KB_BTN(3), LV_KB_BTN(3), LV_KB_BTN(3), LV_KB_B
+  58:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_BTNMATRIX_CTRL_CHECKED | LV_KB_BTN(1), LV_BTNMATRIX_CTRL_CHECKED | LV_KB_BTN(1), LV_KB_BTN(1
+  59:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_BTNMATRIX_CTRL_CHECKED | 2, 6, LV_BTNMATRIX_CTRL_CHECKED | 2
+  60:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** };
+  61:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  62:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static const char * const default_kb_map_uc[] = {"1#", "Q", "W", "E", "R", "T", "Y", "U", "I", "O",
+  63:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                  "abc", "A", "S", "D", "F", "G", "H", "J", "K", "L"
+  64:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                  "_", "-", "Z", "X", "C", "V", "B", "N", "M", ".", 
+  65:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                  LV_SYMBOL_KEYBOARD, LV_SYMBOL_LEFT, " ", LV_SYMBOL
+  66:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                 };
+  67:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  68:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static const lv_btnmatrix_ctrl_t default_kb_ctrl_uc_map[] = {
+  69:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_KEYBOARD_CTRL_BTN_FLAGS | 5, LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_B
+  70:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_KEYBOARD_CTRL_BTN_FLAGS | 6, LV_KB_BTN(3), LV_KB_BTN(3), LV_KB_BTN(3), LV_KB_BTN(3), LV_KB_B
+  71:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_BTNMATRIX_CTRL_CHECKED | LV_KB_BTN(1), LV_BTNMATRIX_CTRL_CHECKED | LV_KB_BTN(1), LV_KB_BTN(1
+  72:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_BTNMATRIX_CTRL_CHECKED | 2, 6, LV_BTNMATRIX_CTRL_CHECKED | 2
+  73:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** };
+  74:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  75:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static const char * const default_kb_map_spec[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"
+  76:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                    "abc", "+", "-", "/", "*", "=", "%", "!", "?", "
+  77:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                    "\\",  "@", "$", "(", ")", "{", "}", "[", "]", "
+  78:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                    LV_SYMBOL_KEYBOARD, LV_SYMBOL_LEFT, " ", LV_SYMB
+  79:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                   };
+  80:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  81:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static const lv_btnmatrix_ctrl_t default_kb_ctrl_spec_map[] = {
+  82:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1
+  83:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_B
+  84:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1
+  85:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_BTNMATRIX_CTRL_CHECKED | 2, 6, LV_BTNMATRIX_CTRL_CHECKED | 2
+  86:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** };
+  87:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  88:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static const char * const default_kb_map_num[] = {"1", "2", "3", LV_SYMBOL_KEYBOARD, "\n",
+  89:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                   "4", "5", "6", LV_SYMBOL_OK, "\n",
+  90:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                   "7", "8", "9", LV_SYMBOL_BACKSPACE, "\n",
+ARM GAS  /tmp/ccNhdHYE.s 			page 3
+
+
+  91:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                   "+/-", "0", ".", LV_SYMBOL_LEFT, LV_SYMBOL_RIGHT,
+  92:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                                                  };
+  93:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+  94:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static const lv_btnmatrix_ctrl_t default_kb_ctrl_num_map[] = {
+  95:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     1, 1, 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 2,
+  96:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     1, 1, 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 2,
+  97:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     1, 1, 1, 2,
+  98:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     1, 1, 1, 1, 1
+  99:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** };
+ 100:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 101:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static const char * * kb_map[9] = {
+ 102:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     (const char * *)default_kb_map_lc,
+ 103:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     (const char * *)default_kb_map_uc,
+ 104:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     (const char * *)default_kb_map_spec,
+ 105:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     (const char * *)default_kb_map_num,
+ 106:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     (const char * *)default_kb_map_lc,
+ 107:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     (const char * *)default_kb_map_lc,
+ 108:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     (const char * *)default_kb_map_lc,
+ 109:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     (const char * *)default_kb_map_lc,
+ 110:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     (const char * *)NULL,
+ 111:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** };
+ 112:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static const lv_btnmatrix_ctrl_t * kb_ctrl[9] = {
+ 113:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     default_kb_ctrl_lc_map,
+ 114:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     default_kb_ctrl_uc_map,
+ 115:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     default_kb_ctrl_spec_map,
+ 116:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     default_kb_ctrl_num_map,
+ 117:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     default_kb_ctrl_lc_map,
+ 118:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     default_kb_ctrl_lc_map,
+ 119:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     default_kb_ctrl_lc_map,
+ 120:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     default_kb_ctrl_lc_map,
+ 121:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     NULL,
+ 122:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** };
+ 123:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 124:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**********************
+ 125:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *      MACROS
+ 126:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  **********************/
+ 127:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 128:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**********************
+ 129:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *   GLOBAL FUNCTIONS
+ 130:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  **********************/
+ 131:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 132:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**
+ 133:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Create a Keyboard object
+ 134:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param parent pointer to an object, it will be the parent of the new keyboard
+ 135:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @return pointer to the created keyboard
+ 136:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  */
+ 137:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** lv_obj_t * lv_keyboard_create(lv_obj_t * parent)
+ 138:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** {
+ 139:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_LOG_INFO("begin");
+ 140:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_obj_t * obj = lv_obj_class_create_obj(&lv_keyboard_class, parent);
+ 141:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_obj_class_init_obj(obj);
+ 142:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     return obj;
+ 143:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 144:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 145:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /*=====================
+ 146:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Setter functions
+ 147:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *====================*/
+ARM GAS  /tmp/ccNhdHYE.s 			page 4
+
+
+ 148:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 149:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**
+ 150:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Assign a Text Area to the Keyboard. The pressed characters will be put there.
+ 151:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param kb pointer to a Keyboard object
+ 152:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param ta pointer to a Text Area object to write there
+ 153:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  */
+ 154:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** void lv_keyboard_set_textarea(lv_obj_t * obj, lv_obj_t * ta)
+ 155:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** {
+ 156:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(ta) {
+ 157:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         LV_ASSERT_OBJ(ta, &lv_textarea_class);
+ 158:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 159:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 160:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 161:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_t * keyboard = (lv_keyboard_t *)obj;
+ 162:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 163:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     /*Hide the cursor of the old Text area if cursor management is enabled*/
+ 164:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(keyboard->ta) {
+ 165:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_obj_clear_state(obj, LV_STATE_FOCUSED);
+ 166:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 167:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 168:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     keyboard->ta = ta;
+ 169:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 170:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     /*Show the cursor of the new Text area if cursor management is enabled*/
+ 171:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(keyboard->ta) {
+ 172:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_obj_add_flag(obj, LV_STATE_FOCUSED);
+ 173:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 174:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 175:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 176:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**
+ 177:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Set a new a mode (text or number map)
+ 178:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param kb pointer to a Keyboard object
+ 179:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param mode the mode from 'lv_keyboard_mode_t'
+ 180:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  */
+ 181:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** void lv_keyboard_set_mode(lv_obj_t * obj, lv_keyboard_mode_t mode)
+ 182:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** {
+ 183:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 184:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_t * keyboard = (lv_keyboard_t *)obj;
+ 185:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(keyboard->mode == mode) return;
+ 186:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 187:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     keyboard->mode = mode;
+ 188:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_update_map(obj);
+ 189:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 190:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 191:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**
+ 192:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Show the button title in a popover when pressed.
+ 193:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param kb pointer to a Keyboard object
+ 194:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param en whether "popovers" mode is enabled
+ 195:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  */
+ 196:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** void lv_keyboard_set_popovers(lv_obj_t * obj, bool en)
+ 197:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** {
+ 198:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_t * keyboard = (lv_keyboard_t *)obj;
+ 199:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 200:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(keyboard->popovers == en) {
+ 201:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         return;
+ 202:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 203:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 204:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     keyboard->popovers = en;
+ARM GAS  /tmp/ccNhdHYE.s 			page 5
+
+
+ 205:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_update_ctrl_map(obj);
+ 206:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 207:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 208:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**
+ 209:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Set a new map for the keyboard
+ 210:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param kb pointer to a Keyboard object
+ 211:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param mode keyboard map to alter 'lv_keyboard_mode_t'
+ 212:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param map pointer to a string array to describe the map.
+ 213:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *            See 'lv_btnmatrix_set_map()' for more info.
+ 214:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  */
+ 215:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** void lv_keyboard_set_map(lv_obj_t * obj, lv_keyboard_mode_t mode, const char * map[],
+ 216:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****                          const lv_btnmatrix_ctrl_t ctrl_map[])
+ 217:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** {
+ 218:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     kb_map[mode] = map;
+ 219:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     kb_ctrl[mode] = ctrl_map;
+ 220:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_update_map(obj);
+ 221:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 222:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 223:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /*=====================
+ 224:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Getter functions
+ 225:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *====================*/
+ 226:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 227:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**
+ 228:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Assign a Text Area to the Keyboard. The pressed characters will be put there.
+ 229:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param kb pointer to a Keyboard object
+ 230:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @return pointer to the assigned Text Area object
+ 231:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  */
+ 232:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** lv_obj_t * lv_keyboard_get_textarea(const lv_obj_t * obj)
+ 233:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** {
+ 234:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 235:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_t * keyboard = (lv_keyboard_t *)obj;
+ 236:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     return keyboard->ta;
+ 237:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 238:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 239:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**
+ 240:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Set a new a mode (text or number map)
+ 241:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param kb pointer to a Keyboard object
+ 242:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @return the current mode from 'lv_keyboard_mode_t'
+ 243:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  */
+ 244:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** lv_keyboard_mode_t lv_keyboard_get_mode(const lv_obj_t * obj)
+ 245:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** {
+ 246:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 247:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_t * keyboard = (lv_keyboard_t *)obj;
+ 248:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     return keyboard->mode;
+ 249:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 250:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 251:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**
+ 252:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Tell whether "popovers" mode is enabled or not.
+ 253:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param kb pointer to a Keyboard object
+ 254:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @return true: "popovers" mode is enabled; false: disabled
+ 255:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  */
+ 256:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** bool lv_btnmatrix_get_popovers(const lv_obj_t * obj)
+ 257:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** {
+ 258:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_t * keyboard = (lv_keyboard_t *)obj;
+ 259:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     return keyboard->popovers;
+ 260:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 261:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ARM GAS  /tmp/ccNhdHYE.s 			page 6
+
+
+ 262:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /*=====================
+ 263:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Other functions
+ 264:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *====================*/
+ 265:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 266:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**
+ 267:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Default keyboard event to add characters to the Text area and change the map.
+ 268:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * If a custom `event_cb` is added to the keyboard this function can be called from it to handle th
+ 269:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * button clicks
+ 270:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param kb pointer to a keyboard
+ 271:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param event the triggering event
+ 272:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  */
+ 273:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** void lv_keyboard_def_event_cb(lv_event_t * e)
+ 274:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** {
+ 275:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_obj_t * obj = lv_event_get_target(e);
+ 276:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 277:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 278:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_t * keyboard = (lv_keyboard_t *)obj;
+ 279:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     uint16_t btn_id   = lv_btnmatrix_get_selected_btn(obj);
+ 280:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(btn_id == LV_BTNMATRIX_BTN_NONE) return;
+ 281:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 282:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     const char * txt = lv_btnmatrix_get_btn_text(obj, lv_btnmatrix_get_selected_btn(obj));
+ 283:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(txt == NULL) return;
+ 284:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 285:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(strcmp(txt, "abc") == 0) {
+ 286:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         keyboard->mode = LV_KEYBOARD_MODE_TEXT_LOWER;
+ 287:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_btnmatrix_set_map(obj, kb_map[LV_KEYBOARD_MODE_TEXT_LOWER]);
+ 288:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_keyboard_update_ctrl_map(obj);
+ 289:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         return;
+ 290:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 291:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     else if(strcmp(txt, "ABC") == 0) {
+ 292:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         keyboard->mode = LV_KEYBOARD_MODE_TEXT_UPPER;
+ 293:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_btnmatrix_set_map(obj, kb_map[LV_KEYBOARD_MODE_TEXT_UPPER]);
+ 294:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_keyboard_update_ctrl_map(obj);
+ 295:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         return;
+ 296:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 297:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     else if(strcmp(txt, "1#") == 0) {
+ 298:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         keyboard->mode = LV_KEYBOARD_MODE_SPECIAL;
+ 299:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_btnmatrix_set_map(obj, kb_map[LV_KEYBOARD_MODE_SPECIAL]);
+ 300:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_keyboard_update_ctrl_map(obj);
+ 301:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         return;
+ 302:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 303:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     else if(strcmp(txt, LV_SYMBOL_CLOSE) == 0 || strcmp(txt, LV_SYMBOL_KEYBOARD) == 0) {
+ 304:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_res_t res = lv_event_send(obj, LV_EVENT_CANCEL, NULL);
+ 305:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         if(res != LV_RES_OK) return;
+ 306:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 307:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         if(keyboard->ta) {
+ 308:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             res = lv_event_send(keyboard->ta, LV_EVENT_CANCEL, NULL);
+ 309:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             if(res != LV_RES_OK) return;
+ 310:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         }
+ 311:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         return;
+ 312:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 313:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     else if(strcmp(txt, LV_SYMBOL_OK) == 0) {
+ 314:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_res_t res = lv_event_send(obj, LV_EVENT_READY, NULL);
+ 315:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         if(res != LV_RES_OK) return;
+ 316:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 317:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         if(keyboard->ta) {
+ 318:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             res = lv_event_send(keyboard->ta, LV_EVENT_READY, NULL);
+ARM GAS  /tmp/ccNhdHYE.s 			page 7
+
+
+ 319:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             if(res != LV_RES_OK) return;
+ 320:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         }
+ 321:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         return;
+ 322:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 323:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 324:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     /*Add the characters to the text area if set*/
+ 325:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(keyboard->ta == NULL) return;
+ 326:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 327:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(strcmp(txt, "Enter") == 0 || strcmp(txt, LV_SYMBOL_NEW_LINE) == 0) {
+ 328:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_textarea_add_char(keyboard->ta, '\n');
+ 329:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         if(lv_textarea_get_one_line(keyboard->ta)) {
+ 330:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_res_t res = lv_event_send(keyboard->ta, LV_EVENT_READY, NULL);
+ 331:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             if(res != LV_RES_OK) return;
+ 332:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         }
+ 333:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 334:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     else if(strcmp(txt, LV_SYMBOL_LEFT) == 0) {
+ 335:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_textarea_cursor_left(keyboard->ta);
+ 336:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 337:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     else if(strcmp(txt, LV_SYMBOL_RIGHT) == 0) {
+ 338:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_textarea_cursor_right(keyboard->ta);
+ 339:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 340:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     else if(strcmp(txt, LV_SYMBOL_BACKSPACE) == 0) {
+ 341:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_textarea_del_char(keyboard->ta);
+ 342:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 343:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     else if(strcmp(txt, "+/-") == 0) {
+ 344:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         uint16_t cur        = lv_textarea_get_cursor_pos(keyboard->ta);
+ 345:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         const char * ta_txt = lv_textarea_get_text(keyboard->ta);
+ 346:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         if(ta_txt[0] == '-') {
+ 347:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_set_cursor_pos(keyboard->ta, 1);
+ 348:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_del_char(keyboard->ta);
+ 349:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_add_char(keyboard->ta, '+');
+ 350:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_set_cursor_pos(keyboard->ta, cur);
+ 351:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         }
+ 352:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         else if(ta_txt[0] == '+') {
+ 353:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_set_cursor_pos(keyboard->ta, 1);
+ 354:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_del_char(keyboard->ta);
+ 355:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_add_char(keyboard->ta, '-');
+ 356:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_set_cursor_pos(keyboard->ta, cur);
+ 357:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         }
+ 358:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         else {
+ 359:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_set_cursor_pos(keyboard->ta, 0);
+ 360:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_add_char(keyboard->ta, '-');
+ 361:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_set_cursor_pos(keyboard->ta, cur + 1);
+ 362:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         }
+ 363:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 364:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     else {
+ 365:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_textarea_add_text(keyboard->ta, txt);
+ 366:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 367:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 368:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 369:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**********************
+ 370:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  *   STATIC FUNCTIONS
+ 371:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  **********************/
+ 372:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 373:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static void lv_keyboard_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+ 374:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** {
+ 375:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_UNUSED(class_p);
+ARM GAS  /tmp/ccNhdHYE.s 			page 8
+
+
+ 376:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_obj_clear_flag(obj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+ 377:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 378:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_t * keyboard = (lv_keyboard_t *)obj;
+ 379:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     keyboard->ta         = NULL;
+ 380:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     keyboard->mode       = LV_KEYBOARD_MODE_TEXT_LOWER;
+ 381:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     keyboard->popovers   = 0;
+ 382:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 383:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_obj_align(obj, LV_ALIGN_BOTTOM_MID, 0, 0);
+ 384:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_obj_add_event_cb(obj, lv_keyboard_def_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+ 385:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_obj_set_style_base_dir(obj, LV_BASE_DIR_LTR, 0);
+ 386:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 387:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_update_map(obj);
+ 388:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 389:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 390:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**
+ 391:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Update the key and control map for the current mode
+ 392:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param obj pointer to a keyboard object
+ 393:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  */
+ 394:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static void lv_keyboard_update_map(lv_obj_t * obj)
+ 395:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** {
+ 396:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_t * keyboard = (lv_keyboard_t *)obj;
+ 397:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_btnmatrix_set_map(obj, kb_map[keyboard->mode]);
+ 398:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_update_ctrl_map(obj);
+ 399:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 400:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 401:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** /**
+ 402:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * Update the control map for the current mode
+ 403:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  * @param obj pointer to a keyboard object
+ 404:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****  */
+ 405:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** static void lv_keyboard_update_ctrl_map(lv_obj_t * obj)
+ 406:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** {
+  26              		.loc 1 406 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 38B5     		push	{r3, r4, r5, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 16
+  34              		.cfi_offset 3, -16
+  35              		.cfi_offset 4, -12
+  36              		.cfi_offset 5, -8
+  37              		.cfi_offset 14, -4
+  38 0002 0446     		mov	r4, r0
+  39              	.LVL1:
+ 407:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_t * keyboard = (lv_keyboard_t *)obj;
+ 408:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 409:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(keyboard->popovers) {
+  40              		.loc 1 409 0
+  41 0004 90F83D30 		ldrb	r3, [r0, #61]	@ zero_extendqisi2
+  42 0008 13F0010F 		tst	r3, #1
+  43 000c 0FD1     		bne	.L7
+  44              	.LVL2:
+  45              	.LBB2:
+ 410:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         /*Apply the current control map (already includes LV_BTNMATRIX_CTRL_POPOVER flags)*/
+ 411:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_btnmatrix_set_ctrl_map(obj, kb_ctrl[keyboard->mode]);
+ 412:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ARM GAS  /tmp/ccNhdHYE.s 			page 9
+
+
+ 413:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     else {
+ 414:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         /*Make a copy of the current control map*/
+ 415:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_btnmatrix_t * btnm = (lv_btnmatrix_t *)obj;
+ 416:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_btnmatrix_ctrl_t * ctrl_map = lv_mem_alloc(btnm->btn_cnt * sizeof(lv_btnmatrix_ctrl_t));
+  46              		.loc 1 416 0
+  47 000e 008E     		ldrh	r0, [r0, #48]
+  48              	.LVL3:
+  49 0010 4000     		lsls	r0, r0, #1
+  50 0012 FFF7FEFF 		bl	lv_mem_alloc
+  51              	.LVL4:
+  52 0016 0546     		mov	r5, r0
+  53              	.LVL5:
+ 417:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_memcpy(ctrl_map, kb_ctrl[keyboard->mode], sizeof(lv_btnmatrix_ctrl_t) * btnm->btn_cnt);
+  54              		.loc 1 417 0
+  55 0018 94F83C10 		ldrb	r1, [r4, #60]	@ zero_extendqisi2
+  56 001c 228E     		ldrh	r2, [r4, #48]
+  57 001e 5200     		lsls	r2, r2, #1
+  58 0020 104B     		ldr	r3, .L8
+  59 0022 53F82110 		ldr	r1, [r3, r1, lsl #2]
+  60 0026 FFF7FEFF 		bl	lv_memcpy
+  61              	.LVL6:
+  62              	.LBB3:
+ 418:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 419:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         /*Remove all LV_BTNMATRIX_CTRL_POPOVER flags*/
+ 420:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         for(uint16_t i = 0; i < btnm->btn_cnt; i++) {
+  63              		.loc 1 420 0
+  64 002a 0023     		movs	r3, #0
+  65 002c 0FE0     		b	.L4
+  66              	.LVL7:
+  67              	.L7:
+  68              	.LBE3:
+  69              	.LBE2:
+ 411:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+  70              		.loc 1 411 0
+  71 002e 90F83C20 		ldrb	r2, [r0, #60]	@ zero_extendqisi2
+  72 0032 0C4B     		ldr	r3, .L8
+  73 0034 53F82210 		ldr	r1, [r3, r2, lsl #2]
+  74 0038 FFF7FEFF 		bl	lv_btnmatrix_set_ctrl_map
+  75              	.LVL8:
+  76 003c 11E0     		b	.L1
+  77              	.LVL9:
+  78              	.L5:
+  79              	.LBB5:
+  80              	.LBB4:
+ 421:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             ctrl_map[i] &= (~LV_BTNMATRIX_CTRL_POPOVER);
+  81              		.loc 1 421 0 discriminator 3
+  82 003e 35F81320 		ldrh	r2, [r5, r3, lsl #1]
+  83 0042 22F48062 		bic	r2, r2, #1024
+  84 0046 25F81320 		strh	r2, [r5, r3, lsl #1]	@ movhi
+ 420:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             ctrl_map[i] &= (~LV_BTNMATRIX_CTRL_POPOVER);
+  85              		.loc 1 420 0 discriminator 3
+  86 004a 0133     		adds	r3, r3, #1
+  87              	.LVL10:
+  88 004c 9BB2     		uxth	r3, r3
+  89              	.LVL11:
+  90              	.L4:
+ 420:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             ctrl_map[i] &= (~LV_BTNMATRIX_CTRL_POPOVER);
+ARM GAS  /tmp/ccNhdHYE.s 			page 10
+
+
+  91              		.loc 1 420 0 is_stmt 0 discriminator 1
+  92 004e 228E     		ldrh	r2, [r4, #48]
+  93 0050 9A42     		cmp	r2, r3
+  94 0052 F4D8     		bhi	.L5
+  95              	.LBE4:
+ 422:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         }
+ 423:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 424:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         /*Apply new control map and clean up*/
+ 425:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_btnmatrix_set_ctrl_map(obj, ctrl_map);
+  96              		.loc 1 425 0 is_stmt 1
+  97 0054 2946     		mov	r1, r5
+  98 0056 2046     		mov	r0, r4
+  99 0058 FFF7FEFF 		bl	lv_btnmatrix_set_ctrl_map
+ 100              	.LVL12:
+ 426:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_mem_free(ctrl_map);
+ 101              		.loc 1 426 0
+ 102 005c 2846     		mov	r0, r5
+ 103 005e FFF7FEFF 		bl	lv_mem_free
+ 104              	.LVL13:
+ 105              	.L1:
+ 106              	.LBE5:
+ 427:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 428:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 107              		.loc 1 428 0
+ 108 0062 38BD     		pop	{r3, r4, r5, pc}
+ 109              	.LVL14:
+ 110              	.L9:
+ 111              		.align	2
+ 112              	.L8:
+ 113 0064 00000000 		.word	.LANCHOR0
+ 114              		.cfi_endproc
+ 115              	.LFE173:
+ 117              		.section	.text.lv_keyboard_update_map,"ax",%progbits
+ 118              		.align	1
+ 119              		.syntax unified
+ 120              		.thumb
+ 121              		.thumb_func
+ 122              		.fpu fpv5-d16
+ 124              	lv_keyboard_update_map:
+ 125              	.LFB172:
+ 395:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_t * keyboard = (lv_keyboard_t *)obj;
+ 126              		.loc 1 395 0
+ 127              		.cfi_startproc
+ 128              		@ args = 0, pretend = 0, frame = 0
+ 129              		@ frame_needed = 0, uses_anonymous_args = 0
+ 130              	.LVL15:
+ 131 0000 10B5     		push	{r4, lr}
+ 132              	.LCFI1:
+ 133              		.cfi_def_cfa_offset 8
+ 134              		.cfi_offset 4, -8
+ 135              		.cfi_offset 14, -4
+ 136 0002 0446     		mov	r4, r0
+ 137              	.LVL16:
+ 397:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_update_ctrl_map(obj);
+ 138              		.loc 1 397 0
+ 139 0004 90F83C20 		ldrb	r2, [r0, #60]	@ zero_extendqisi2
+ 140 0008 044B     		ldr	r3, .L12
+ARM GAS  /tmp/ccNhdHYE.s 			page 11
+
+
+ 141 000a 53F82210 		ldr	r1, [r3, r2, lsl #2]
+ 142 000e FFF7FEFF 		bl	lv_btnmatrix_set_map
+ 143              	.LVL17:
+ 398:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 144              		.loc 1 398 0
+ 145 0012 2046     		mov	r0, r4
+ 146 0014 FFF7FEFF 		bl	lv_keyboard_update_ctrl_map
+ 147              	.LVL18:
+ 399:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 148              		.loc 1 399 0
+ 149 0018 10BD     		pop	{r4, pc}
+ 150              	.LVL19:
+ 151              	.L13:
+ 152 001a 00BF     		.align	2
+ 153              	.L12:
+ 154 001c 00000000 		.word	.LANCHOR1
+ 155              		.cfi_endproc
+ 156              	.LFE172:
+ 158              		.section	.text.lv_keyboard_constructor,"ax",%progbits
+ 159              		.align	1
+ 160              		.syntax unified
+ 161              		.thumb
+ 162              		.thumb_func
+ 163              		.fpu fpv5-d16
+ 165              	lv_keyboard_constructor:
+ 166              	.LFB171:
+ 374:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_UNUSED(class_p);
+ 167              		.loc 1 374 0
+ 168              		.cfi_startproc
+ 169              		@ args = 0, pretend = 0, frame = 0
+ 170              		@ frame_needed = 0, uses_anonymous_args = 0
+ 171              	.LVL20:
+ 172 0000 38B5     		push	{r3, r4, r5, lr}
+ 173              	.LCFI2:
+ 174              		.cfi_def_cfa_offset 16
+ 175              		.cfi_offset 3, -16
+ 176              		.cfi_offset 4, -12
+ 177              		.cfi_offset 5, -8
+ 178              		.cfi_offset 14, -4
+ 179 0002 0C46     		mov	r4, r1
+ 376:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 180              		.loc 1 376 0
+ 181 0004 0421     		movs	r1, #4
+ 182              	.LVL21:
+ 183 0006 2046     		mov	r0, r4
+ 184              	.LVL22:
+ 185 0008 FFF7FEFF 		bl	lv_obj_clear_flag
+ 186              	.LVL23:
+ 379:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     keyboard->mode       = LV_KEYBOARD_MODE_TEXT_LOWER;
+ 187              		.loc 1 379 0
+ 188 000c 0025     		movs	r5, #0
+ 189 000e A563     		str	r5, [r4, #56]
+ 380:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     keyboard->popovers   = 0;
+ 190              		.loc 1 380 0
+ 191 0010 84F83C50 		strb	r5, [r4, #60]
+ 381:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 192              		.loc 1 381 0
+ARM GAS  /tmp/ccNhdHYE.s 			page 12
+
+
+ 193 0014 94F83D30 		ldrb	r3, [r4, #61]	@ zero_extendqisi2
+ 194 0018 65F30003 		bfi	r3, r5, #0, #1
+ 195 001c 84F83D30 		strb	r3, [r4, #61]
+ 383:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_obj_add_event_cb(obj, lv_keyboard_def_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+ 196              		.loc 1 383 0
+ 197 0020 2B46     		mov	r3, r5
+ 198 0022 2A46     		mov	r2, r5
+ 199 0024 0521     		movs	r1, #5
+ 200 0026 2046     		mov	r0, r4
+ 201 0028 FFF7FEFF 		bl	lv_obj_align
+ 202              	.LVL24:
+ 384:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_obj_set_style_base_dir(obj, LV_BASE_DIR_LTR, 0);
+ 203              		.loc 1 384 0
+ 204 002c 2B46     		mov	r3, r5
+ 205 002e 1C22     		movs	r2, #28
+ 206 0030 0649     		ldr	r1, .L16
+ 207 0032 2046     		mov	r0, r4
+ 208 0034 FFF7FEFF 		bl	lv_obj_add_event_cb
+ 209              	.LVL25:
+ 385:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 210              		.loc 1 385 0
+ 211 0038 2A46     		mov	r2, r5
+ 212 003a 2946     		mov	r1, r5
+ 213 003c 2046     		mov	r0, r4
+ 214 003e FFF7FEFF 		bl	lv_obj_set_style_base_dir
+ 215              	.LVL26:
+ 387:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 216              		.loc 1 387 0
+ 217 0042 2046     		mov	r0, r4
+ 218 0044 FFF7FEFF 		bl	lv_keyboard_update_map
+ 219              	.LVL27:
+ 388:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 220              		.loc 1 388 0
+ 221 0048 38BD     		pop	{r3, r4, r5, pc}
+ 222              	.LVL28:
+ 223              	.L17:
+ 224 004a 00BF     		.align	2
+ 225              	.L16:
+ 226 004c 00000000 		.word	lv_keyboard_def_event_cb
+ 227              		.cfi_endproc
+ 228              	.LFE171:
+ 230              		.section	.text.lv_keyboard_def_event_cb,"ax",%progbits
+ 231              		.align	1
+ 232              		.global	lv_keyboard_def_event_cb
+ 233              		.syntax unified
+ 234              		.thumb
+ 235              		.thumb_func
+ 236              		.fpu fpv5-d16
+ 238              	lv_keyboard_def_event_cb:
+ 239              	.LFB170:
+ 274:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_obj_t * obj = lv_event_get_target(e);
+ 240              		.loc 1 274 0
+ 241              		.cfi_startproc
+ 242              		@ args = 0, pretend = 0, frame = 0
+ 243              		@ frame_needed = 0, uses_anonymous_args = 0
+ 244              	.LVL29:
+ 245 0000 70B5     		push	{r4, r5, r6, lr}
+ARM GAS  /tmp/ccNhdHYE.s 			page 13
+
+
+ 246              	.LCFI3:
+ 247              		.cfi_def_cfa_offset 16
+ 248              		.cfi_offset 4, -16
+ 249              		.cfi_offset 5, -12
+ 250              		.cfi_offset 6, -8
+ 251              		.cfi_offset 14, -4
+ 275:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 252              		.loc 1 275 0
+ 253 0002 FFF7FEFF 		bl	lv_event_get_target
+ 254              	.LVL30:
+ 255 0006 0446     		mov	r4, r0
+ 256              	.LVL31:
+ 279:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(btn_id == LV_BTNMATRIX_BTN_NONE) return;
+ 257              		.loc 1 279 0
+ 258 0008 FFF7FEFF 		bl	lv_btnmatrix_get_selected_btn
+ 259              	.LVL32:
+ 280:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 260              		.loc 1 280 0
+ 261 000c 4FF6FF73 		movw	r3, #65535
+ 262 0010 9842     		cmp	r0, r3
+ 263 0012 39D0     		beq	.L18
+ 282:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(txt == NULL) return;
+ 264              		.loc 1 282 0
+ 265 0014 2046     		mov	r0, r4
+ 266              	.LVL33:
+ 267 0016 FFF7FEFF 		bl	lv_btnmatrix_get_selected_btn
+ 268              	.LVL34:
+ 269 001a 0146     		mov	r1, r0
+ 270 001c 2046     		mov	r0, r4
+ 271 001e FFF7FEFF 		bl	lv_btnmatrix_get_btn_text
+ 272              	.LVL35:
+ 283:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 273              		.loc 1 283 0
+ 274 0022 0546     		mov	r5, r0
+ 275 0024 80B3     		cbz	r0, .L18
+ 285:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         keyboard->mode = LV_KEYBOARD_MODE_TEXT_LOWER;
+ 276              		.loc 1 285 0
+ 277 0026 6D49     		ldr	r1, .L44
+ 278 0028 FFF7FEFF 		bl	strcmp
+ 279              	.LVL36:
+ 280 002c 08B3     		cbz	r0, .L35
+ 291:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         keyboard->mode = LV_KEYBOARD_MODE_TEXT_UPPER;
+ 281              		.loc 1 291 0
+ 282 002e 6C49     		ldr	r1, .L44+4
+ 283 0030 2846     		mov	r0, r5
+ 284 0032 FFF7FEFF 		bl	strcmp
+ 285              	.LVL37:
+ 286 0036 40B3     		cbz	r0, .L36
+ 297:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         keyboard->mode = LV_KEYBOARD_MODE_SPECIAL;
+ 287              		.loc 1 297 0
+ 288 0038 6A49     		ldr	r1, .L44+8
+ 289 003a 2846     		mov	r0, r5
+ 290 003c FFF7FEFF 		bl	strcmp
+ 291              	.LVL38:
+ 292 0040 78B3     		cbz	r0, .L37
+ 303:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_res_t res = lv_event_send(obj, LV_EVENT_CANCEL, NULL);
+ 293              		.loc 1 303 0
+ARM GAS  /tmp/ccNhdHYE.s 			page 14
+
+
+ 294 0042 6949     		ldr	r1, .L44+12
+ 295 0044 2846     		mov	r0, r5
+ 296 0046 FFF7FEFF 		bl	strcmp
+ 297              	.LVL39:
+ 298 004a 20B1     		cbz	r0, .L23
+ 303:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_res_t res = lv_event_send(obj, LV_EVENT_CANCEL, NULL);
+ 299              		.loc 1 303 0 is_stmt 0 discriminator 1
+ 300 004c 6749     		ldr	r1, .L44+16
+ 301 004e 2846     		mov	r0, r5
+ 302 0050 FFF7FEFF 		bl	strcmp
+ 303              	.LVL40:
+ 304 0054 88BB     		cbnz	r0, .L24
+ 305              	.L23:
+ 306              	.LBB6:
+ 304:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         if(res != LV_RES_OK) return;
+ 307              		.loc 1 304 0 is_stmt 1
+ 308 0056 0022     		movs	r2, #0
+ 309 0058 2021     		movs	r1, #32
+ 310 005a 2046     		mov	r0, r4
+ 311 005c FFF7FEFF 		bl	lv_event_send
+ 312              	.LVL41:
+ 305:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 313              		.loc 1 305 0
+ 314 0060 0128     		cmp	r0, #1
+ 315 0062 11D1     		bne	.L18
+ 307:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             res = lv_event_send(keyboard->ta, LV_EVENT_CANCEL, NULL);
+ 316              		.loc 1 307 0
+ 317 0064 A06B     		ldr	r0, [r4, #56]
+ 318              	.LVL42:
+ 319 0066 78B1     		cbz	r0, .L18
+ 308:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             if(res != LV_RES_OK) return;
+ 320              		.loc 1 308 0
+ 321 0068 0022     		movs	r2, #0
+ 322 006a 2021     		movs	r1, #32
+ 323 006c FFF7FEFF 		bl	lv_event_send
+ 324              	.LVL43:
+ 325 0070 0AE0     		b	.L18
+ 326              	.L35:
+ 327              	.LBE6:
+ 286:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_btnmatrix_set_map(obj, kb_map[LV_KEYBOARD_MODE_TEXT_LOWER]);
+ 328              		.loc 1 286 0
+ 329 0072 0023     		movs	r3, #0
+ 330 0074 84F83C30 		strb	r3, [r4, #60]
+ 287:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_keyboard_update_ctrl_map(obj);
+ 331              		.loc 1 287 0
+ 332 0078 5D4B     		ldr	r3, .L44+20
+ 333 007a 1968     		ldr	r1, [r3]
+ 334 007c 2046     		mov	r0, r4
+ 335 007e FFF7FEFF 		bl	lv_btnmatrix_set_map
+ 336              	.LVL44:
+ 288:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         return;
+ 337              		.loc 1 288 0
+ 338 0082 2046     		mov	r0, r4
+ 339 0084 FFF7FEFF 		bl	lv_keyboard_update_ctrl_map
+ 340              	.LVL45:
+ 341              	.L18:
+ 367:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ARM GAS  /tmp/ccNhdHYE.s 			page 15
+
+
+ 342              		.loc 1 367 0
+ 343 0088 70BD     		pop	{r4, r5, r6, pc}
+ 344              	.LVL46:
+ 345              	.L36:
+ 292:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_btnmatrix_set_map(obj, kb_map[LV_KEYBOARD_MODE_TEXT_UPPER]);
+ 346              		.loc 1 292 0
+ 347 008a 0123     		movs	r3, #1
+ 348 008c 84F83C30 		strb	r3, [r4, #60]
+ 293:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_keyboard_update_ctrl_map(obj);
+ 349              		.loc 1 293 0
+ 350 0090 574B     		ldr	r3, .L44+20
+ 351 0092 5968     		ldr	r1, [r3, #4]
+ 352 0094 2046     		mov	r0, r4
+ 353 0096 FFF7FEFF 		bl	lv_btnmatrix_set_map
+ 354              	.LVL47:
+ 294:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         return;
+ 355              		.loc 1 294 0
+ 356 009a 2046     		mov	r0, r4
+ 357 009c FFF7FEFF 		bl	lv_keyboard_update_ctrl_map
+ 358              	.LVL48:
+ 295:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 359              		.loc 1 295 0
+ 360 00a0 F2E7     		b	.L18
+ 361              	.L37:
+ 298:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_btnmatrix_set_map(obj, kb_map[LV_KEYBOARD_MODE_SPECIAL]);
+ 362              		.loc 1 298 0
+ 363 00a2 0223     		movs	r3, #2
+ 364 00a4 84F83C30 		strb	r3, [r4, #60]
+ 299:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_keyboard_update_ctrl_map(obj);
+ 365              		.loc 1 299 0
+ 366 00a8 514B     		ldr	r3, .L44+20
+ 367 00aa 9968     		ldr	r1, [r3, #8]
+ 368 00ac 2046     		mov	r0, r4
+ 369 00ae FFF7FEFF 		bl	lv_btnmatrix_set_map
+ 370              	.LVL49:
+ 300:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         return;
+ 371              		.loc 1 300 0
+ 372 00b2 2046     		mov	r0, r4
+ 373 00b4 FFF7FEFF 		bl	lv_keyboard_update_ctrl_map
+ 374              	.LVL50:
+ 301:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 375              		.loc 1 301 0
+ 376 00b8 E6E7     		b	.L18
+ 377              	.L24:
+ 313:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_res_t res = lv_event_send(obj, LV_EVENT_READY, NULL);
+ 378              		.loc 1 313 0
+ 379 00ba 4E49     		ldr	r1, .L44+24
+ 380 00bc 2846     		mov	r0, r5
+ 381 00be FFF7FEFF 		bl	strcmp
+ 382              	.LVL51:
+ 383 00c2 D8B1     		cbz	r0, .L38
+ 325:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 384              		.loc 1 325 0
+ 385 00c4 A66B     		ldr	r6, [r4, #56]
+ 386 00c6 002E     		cmp	r6, #0
+ 387 00c8 DED0     		beq	.L18
+ 327:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_textarea_add_char(keyboard->ta, '\n');
+ARM GAS  /tmp/ccNhdHYE.s 			page 16
+
+
+ 388              		.loc 1 327 0
+ 389 00ca 4B49     		ldr	r1, .L44+28
+ 390 00cc 2846     		mov	r0, r5
+ 391 00ce FFF7FEFF 		bl	strcmp
+ 392              	.LVL52:
+ 393 00d2 20B1     		cbz	r0, .L26
+ 327:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_textarea_add_char(keyboard->ta, '\n');
+ 394              		.loc 1 327 0 is_stmt 0 discriminator 1
+ 395 00d4 4949     		ldr	r1, .L44+32
+ 396 00d6 2846     		mov	r0, r5
+ 397 00d8 FFF7FEFF 		bl	strcmp
+ 398              	.LVL53:
+ 399 00dc E8B9     		cbnz	r0, .L27
+ 400              	.L26:
+ 328:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         if(lv_textarea_get_one_line(keyboard->ta)) {
+ 401              		.loc 1 328 0 is_stmt 1
+ 402 00de 0A21     		movs	r1, #10
+ 403 00e0 3046     		mov	r0, r6
+ 404 00e2 FFF7FEFF 		bl	lv_textarea_add_char
+ 405              	.LVL54:
+ 329:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_res_t res = lv_event_send(keyboard->ta, LV_EVENT_READY, NULL);
+ 406              		.loc 1 329 0
+ 407 00e6 A06B     		ldr	r0, [r4, #56]
+ 408 00e8 FFF7FEFF 		bl	lv_textarea_get_one_line
+ 409              	.LVL55:
+ 410 00ec 0028     		cmp	r0, #0
+ 411 00ee CBD0     		beq	.L18
+ 412              	.LBB7:
+ 330:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             if(res != LV_RES_OK) return;
+ 413              		.loc 1 330 0
+ 414 00f0 0022     		movs	r2, #0
+ 415 00f2 1F21     		movs	r1, #31
+ 416 00f4 A06B     		ldr	r0, [r4, #56]
+ 417 00f6 FFF7FEFF 		bl	lv_event_send
+ 418              	.LVL56:
+ 419 00fa C5E7     		b	.L18
+ 420              	.L38:
+ 421              	.LBE7:
+ 422              	.LBB8:
+ 314:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         if(res != LV_RES_OK) return;
+ 423              		.loc 1 314 0
+ 424 00fc 0022     		movs	r2, #0
+ 425 00fe 1F21     		movs	r1, #31
+ 426 0100 2046     		mov	r0, r4
+ 427 0102 FFF7FEFF 		bl	lv_event_send
+ 428              	.LVL57:
+ 315:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 429              		.loc 1 315 0
+ 430 0106 0128     		cmp	r0, #1
+ 431 0108 BED1     		bne	.L18
+ 317:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             res = lv_event_send(keyboard->ta, LV_EVENT_READY, NULL);
+ 432              		.loc 1 317 0
+ 433 010a A06B     		ldr	r0, [r4, #56]
+ 434              	.LVL58:
+ 435 010c 0028     		cmp	r0, #0
+ 436 010e BBD0     		beq	.L18
+ 318:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             if(res != LV_RES_OK) return;
+ARM GAS  /tmp/ccNhdHYE.s 			page 17
+
+
+ 437              		.loc 1 318 0
+ 438 0110 0022     		movs	r2, #0
+ 439 0112 1F21     		movs	r1, #31
+ 440 0114 FFF7FEFF 		bl	lv_event_send
+ 441              	.LVL59:
+ 442 0118 B6E7     		b	.L18
+ 443              	.L27:
+ 444              	.LBE8:
+ 334:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_textarea_cursor_left(keyboard->ta);
+ 445              		.loc 1 334 0
+ 446 011a 3949     		ldr	r1, .L44+36
+ 447 011c 2846     		mov	r0, r5
+ 448 011e FFF7FEFF 		bl	strcmp
+ 449              	.LVL60:
+ 450 0122 48B3     		cbz	r0, .L39
+ 337:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_textarea_cursor_right(keyboard->ta);
+ 451              		.loc 1 337 0
+ 452 0124 3749     		ldr	r1, .L44+40
+ 453 0126 2846     		mov	r0, r5
+ 454 0128 FFF7FEFF 		bl	strcmp
+ 455              	.LVL61:
+ 456 012c 40B3     		cbz	r0, .L40
+ 340:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_textarea_del_char(keyboard->ta);
+ 457              		.loc 1 340 0
+ 458 012e 3649     		ldr	r1, .L44+44
+ 459 0130 2846     		mov	r0, r5
+ 460 0132 FFF7FEFF 		bl	strcmp
+ 461              	.LVL62:
+ 462 0136 38B3     		cbz	r0, .L41
+ 343:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         uint16_t cur        = lv_textarea_get_cursor_pos(keyboard->ta);
+ 463              		.loc 1 343 0
+ 464 0138 3449     		ldr	r1, .L44+48
+ 465 013a 2846     		mov	r0, r5
+ 466 013c FFF7FEFF 		bl	strcmp
+ 467              	.LVL63:
+ 468 0140 0028     		cmp	r0, #0
+ 469 0142 45D1     		bne	.L31
+ 470              	.LBB9:
+ 344:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         const char * ta_txt = lv_textarea_get_text(keyboard->ta);
+ 471              		.loc 1 344 0
+ 472 0144 3046     		mov	r0, r6
+ 473 0146 FFF7FEFF 		bl	lv_textarea_get_cursor_pos
+ 474              	.LVL64:
+ 475 014a 0546     		mov	r5, r0
+ 476              	.LVL65:
+ 345:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         if(ta_txt[0] == '-') {
+ 477              		.loc 1 345 0
+ 478 014c A06B     		ldr	r0, [r4, #56]
+ 479 014e FFF7FEFF 		bl	lv_textarea_get_text
+ 480              	.LVL66:
+ 346:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_set_cursor_pos(keyboard->ta, 1);
+ 481              		.loc 1 346 0
+ 482 0152 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 483 0154 2D2B     		cmp	r3, #45
+ 484 0156 1BD0     		beq	.L42
+ 352:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_set_cursor_pos(keyboard->ta, 1);
+ 485              		.loc 1 352 0
+ARM GAS  /tmp/ccNhdHYE.s 			page 18
+
+
+ 486 0158 2B2B     		cmp	r3, #43
+ 487 015a 29D0     		beq	.L43
+ 359:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_add_char(keyboard->ta, '-');
+ 488              		.loc 1 359 0
+ 489 015c 0021     		movs	r1, #0
+ 490 015e A06B     		ldr	r0, [r4, #56]
+ 491              	.LVL67:
+ 492 0160 FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 493              	.LVL68:
+ 360:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_set_cursor_pos(keyboard->ta, cur + 1);
+ 494              		.loc 1 360 0
+ 495 0164 2D21     		movs	r1, #45
+ 496 0166 A06B     		ldr	r0, [r4, #56]
+ 497 0168 FFF7FEFF 		bl	lv_textarea_add_char
+ 498              	.LVL69:
+ 361:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         }
+ 499              		.loc 1 361 0
+ 500 016c A9B2     		uxth	r1, r5
+ 501 016e 0131     		adds	r1, r1, #1
+ 502 0170 A06B     		ldr	r0, [r4, #56]
+ 503 0172 FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 504              	.LVL70:
+ 505 0176 87E7     		b	.L18
+ 506              	.LVL71:
+ 507              	.L39:
+ 508              	.LBE9:
+ 335:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 509              		.loc 1 335 0
+ 510 0178 3046     		mov	r0, r6
+ 511 017a FFF7FEFF 		bl	lv_textarea_cursor_left
+ 512              	.LVL72:
+ 513 017e 83E7     		b	.L18
+ 514              	.L40:
+ 338:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 515              		.loc 1 338 0
+ 516 0180 3046     		mov	r0, r6
+ 517 0182 FFF7FEFF 		bl	lv_textarea_cursor_right
+ 518              	.LVL73:
+ 519 0186 7FE7     		b	.L18
+ 520              	.L41:
+ 341:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 521              		.loc 1 341 0
+ 522 0188 3046     		mov	r0, r6
+ 523 018a FFF7FEFF 		bl	lv_textarea_del_char
+ 524              	.LVL74:
+ 525 018e 7BE7     		b	.L18
+ 526              	.LVL75:
+ 527              	.L42:
+ 528              	.LBB10:
+ 347:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_del_char(keyboard->ta);
+ 529              		.loc 1 347 0
+ 530 0190 0121     		movs	r1, #1
+ 531 0192 A06B     		ldr	r0, [r4, #56]
+ 532              	.LVL76:
+ 533 0194 FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 534              	.LVL77:
+ 348:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_add_char(keyboard->ta, '+');
+ARM GAS  /tmp/ccNhdHYE.s 			page 19
+
+
+ 535              		.loc 1 348 0
+ 536 0198 A06B     		ldr	r0, [r4, #56]
+ 537 019a FFF7FEFF 		bl	lv_textarea_del_char
+ 538              	.LVL78:
+ 349:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_set_cursor_pos(keyboard->ta, cur);
+ 539              		.loc 1 349 0
+ 540 019e 2B21     		movs	r1, #43
+ 541 01a0 A06B     		ldr	r0, [r4, #56]
+ 542 01a2 FFF7FEFF 		bl	lv_textarea_add_char
+ 543              	.LVL79:
+ 350:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         }
+ 544              		.loc 1 350 0
+ 545 01a6 A9B2     		uxth	r1, r5
+ 546 01a8 A06B     		ldr	r0, [r4, #56]
+ 547 01aa FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 548              	.LVL80:
+ 549 01ae 6BE7     		b	.L18
+ 550              	.LVL81:
+ 551              	.L43:
+ 353:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_del_char(keyboard->ta);
+ 552              		.loc 1 353 0
+ 553 01b0 0121     		movs	r1, #1
+ 554 01b2 A06B     		ldr	r0, [r4, #56]
+ 555              	.LVL82:
+ 556 01b4 FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 557              	.LVL83:
+ 354:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_add_char(keyboard->ta, '-');
+ 558              		.loc 1 354 0
+ 559 01b8 A06B     		ldr	r0, [r4, #56]
+ 560 01ba FFF7FEFF 		bl	lv_textarea_del_char
+ 561              	.LVL84:
+ 355:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****             lv_textarea_set_cursor_pos(keyboard->ta, cur);
+ 562              		.loc 1 355 0
+ 563 01be 2D21     		movs	r1, #45
+ 564 01c0 A06B     		ldr	r0, [r4, #56]
+ 565 01c2 FFF7FEFF 		bl	lv_textarea_add_char
+ 566              	.LVL85:
+ 356:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         }
+ 567              		.loc 1 356 0
+ 568 01c6 A9B2     		uxth	r1, r5
+ 569 01c8 A06B     		ldr	r0, [r4, #56]
+ 570 01ca FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 571              	.LVL86:
+ 572 01ce 5BE7     		b	.L18
+ 573              	.LVL87:
+ 574              	.L31:
+ 575              	.LBE10:
+ 365:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 576              		.loc 1 365 0
+ 577 01d0 2946     		mov	r1, r5
+ 578 01d2 3046     		mov	r0, r6
+ 579 01d4 FFF7FEFF 		bl	lv_textarea_add_text
+ 580              	.LVL88:
+ 581 01d8 56E7     		b	.L18
+ 582              	.L45:
+ 583 01da 00BF     		.align	2
+ 584              	.L44:
+ARM GAS  /tmp/ccNhdHYE.s 			page 20
+
+
+ 585 01dc 00000000 		.word	.LC0
+ 586 01e0 04000000 		.word	.LC1
+ 587 01e4 08000000 		.word	.LC2
+ 588 01e8 0C000000 		.word	.LC3
+ 589 01ec 10000000 		.word	.LC4
+ 590 01f0 00000000 		.word	.LANCHOR1
+ 591 01f4 14000000 		.word	.LC5
+ 592 01f8 18000000 		.word	.LC6
+ 593 01fc 20000000 		.word	.LC7
+ 594 0200 24000000 		.word	.LC8
+ 595 0204 28000000 		.word	.LC9
+ 596 0208 2C000000 		.word	.LC10
+ 597 020c 30000000 		.word	.LC11
+ 598              		.cfi_endproc
+ 599              	.LFE170:
+ 601              		.section	.text.lv_keyboard_create,"ax",%progbits
+ 602              		.align	1
+ 603              		.global	lv_keyboard_create
+ 604              		.syntax unified
+ 605              		.thumb
+ 606              		.thumb_func
+ 607              		.fpu fpv5-d16
+ 609              	lv_keyboard_create:
+ 610              	.LFB162:
+ 138:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_LOG_INFO("begin");
+ 611              		.loc 1 138 0
+ 612              		.cfi_startproc
+ 613              		@ args = 0, pretend = 0, frame = 0
+ 614              		@ frame_needed = 0, uses_anonymous_args = 0
+ 615              	.LVL89:
+ 616 0000 10B5     		push	{r4, lr}
+ 617              	.LCFI4:
+ 618              		.cfi_def_cfa_offset 8
+ 619              		.cfi_offset 4, -8
+ 620              		.cfi_offset 14, -4
+ 140:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_obj_class_init_obj(obj);
+ 621              		.loc 1 140 0
+ 622 0002 0146     		mov	r1, r0
+ 623 0004 0348     		ldr	r0, .L48
+ 624              	.LVL90:
+ 625 0006 FFF7FEFF 		bl	lv_obj_class_create_obj
+ 626              	.LVL91:
+ 627 000a 0446     		mov	r4, r0
+ 628              	.LVL92:
+ 141:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     return obj;
+ 629              		.loc 1 141 0
+ 630 000c FFF7FEFF 		bl	lv_obj_class_init_obj
+ 631              	.LVL93:
+ 143:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 632              		.loc 1 143 0
+ 633 0010 2046     		mov	r0, r4
+ 634 0012 10BD     		pop	{r4, pc}
+ 635              	.LVL94:
+ 636              	.L49:
+ 637              		.align	2
+ 638              	.L48:
+ 639 0014 00000000 		.word	.LANCHOR2
+ARM GAS  /tmp/ccNhdHYE.s 			page 21
+
+
+ 640              		.cfi_endproc
+ 641              	.LFE162:
+ 643              		.section	.text.lv_keyboard_set_textarea,"ax",%progbits
+ 644              		.align	1
+ 645              		.global	lv_keyboard_set_textarea
+ 646              		.syntax unified
+ 647              		.thumb
+ 648              		.thumb_func
+ 649              		.fpu fpv5-d16
+ 651              	lv_keyboard_set_textarea:
+ 652              	.LFB163:
+ 155:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     if(ta) {
+ 653              		.loc 1 155 0
+ 654              		.cfi_startproc
+ 655              		@ args = 0, pretend = 0, frame = 0
+ 656              		@ frame_needed = 0, uses_anonymous_args = 0
+ 657              	.LVL95:
+ 658 0000 38B5     		push	{r3, r4, r5, lr}
+ 659              	.LCFI5:
+ 660              		.cfi_def_cfa_offset 16
+ 661              		.cfi_offset 3, -16
+ 662              		.cfi_offset 4, -12
+ 663              		.cfi_offset 5, -8
+ 664              		.cfi_offset 14, -4
+ 665 0002 0446     		mov	r4, r0
+ 666 0004 0D46     		mov	r5, r1
+ 667              	.LVL96:
+ 164:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_obj_clear_state(obj, LV_STATE_FOCUSED);
+ 668              		.loc 1 164 0
+ 669 0006 836B     		ldr	r3, [r0, #56]
+ 670 0008 13B1     		cbz	r3, .L51
+ 165:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 671              		.loc 1 165 0
+ 672 000a 0221     		movs	r1, #2
+ 673              	.LVL97:
+ 674 000c FFF7FEFF 		bl	lv_obj_clear_state
+ 675              	.LVL98:
+ 676              	.L51:
+ 168:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 677              		.loc 1 168 0
+ 678 0010 A563     		str	r5, [r4, #56]
+ 171:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         lv_obj_add_flag(obj, LV_STATE_FOCUSED);
+ 679              		.loc 1 171 0
+ 680 0012 1DB1     		cbz	r5, .L50
+ 172:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     }
+ 681              		.loc 1 172 0
+ 682 0014 0221     		movs	r1, #2
+ 683 0016 2046     		mov	r0, r4
+ 684 0018 FFF7FEFF 		bl	lv_obj_add_flag
+ 685              	.LVL99:
+ 686              	.L50:
+ 174:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 687              		.loc 1 174 0
+ 688 001c 38BD     		pop	{r3, r4, r5, pc}
+ 689              		.cfi_endproc
+ 690              	.LFE163:
+ 692              		.section	.text.lv_keyboard_set_mode,"ax",%progbits
+ARM GAS  /tmp/ccNhdHYE.s 			page 22
+
+
+ 693              		.align	1
+ 694              		.global	lv_keyboard_set_mode
+ 695              		.syntax unified
+ 696              		.thumb
+ 697              		.thumb_func
+ 698              		.fpu fpv5-d16
+ 700              	lv_keyboard_set_mode:
+ 701              	.LFB164:
+ 182:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 702              		.loc 1 182 0
+ 703              		.cfi_startproc
+ 704              		@ args = 0, pretend = 0, frame = 0
+ 705              		@ frame_needed = 0, uses_anonymous_args = 0
+ 706              	.LVL100:
+ 707 0000 08B5     		push	{r3, lr}
+ 708              	.LCFI6:
+ 709              		.cfi_def_cfa_offset 8
+ 710              		.cfi_offset 3, -8
+ 711              		.cfi_offset 14, -4
+ 712              	.LVL101:
+ 185:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 713              		.loc 1 185 0
+ 714 0002 90F83C30 		ldrb	r3, [r0, #60]	@ zero_extendqisi2
+ 715 0006 8B42     		cmp	r3, r1
+ 716 0008 03D0     		beq	.L54
+ 187:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_update_map(obj);
+ 717              		.loc 1 187 0
+ 718 000a 80F83C10 		strb	r1, [r0, #60]
+ 188:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 719              		.loc 1 188 0
+ 720 000e FFF7FEFF 		bl	lv_keyboard_update_map
+ 721              	.LVL102:
+ 722              	.L54:
+ 189:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 723              		.loc 1 189 0
+ 724 0012 08BD     		pop	{r3, pc}
+ 725              		.cfi_endproc
+ 726              	.LFE164:
+ 728              		.section	.text.lv_keyboard_set_popovers,"ax",%progbits
+ 729              		.align	1
+ 730              		.global	lv_keyboard_set_popovers
+ 731              		.syntax unified
+ 732              		.thumb
+ 733              		.thumb_func
+ 734              		.fpu fpv5-d16
+ 736              	lv_keyboard_set_popovers:
+ 737              	.LFB165:
+ 197:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_t * keyboard = (lv_keyboard_t *)obj;
+ 738              		.loc 1 197 0
+ 739              		.cfi_startproc
+ 740              		@ args = 0, pretend = 0, frame = 0
+ 741              		@ frame_needed = 0, uses_anonymous_args = 0
+ 742              	.LVL103:
+ 743 0000 08B5     		push	{r3, lr}
+ 744              	.LCFI7:
+ 745              		.cfi_def_cfa_offset 8
+ 746              		.cfi_offset 3, -8
+ARM GAS  /tmp/ccNhdHYE.s 			page 23
+
+
+ 747              		.cfi_offset 14, -4
+ 748              	.LVL104:
+ 200:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****         return;
+ 749              		.loc 1 200 0
+ 750 0002 90F83D30 		ldrb	r3, [r0, #61]	@ zero_extendqisi2
+ 751 0006 03F00103 		and	r3, r3, #1
+ 752 000a 8B42     		cmp	r3, r1
+ 753 000c 07D0     		beq	.L57
+ 204:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_update_ctrl_map(obj);
+ 754              		.loc 1 204 0
+ 755 000e 90F83D30 		ldrb	r3, [r0, #61]	@ zero_extendqisi2
+ 756 0012 61F30003 		bfi	r3, r1, #0, #1
+ 757 0016 80F83D30 		strb	r3, [r0, #61]
+ 205:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 758              		.loc 1 205 0
+ 759 001a FFF7FEFF 		bl	lv_keyboard_update_ctrl_map
+ 760              	.LVL105:
+ 761              	.L57:
+ 206:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 762              		.loc 1 206 0
+ 763 001e 08BD     		pop	{r3, pc}
+ 764              		.cfi_endproc
+ 765              	.LFE165:
+ 767              		.section	.text.lv_keyboard_set_map,"ax",%progbits
+ 768              		.align	1
+ 769              		.global	lv_keyboard_set_map
+ 770              		.syntax unified
+ 771              		.thumb
+ 772              		.thumb_func
+ 773              		.fpu fpv5-d16
+ 775              	lv_keyboard_set_map:
+ 776              	.LFB166:
+ 217:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     kb_map[mode] = map;
+ 777              		.loc 1 217 0
+ 778              		.cfi_startproc
+ 779              		@ args = 0, pretend = 0, frame = 0
+ 780              		@ frame_needed = 0, uses_anonymous_args = 0
+ 781              	.LVL106:
+ 782 0000 10B5     		push	{r4, lr}
+ 783              	.LCFI8:
+ 784              		.cfi_def_cfa_offset 8
+ 785              		.cfi_offset 4, -8
+ 786              		.cfi_offset 14, -4
+ 218:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     kb_ctrl[mode] = ctrl_map;
+ 787              		.loc 1 218 0
+ 788 0002 044C     		ldr	r4, .L62
+ 789 0004 44F82120 		str	r2, [r4, r1, lsl #2]
+ 219:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_update_map(obj);
+ 790              		.loc 1 219 0
+ 791 0008 034A     		ldr	r2, .L62+4
+ 792              	.LVL107:
+ 793 000a 42F82130 		str	r3, [r2, r1, lsl #2]
+ 220:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 794              		.loc 1 220 0
+ 795 000e FFF7FEFF 		bl	lv_keyboard_update_map
+ 796              	.LVL108:
+ 221:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ARM GAS  /tmp/ccNhdHYE.s 			page 24
+
+
+ 797              		.loc 1 221 0
+ 798 0012 10BD     		pop	{r4, pc}
+ 799              	.L63:
+ 800              		.align	2
+ 801              	.L62:
+ 802 0014 00000000 		.word	.LANCHOR1
+ 803 0018 00000000 		.word	.LANCHOR0
+ 804              		.cfi_endproc
+ 805              	.LFE166:
+ 807              		.section	.text.lv_keyboard_get_textarea,"ax",%progbits
+ 808              		.align	1
+ 809              		.global	lv_keyboard_get_textarea
+ 810              		.syntax unified
+ 811              		.thumb
+ 812              		.thumb_func
+ 813              		.fpu fpv5-d16
+ 815              	lv_keyboard_get_textarea:
+ 816              	.LFB167:
+ 233:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 817              		.loc 1 233 0
+ 818              		.cfi_startproc
+ 819              		@ args = 0, pretend = 0, frame = 0
+ 820              		@ frame_needed = 0, uses_anonymous_args = 0
+ 821              		@ link register save eliminated.
+ 822              	.LVL109:
+ 237:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 823              		.loc 1 237 0
+ 824 0000 806B     		ldr	r0, [r0, #56]
+ 825              	.LVL110:
+ 826 0002 7047     		bx	lr
+ 827              		.cfi_endproc
+ 828              	.LFE167:
+ 830              		.section	.text.lv_keyboard_get_mode,"ax",%progbits
+ 831              		.align	1
+ 832              		.global	lv_keyboard_get_mode
+ 833              		.syntax unified
+ 834              		.thumb
+ 835              		.thumb_func
+ 836              		.fpu fpv5-d16
+ 838              	lv_keyboard_get_mode:
+ 839              	.LFB168:
+ 245:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 840              		.loc 1 245 0
+ 841              		.cfi_startproc
+ 842              		@ args = 0, pretend = 0, frame = 0
+ 843              		@ frame_needed = 0, uses_anonymous_args = 0
+ 844              		@ link register save eliminated.
+ 845              	.LVL111:
+ 249:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 846              		.loc 1 249 0
+ 847 0000 90F83C00 		ldrb	r0, [r0, #60]	@ zero_extendqisi2
+ 848              	.LVL112:
+ 849 0004 7047     		bx	lr
+ 850              		.cfi_endproc
+ 851              	.LFE168:
+ 853              		.section	.text.lv_btnmatrix_get_popovers,"ax",%progbits
+ 854              		.align	1
+ARM GAS  /tmp/ccNhdHYE.s 			page 25
+
+
+ 855              		.global	lv_btnmatrix_get_popovers
+ 856              		.syntax unified
+ 857              		.thumb
+ 858              		.thumb_func
+ 859              		.fpu fpv5-d16
+ 861              	lv_btnmatrix_get_popovers:
+ 862              	.LFB169:
+ 257:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c ****     lv_keyboard_t * keyboard = (lv_keyboard_t *)obj;
+ 863              		.loc 1 257 0
+ 864              		.cfi_startproc
+ 865              		@ args = 0, pretend = 0, frame = 0
+ 866              		@ frame_needed = 0, uses_anonymous_args = 0
+ 867              		@ link register save eliminated.
+ 868              	.LVL113:
+ 259:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** }
+ 869              		.loc 1 259 0
+ 870 0000 90F83D00 		ldrb	r0, [r0, #61]	@ zero_extendqisi2
+ 871              	.LVL114:
+ 260:Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.c **** 
+ 872              		.loc 1 260 0
+ 873 0004 00F00100 		and	r0, r0, #1
+ 874 0008 7047     		bx	lr
+ 875              		.cfi_endproc
+ 876              	.LFE169:
+ 878              		.global	lv_keyboard_class
+ 879              		.section	.data.kb_ctrl,"aw",%progbits
+ 880              		.align	2
+ 881              		.set	.LANCHOR0,. + 0
+ 884              	kb_ctrl:
+ 885 0000 00000000 		.word	default_kb_ctrl_lc_map
+ 886 0004 00000000 		.word	default_kb_ctrl_uc_map
+ 887 0008 00000000 		.word	default_kb_ctrl_spec_map
+ 888 000c 00000000 		.word	default_kb_ctrl_num_map
+ 889 0010 00000000 		.word	default_kb_ctrl_lc_map
+ 890 0014 00000000 		.word	default_kb_ctrl_lc_map
+ 891 0018 00000000 		.word	default_kb_ctrl_lc_map
+ 892 001c 00000000 		.word	default_kb_ctrl_lc_map
+ 893 0020 00000000 		.word	0
+ 894              		.section	.data.kb_map,"aw",%progbits
+ 895              		.align	2
+ 896              		.set	.LANCHOR1,. + 0
+ 899              	kb_map:
+ 900 0000 00000000 		.word	default_kb_map_lc
+ 901 0004 00000000 		.word	default_kb_map_uc
+ 902 0008 00000000 		.word	default_kb_map_spec
+ 903 000c 00000000 		.word	default_kb_map_num
+ 904 0010 00000000 		.word	default_kb_map_lc
+ 905 0014 00000000 		.word	default_kb_map_lc
+ 906 0018 00000000 		.word	default_kb_map_lc
+ 907 001c 00000000 		.word	default_kb_map_lc
+ 908 0020 00000000 		.word	0
+ 909              		.section	.rodata.default_kb_ctrl_lc_map,"a",%progbits
+ 910              		.align	2
+ 913              	default_kb_ctrl_lc_map:
+ 914 0000 2503     		.short	805
+ 915 0002 0404     		.short	1028
+ 916 0004 0404     		.short	1028
+ARM GAS  /tmp/ccNhdHYE.s 			page 26
+
+
+ 917 0006 0404     		.short	1028
+ 918 0008 0404     		.short	1028
+ 919 000a 0404     		.short	1028
+ 920 000c 0404     		.short	1028
+ 921 000e 0404     		.short	1028
+ 922 0010 0404     		.short	1028
+ 923 0012 0404     		.short	1028
+ 924 0014 0404     		.short	1028
+ 925 0016 0701     		.short	263
+ 926 0018 2603     		.short	806
+ 927 001a 0304     		.short	1027
+ 928 001c 0304     		.short	1027
+ 929 001e 0304     		.short	1027
+ 930 0020 0304     		.short	1027
+ 931 0022 0304     		.short	1027
+ 932 0024 0304     		.short	1027
+ 933 0026 0304     		.short	1027
+ 934 0028 0304     		.short	1027
+ 935 002a 0304     		.short	1027
+ 936 002c 0701     		.short	263
+ 937 002e 0105     		.short	1281
+ 938 0030 0105     		.short	1281
+ 939 0032 0104     		.short	1025
+ 940 0034 0104     		.short	1025
+ 941 0036 0104     		.short	1025
+ 942 0038 0104     		.short	1025
+ 943 003a 0104     		.short	1025
+ 944 003c 0104     		.short	1025
+ 945 003e 0104     		.short	1025
+ 946 0040 0105     		.short	1281
+ 947 0042 0105     		.short	1281
+ 948 0044 0105     		.short	1281
+ 949 0046 2203     		.short	802
+ 950 0048 0201     		.short	258
+ 951 004a 0600     		.short	6
+ 952 004c 0201     		.short	258
+ 953 004e 2203     		.short	802
+ 954              		.section	.rodata.default_kb_ctrl_num_map,"a",%progbits
+ 955              		.align	2
+ 958              	default_kb_ctrl_num_map:
+ 959 0000 0100     		.short	1
+ 960 0002 0100     		.short	1
+ 961 0004 0100     		.short	1
+ 962 0006 2203     		.short	802
+ 963 0008 0100     		.short	1
+ 964 000a 0100     		.short	1
+ 965 000c 0100     		.short	1
+ 966 000e 2203     		.short	802
+ 967 0010 0100     		.short	1
+ 968 0012 0100     		.short	1
+ 969 0014 0100     		.short	1
+ 970 0016 0200     		.short	2
+ 971 0018 0100     		.short	1
+ 972 001a 0100     		.short	1
+ 973 001c 0100     		.short	1
+ 974 001e 0100     		.short	1
+ 975 0020 0100     		.short	1
+ARM GAS  /tmp/ccNhdHYE.s 			page 27
+
+
+ 976              		.section	.rodata.default_kb_ctrl_spec_map,"a",%progbits
+ 977              		.align	2
+ 980              	default_kb_ctrl_spec_map:
+ 981 0000 0104     		.short	1025
+ 982 0002 0104     		.short	1025
+ 983 0004 0104     		.short	1025
+ 984 0006 0104     		.short	1025
+ 985 0008 0104     		.short	1025
+ 986 000a 0104     		.short	1025
+ 987 000c 0104     		.short	1025
+ 988 000e 0104     		.short	1025
+ 989 0010 0104     		.short	1025
+ 990 0012 0104     		.short	1025
+ 991 0014 0201     		.short	258
+ 992 0016 2203     		.short	802
+ 993 0018 0104     		.short	1025
+ 994 001a 0104     		.short	1025
+ 995 001c 0104     		.short	1025
+ 996 001e 0104     		.short	1025
+ 997 0020 0104     		.short	1025
+ 998 0022 0104     		.short	1025
+ 999 0024 0104     		.short	1025
+ 1000 0026 0104     		.short	1025
+ 1001 0028 0104     		.short	1025
+ 1002 002a 0104     		.short	1025
+ 1003 002c 0104     		.short	1025
+ 1004 002e 0104     		.short	1025
+ 1005 0030 0104     		.short	1025
+ 1006 0032 0104     		.short	1025
+ 1007 0034 0104     		.short	1025
+ 1008 0036 0104     		.short	1025
+ 1009 0038 0104     		.short	1025
+ 1010 003a 0104     		.short	1025
+ 1011 003c 0104     		.short	1025
+ 1012 003e 0104     		.short	1025
+ 1013 0040 0104     		.short	1025
+ 1014 0042 0104     		.short	1025
+ 1015 0044 0104     		.short	1025
+ 1016 0046 2203     		.short	802
+ 1017 0048 0201     		.short	258
+ 1018 004a 0600     		.short	6
+ 1019 004c 0201     		.short	258
+ 1020 004e 2203     		.short	802
+ 1021              		.section	.rodata.default_kb_ctrl_uc_map,"a",%progbits
+ 1022              		.align	2
+ 1025              	default_kb_ctrl_uc_map:
+ 1026 0000 2503     		.short	805
+ 1027 0002 0404     		.short	1028
+ 1028 0004 0404     		.short	1028
+ 1029 0006 0404     		.short	1028
+ 1030 0008 0404     		.short	1028
+ 1031 000a 0404     		.short	1028
+ 1032 000c 0404     		.short	1028
+ 1033 000e 0404     		.short	1028
+ 1034 0010 0404     		.short	1028
+ 1035 0012 0404     		.short	1028
+ 1036 0014 0404     		.short	1028
+ARM GAS  /tmp/ccNhdHYE.s 			page 28
+
+
+ 1037 0016 0701     		.short	263
+ 1038 0018 2603     		.short	806
+ 1039 001a 0304     		.short	1027
+ 1040 001c 0304     		.short	1027
+ 1041 001e 0304     		.short	1027
+ 1042 0020 0304     		.short	1027
+ 1043 0022 0304     		.short	1027
+ 1044 0024 0304     		.short	1027
+ 1045 0026 0304     		.short	1027
+ 1046 0028 0304     		.short	1027
+ 1047 002a 0304     		.short	1027
+ 1048 002c 0701     		.short	263
+ 1049 002e 0105     		.short	1281
+ 1050 0030 0105     		.short	1281
+ 1051 0032 0104     		.short	1025
+ 1052 0034 0104     		.short	1025
+ 1053 0036 0104     		.short	1025
+ 1054 0038 0104     		.short	1025
+ 1055 003a 0104     		.short	1025
+ 1056 003c 0104     		.short	1025
+ 1057 003e 0104     		.short	1025
+ 1058 0040 0105     		.short	1281
+ 1059 0042 0105     		.short	1281
+ 1060 0044 0105     		.short	1281
+ 1061 0046 2203     		.short	802
+ 1062 0048 0201     		.short	258
+ 1063 004a 0600     		.short	6
+ 1064 004c 0201     		.short	258
+ 1065 004e 2203     		.short	802
+ 1066              		.section	.rodata.default_kb_map_lc,"a",%progbits
+ 1067              		.align	2
+ 1070              	default_kb_map_lc:
+ 1071 0000 08000000 		.word	.LC2
+ 1072 0004 08010000 		.word	.LC78
+ 1073 0008 0C010000 		.word	.LC79
+ 1074 000c 10010000 		.word	.LC80
+ 1075 0010 14010000 		.word	.LC81
+ 1076 0014 18010000 		.word	.LC82
+ 1077 0018 1C010000 		.word	.LC83
+ 1078 001c 20010000 		.word	.LC84
+ 1079 0020 24010000 		.word	.LC85
+ 1080 0024 28010000 		.word	.LC86
+ 1081 0028 2C010000 		.word	.LC87
+ 1082 002c 2C000000 		.word	.LC10
+ 1083 0030 0C000000 		.word	.LC15
+ 1084 0034 04000000 		.word	.LC1
+ 1085 0038 30010000 		.word	.LC88
+ 1086 003c 34010000 		.word	.LC89
+ 1087 0040 38010000 		.word	.LC90
+ 1088 0044 3C010000 		.word	.LC91
+ 1089 0048 40010000 		.word	.LC92
+ 1090 004c 44010000 		.word	.LC93
+ 1091 0050 48010000 		.word	.LC94
+ 1092 0054 4C010000 		.word	.LC95
+ 1093 0058 50010000 		.word	.LC96
+ 1094 005c 20000000 		.word	.LC7
+ 1095 0060 0C000000 		.word	.LC15
+ARM GAS  /tmp/ccNhdHYE.s 			page 29
+
+
+ 1096 0064 E0000000 		.word	.LC68
+ 1097 0068 38000000 		.word	.LC26
+ 1098 006c 54010000 		.word	.LC97
+ 1099 0070 58010000 		.word	.LC98
+ 1100 0074 5C010000 		.word	.LC99
+ 1101 0078 60010000 		.word	.LC100
+ 1102 007c 64010000 		.word	.LC101
+ 1103 0080 68010000 		.word	.LC102
+ 1104 0084 6C010000 		.word	.LC103
+ 1105 0088 2C000000 		.word	.LC23
+ 1106 008c 00010000 		.word	.LC76
+ 1107 0090 04010000 		.word	.LC77
+ 1108 0094 0C000000 		.word	.LC15
+ 1109 0098 10000000 		.word	.LC4
+ 1110 009c 24000000 		.word	.LC8
+ 1111 00a0 90000000 		.word	.LC48
+ 1112 00a4 28000000 		.word	.LC9
+ 1113 00a8 14000000 		.word	.LC5
+ 1114 00ac 30000000 		.word	.LC24
+ 1115              		.section	.rodata.default_kb_map_num,"a",%progbits
+ 1116              		.align	2
+ 1119              	default_kb_map_num:
+ 1120 0000 00000000 		.word	.LC12
+ 1121 0004 04000000 		.word	.LC13
+ 1122 0008 08000000 		.word	.LC14
+ 1123 000c 10000000 		.word	.LC4
+ 1124 0010 0C000000 		.word	.LC15
+ 1125 0014 10000000 		.word	.LC16
+ 1126 0018 14000000 		.word	.LC17
+ 1127 001c 18000000 		.word	.LC18
+ 1128 0020 14000000 		.word	.LC5
+ 1129 0024 0C000000 		.word	.LC15
+ 1130 0028 1C000000 		.word	.LC19
+ 1131 002c 20000000 		.word	.LC20
+ 1132 0030 24000000 		.word	.LC21
+ 1133 0034 2C000000 		.word	.LC10
+ 1134 0038 0C000000 		.word	.LC15
+ 1135 003c 30000000 		.word	.LC11
+ 1136 0040 28000000 		.word	.LC22
+ 1137 0044 2C000000 		.word	.LC23
+ 1138 0048 24000000 		.word	.LC8
+ 1139 004c 28000000 		.word	.LC9
+ 1140 0050 30000000 		.word	.LC24
+ 1141              		.section	.rodata.default_kb_map_spec,"a",%progbits
+ 1142              		.align	2
+ 1145              	default_kb_map_spec:
+ 1146 0000 00000000 		.word	.LC12
+ 1147 0004 04000000 		.word	.LC13
+ 1148 0008 08000000 		.word	.LC14
+ 1149 000c 10000000 		.word	.LC16
+ 1150 0010 14000000 		.word	.LC17
+ 1151 0014 18000000 		.word	.LC18
+ 1152 0018 1C000000 		.word	.LC19
+ 1153 001c 20000000 		.word	.LC20
+ 1154 0020 24000000 		.word	.LC21
+ 1155 0024 28000000 		.word	.LC22
+ 1156 0028 2C000000 		.word	.LC10
+ARM GAS  /tmp/ccNhdHYE.s 			page 30
+
+
+ 1157 002c 0C000000 		.word	.LC15
+ 1158 0030 00000000 		.word	.LC0
+ 1159 0034 34000000 		.word	.LC25
+ 1160 0038 38000000 		.word	.LC26
+ 1161 003c 3C000000 		.word	.LC27
+ 1162 0040 40000000 		.word	.LC28
+ 1163 0044 44000000 		.word	.LC29
+ 1164 0048 48000000 		.word	.LC30
+ 1165 004c 4C000000 		.word	.LC31
+ 1166 0050 50000000 		.word	.LC32
+ 1167 0054 54000000 		.word	.LC33
+ 1168 0058 58000000 		.word	.LC34
+ 1169 005c 5C000000 		.word	.LC35
+ 1170 0060 0C000000 		.word	.LC15
+ 1171 0064 60000000 		.word	.LC36
+ 1172 0068 64000000 		.word	.LC37
+ 1173 006c 68000000 		.word	.LC38
+ 1174 0070 6C000000 		.word	.LC39
+ 1175 0074 70000000 		.word	.LC40
+ 1176 0078 74000000 		.word	.LC41
+ 1177 007c 78000000 		.word	.LC42
+ 1178 0080 7C000000 		.word	.LC43
+ 1179 0084 80000000 		.word	.LC44
+ 1180 0088 84000000 		.word	.LC45
+ 1181 008c 88000000 		.word	.LC46
+ 1182 0090 8C000000 		.word	.LC47
+ 1183 0094 0C000000 		.word	.LC15
+ 1184 0098 10000000 		.word	.LC4
+ 1185 009c 24000000 		.word	.LC8
+ 1186 00a0 90000000 		.word	.LC48
+ 1187 00a4 28000000 		.word	.LC9
+ 1188 00a8 14000000 		.word	.LC5
+ 1189 00ac 30000000 		.word	.LC24
+ 1190              		.section	.rodata.default_kb_map_uc,"a",%progbits
+ 1191              		.align	2
+ 1194              	default_kb_map_uc:
+ 1195 0000 08000000 		.word	.LC2
+ 1196 0004 94000000 		.word	.LC49
+ 1197 0008 98000000 		.word	.LC50
+ 1198 000c 9C000000 		.word	.LC51
+ 1199 0010 A0000000 		.word	.LC52
+ 1200 0014 A4000000 		.word	.LC53
+ 1201 0018 A8000000 		.word	.LC54
+ 1202 001c AC000000 		.word	.LC55
+ 1203 0020 B0000000 		.word	.LC56
+ 1204 0024 B4000000 		.word	.LC57
+ 1205 0028 B8000000 		.word	.LC58
+ 1206 002c 2C000000 		.word	.LC10
+ 1207 0030 0C000000 		.word	.LC15
+ 1208 0034 00000000 		.word	.LC0
+ 1209 0038 BC000000 		.word	.LC59
+ 1210 003c C0000000 		.word	.LC60
+ 1211 0040 C4000000 		.word	.LC61
+ 1212 0044 C8000000 		.word	.LC62
+ 1213 0048 CC000000 		.word	.LC63
+ 1214 004c D0000000 		.word	.LC64
+ 1215 0050 D4000000 		.word	.LC65
+ARM GAS  /tmp/ccNhdHYE.s 			page 31
+
+
+ 1216 0054 D8000000 		.word	.LC66
+ 1217 0058 DC000000 		.word	.LC67
+ 1218 005c 20000000 		.word	.LC7
+ 1219 0060 0C000000 		.word	.LC15
+ 1220 0064 E0000000 		.word	.LC68
+ 1221 0068 38000000 		.word	.LC26
+ 1222 006c E4000000 		.word	.LC69
+ 1223 0070 E8000000 		.word	.LC70
+ 1224 0074 EC000000 		.word	.LC71
+ 1225 0078 F0000000 		.word	.LC72
+ 1226 007c F4000000 		.word	.LC73
+ 1227 0080 F8000000 		.word	.LC74
+ 1228 0084 FC000000 		.word	.LC75
+ 1229 0088 2C000000 		.word	.LC23
+ 1230 008c 00010000 		.word	.LC76
+ 1231 0090 04010000 		.word	.LC77
+ 1232 0094 0C000000 		.word	.LC15
+ 1233 0098 10000000 		.word	.LC4
+ 1234 009c 24000000 		.word	.LC8
+ 1235 00a0 90000000 		.word	.LC48
+ 1236 00a4 28000000 		.word	.LC9
+ 1237 00a8 14000000 		.word	.LC5
+ 1238 00ac 30000000 		.word	.LC24
+ 1239              		.section	.rodata.lv_keyboard_class,"a",%progbits
+ 1240              		.align	2
+ 1241              		.set	.LANCHOR2,. + 0
+ 1244              	lv_keyboard_class:
+ 1245 0000 00000000 		.word	lv_btnmatrix_class
+ 1246 0004 00000000 		.word	lv_keyboard_constructor
+ 1247 0008 00000000 		.space	12
+ 1247      00000000 
+ 1247      00000000 
+ 1248 0014 6420     		.short	8292
+ 1249 0016 3220     		.short	8242
+ 1250 0018 01       		.byte	1
+ 1251 0019 04       		.byte	4
+ 1252 001a 00       		.byte	0
+ 1253 001b 00       		.space	1
+ 1254              		.section	.rodata.lv_keyboard_def_event_cb.str1.4,"aMS",%progbits,1
+ 1255              		.align	2
+ 1256              	.LC0:
+ 1257 0000 61626300 		.ascii	"abc\000"
+ 1258              	.LC1:
+ 1259 0004 41424300 		.ascii	"ABC\000"
+ 1260              	.LC2:
+ 1261 0008 312300   		.ascii	"1#\000"
+ 1262 000b 00       		.space	1
+ 1263              	.LC3:
+ 1264 000c EF808D00 		.ascii	"\357\200\215\000"
+ 1265              	.LC4:
+ 1266 0010 EF849C00 		.ascii	"\357\204\234\000"
+ 1267              	.LC5:
+ 1268 0014 EF808C00 		.ascii	"\357\200\214\000"
+ 1269              	.LC6:
+ 1270 0018 456E7465 		.ascii	"Enter\000"
+ 1270      7200
+ 1271 001e 0000     		.space	2
+ARM GAS  /tmp/ccNhdHYE.s 			page 32
+
+
+ 1272              	.LC7:
+ 1273 0020 EFA2A200 		.ascii	"\357\242\242\000"
+ 1274              	.LC8:
+ 1275 0024 EF819300 		.ascii	"\357\201\223\000"
+ 1276              	.LC9:
+ 1277 0028 EF819400 		.ascii	"\357\201\224\000"
+ 1278              	.LC10:
+ 1279 002c EF959A00 		.ascii	"\357\225\232\000"
+ 1280              	.LC11:
+ 1281 0030 2B2F2D00 		.ascii	"+/-\000"
+ 1282              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 1283              		.align	2
+ 1284              	.LC12:
+ 1285 0000 3100     		.ascii	"1\000"
+ 1286 0002 0000     		.space	2
+ 1287              	.LC13:
+ 1288 0004 3200     		.ascii	"2\000"
+ 1289 0006 0000     		.space	2
+ 1290              	.LC14:
+ 1291 0008 3300     		.ascii	"3\000"
+ 1292 000a 0000     		.space	2
+ 1293              	.LC15:
+ 1294 000c 0A00     		.ascii	"\012\000"
+ 1295 000e 0000     		.space	2
+ 1296              	.LC16:
+ 1297 0010 3400     		.ascii	"4\000"
+ 1298 0012 0000     		.space	2
+ 1299              	.LC17:
+ 1300 0014 3500     		.ascii	"5\000"
+ 1301 0016 0000     		.space	2
+ 1302              	.LC18:
+ 1303 0018 3600     		.ascii	"6\000"
+ 1304 001a 0000     		.space	2
+ 1305              	.LC19:
+ 1306 001c 3700     		.ascii	"7\000"
+ 1307 001e 0000     		.space	2
+ 1308              	.LC20:
+ 1309 0020 3800     		.ascii	"8\000"
+ 1310 0022 0000     		.space	2
+ 1311              	.LC21:
+ 1312 0024 3900     		.ascii	"9\000"
+ 1313 0026 0000     		.space	2
+ 1314              	.LC22:
+ 1315 0028 3000     		.ascii	"0\000"
+ 1316 002a 0000     		.space	2
+ 1317              	.LC23:
+ 1318 002c 2E00     		.ascii	".\000"
+ 1319 002e 0000     		.space	2
+ 1320              	.LC24:
+ 1321 0030 00       		.ascii	"\000"
+ 1322 0031 000000   		.space	3
+ 1323              	.LC25:
+ 1324 0034 2B00     		.ascii	"+\000"
+ 1325 0036 0000     		.space	2
+ 1326              	.LC26:
+ 1327 0038 2D00     		.ascii	"-\000"
+ 1328 003a 0000     		.space	2
+ARM GAS  /tmp/ccNhdHYE.s 			page 33
+
+
+ 1329              	.LC27:
+ 1330 003c 2F00     		.ascii	"/\000"
+ 1331 003e 0000     		.space	2
+ 1332              	.LC28:
+ 1333 0040 2A00     		.ascii	"*\000"
+ 1334 0042 0000     		.space	2
+ 1335              	.LC29:
+ 1336 0044 3D00     		.ascii	"=\000"
+ 1337 0046 0000     		.space	2
+ 1338              	.LC30:
+ 1339 0048 2500     		.ascii	"%\000"
+ 1340 004a 0000     		.space	2
+ 1341              	.LC31:
+ 1342 004c 2100     		.ascii	"!\000"
+ 1343 004e 0000     		.space	2
+ 1344              	.LC32:
+ 1345 0050 3F00     		.ascii	"?\000"
+ 1346 0052 0000     		.space	2
+ 1347              	.LC33:
+ 1348 0054 2300     		.ascii	"#\000"
+ 1349 0056 0000     		.space	2
+ 1350              	.LC34:
+ 1351 0058 3C00     		.ascii	"<\000"
+ 1352 005a 0000     		.space	2
+ 1353              	.LC35:
+ 1354 005c 3E00     		.ascii	">\000"
+ 1355 005e 0000     		.space	2
+ 1356              	.LC36:
+ 1357 0060 5C00     		.ascii	"\\\000"
+ 1358 0062 0000     		.space	2
+ 1359              	.LC37:
+ 1360 0064 4000     		.ascii	"@\000"
+ 1361 0066 0000     		.space	2
+ 1362              	.LC38:
+ 1363 0068 2400     		.ascii	"$\000"
+ 1364 006a 0000     		.space	2
+ 1365              	.LC39:
+ 1366 006c 2800     		.ascii	"(\000"
+ 1367 006e 0000     		.space	2
+ 1368              	.LC40:
+ 1369 0070 2900     		.ascii	")\000"
+ 1370 0072 0000     		.space	2
+ 1371              	.LC41:
+ 1372 0074 7B00     		.ascii	"{\000"
+ 1373 0076 0000     		.space	2
+ 1374              	.LC42:
+ 1375 0078 7D00     		.ascii	"}\000"
+ 1376 007a 0000     		.space	2
+ 1377              	.LC43:
+ 1378 007c 5B00     		.ascii	"[\000"
+ 1379 007e 0000     		.space	2
+ 1380              	.LC44:
+ 1381 0080 5D00     		.ascii	"]\000"
+ 1382 0082 0000     		.space	2
+ 1383              	.LC45:
+ 1384 0084 3B00     		.ascii	";\000"
+ 1385 0086 0000     		.space	2
+ARM GAS  /tmp/ccNhdHYE.s 			page 34
+
+
+ 1386              	.LC46:
+ 1387 0088 2200     		.ascii	"\"\000"
+ 1388 008a 0000     		.space	2
+ 1389              	.LC47:
+ 1390 008c 2700     		.ascii	"'\000"
+ 1391 008e 0000     		.space	2
+ 1392              	.LC48:
+ 1393 0090 2000     		.ascii	" \000"
+ 1394 0092 0000     		.space	2
+ 1395              	.LC49:
+ 1396 0094 5100     		.ascii	"Q\000"
+ 1397 0096 0000     		.space	2
+ 1398              	.LC50:
+ 1399 0098 5700     		.ascii	"W\000"
+ 1400 009a 0000     		.space	2
+ 1401              	.LC51:
+ 1402 009c 4500     		.ascii	"E\000"
+ 1403 009e 0000     		.space	2
+ 1404              	.LC52:
+ 1405 00a0 5200     		.ascii	"R\000"
+ 1406 00a2 0000     		.space	2
+ 1407              	.LC53:
+ 1408 00a4 5400     		.ascii	"T\000"
+ 1409 00a6 0000     		.space	2
+ 1410              	.LC54:
+ 1411 00a8 5900     		.ascii	"Y\000"
+ 1412 00aa 0000     		.space	2
+ 1413              	.LC55:
+ 1414 00ac 5500     		.ascii	"U\000"
+ 1415 00ae 0000     		.space	2
+ 1416              	.LC56:
+ 1417 00b0 4900     		.ascii	"I\000"
+ 1418 00b2 0000     		.space	2
+ 1419              	.LC57:
+ 1420 00b4 4F00     		.ascii	"O\000"
+ 1421 00b6 0000     		.space	2
+ 1422              	.LC58:
+ 1423 00b8 5000     		.ascii	"P\000"
+ 1424 00ba 0000     		.space	2
+ 1425              	.LC59:
+ 1426 00bc 4100     		.ascii	"A\000"
+ 1427 00be 0000     		.space	2
+ 1428              	.LC60:
+ 1429 00c0 5300     		.ascii	"S\000"
+ 1430 00c2 0000     		.space	2
+ 1431              	.LC61:
+ 1432 00c4 4400     		.ascii	"D\000"
+ 1433 00c6 0000     		.space	2
+ 1434              	.LC62:
+ 1435 00c8 4600     		.ascii	"F\000"
+ 1436 00ca 0000     		.space	2
+ 1437              	.LC63:
+ 1438 00cc 4700     		.ascii	"G\000"
+ 1439 00ce 0000     		.space	2
+ 1440              	.LC64:
+ 1441 00d0 4800     		.ascii	"H\000"
+ 1442 00d2 0000     		.space	2
+ARM GAS  /tmp/ccNhdHYE.s 			page 35
+
+
+ 1443              	.LC65:
+ 1444 00d4 4A00     		.ascii	"J\000"
+ 1445 00d6 0000     		.space	2
+ 1446              	.LC66:
+ 1447 00d8 4B00     		.ascii	"K\000"
+ 1448 00da 0000     		.space	2
+ 1449              	.LC67:
+ 1450 00dc 4C00     		.ascii	"L\000"
+ 1451 00de 0000     		.space	2
+ 1452              	.LC68:
+ 1453 00e0 5F00     		.ascii	"_\000"
+ 1454 00e2 0000     		.space	2
+ 1455              	.LC69:
+ 1456 00e4 5A00     		.ascii	"Z\000"
+ 1457 00e6 0000     		.space	2
+ 1458              	.LC70:
+ 1459 00e8 5800     		.ascii	"X\000"
+ 1460 00ea 0000     		.space	2
+ 1461              	.LC71:
+ 1462 00ec 4300     		.ascii	"C\000"
+ 1463 00ee 0000     		.space	2
+ 1464              	.LC72:
+ 1465 00f0 5600     		.ascii	"V\000"
+ 1466 00f2 0000     		.space	2
+ 1467              	.LC73:
+ 1468 00f4 4200     		.ascii	"B\000"
+ 1469 00f6 0000     		.space	2
+ 1470              	.LC74:
+ 1471 00f8 4E00     		.ascii	"N\000"
+ 1472 00fa 0000     		.space	2
+ 1473              	.LC75:
+ 1474 00fc 4D00     		.ascii	"M\000"
+ 1475 00fe 0000     		.space	2
+ 1476              	.LC76:
+ 1477 0100 2C00     		.ascii	",\000"
+ 1478 0102 0000     		.space	2
+ 1479              	.LC77:
+ 1480 0104 3A00     		.ascii	":\000"
+ 1481 0106 0000     		.space	2
+ 1482              	.LC78:
+ 1483 0108 7100     		.ascii	"q\000"
+ 1484 010a 0000     		.space	2
+ 1485              	.LC79:
+ 1486 010c 7700     		.ascii	"w\000"
+ 1487 010e 0000     		.space	2
+ 1488              	.LC80:
+ 1489 0110 6500     		.ascii	"e\000"
+ 1490 0112 0000     		.space	2
+ 1491              	.LC81:
+ 1492 0114 7200     		.ascii	"r\000"
+ 1493 0116 0000     		.space	2
+ 1494              	.LC82:
+ 1495 0118 7400     		.ascii	"t\000"
+ 1496 011a 0000     		.space	2
+ 1497              	.LC83:
+ 1498 011c 7900     		.ascii	"y\000"
+ 1499 011e 0000     		.space	2
+ARM GAS  /tmp/ccNhdHYE.s 			page 36
+
+
+ 1500              	.LC84:
+ 1501 0120 7500     		.ascii	"u\000"
+ 1502 0122 0000     		.space	2
+ 1503              	.LC85:
+ 1504 0124 6900     		.ascii	"i\000"
+ 1505 0126 0000     		.space	2
+ 1506              	.LC86:
+ 1507 0128 6F00     		.ascii	"o\000"
+ 1508 012a 0000     		.space	2
+ 1509              	.LC87:
+ 1510 012c 7000     		.ascii	"p\000"
+ 1511 012e 0000     		.space	2
+ 1512              	.LC88:
+ 1513 0130 6100     		.ascii	"a\000"
+ 1514 0132 0000     		.space	2
+ 1515              	.LC89:
+ 1516 0134 7300     		.ascii	"s\000"
+ 1517 0136 0000     		.space	2
+ 1518              	.LC90:
+ 1519 0138 6400     		.ascii	"d\000"
+ 1520 013a 0000     		.space	2
+ 1521              	.LC91:
+ 1522 013c 6600     		.ascii	"f\000"
+ 1523 013e 0000     		.space	2
+ 1524              	.LC92:
+ 1525 0140 6700     		.ascii	"g\000"
+ 1526 0142 0000     		.space	2
+ 1527              	.LC93:
+ 1528 0144 6800     		.ascii	"h\000"
+ 1529 0146 0000     		.space	2
+ 1530              	.LC94:
+ 1531 0148 6A00     		.ascii	"j\000"
+ 1532 014a 0000     		.space	2
+ 1533              	.LC95:
+ 1534 014c 6B00     		.ascii	"k\000"
+ 1535 014e 0000     		.space	2
+ 1536              	.LC96:
+ 1537 0150 6C00     		.ascii	"l\000"
+ 1538 0152 0000     		.space	2
+ 1539              	.LC97:
+ 1540 0154 7A00     		.ascii	"z\000"
+ 1541 0156 0000     		.space	2
+ 1542              	.LC98:
+ 1543 0158 7800     		.ascii	"x\000"
+ 1544 015a 0000     		.space	2
+ 1545              	.LC99:
+ 1546 015c 6300     		.ascii	"c\000"
+ 1547 015e 0000     		.space	2
+ 1548              	.LC100:
+ 1549 0160 7600     		.ascii	"v\000"
+ 1550 0162 0000     		.space	2
+ 1551              	.LC101:
+ 1552 0164 6200     		.ascii	"b\000"
+ 1553 0166 0000     		.space	2
+ 1554              	.LC102:
+ 1555 0168 6E00     		.ascii	"n\000"
+ 1556 016a 0000     		.space	2
+ARM GAS  /tmp/ccNhdHYE.s 			page 37
+
+
+ 1557              	.LC103:
+ 1558 016c 6D00     		.ascii	"m\000"
+ 1559              		.text
+ 1560              	.Letext0:
+ 1561              		.file 2 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 1562              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ 1563              		.file 4 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/../misc/../font/../
+ 1564              		.file 5 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/../misc/../font/lv_
+ 1565              		.file 6 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/../misc/lv_types.h"
+ 1566              		.file 7 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+ 1567              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+ 1568              		.file 9 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 1569              		.file 10 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+ 1570              		.file 11 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/../misc/lv_color.h
+ 1571              		.file 12 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/../misc/lv_txt.h"
+ 1572              		.file 13 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/../misc/lv_bidi.h"
+ 1573              		.file 14 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/../misc/lv_style.h
+ 1574              		.file 15 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/lv_obj.h"
+ 1575              		.file 16 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/../hal/../misc/lv_
+ 1576              		.file 17 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/lv_group.h"
+ 1577              		.file 18 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/lv_obj_scroll.h"
+ 1578              		.file 19 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/lv_obj_style.h"
+ 1579              		.file 20 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/lv_obj_class.h"
+ 1580              		.file 21 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/lv_event.h"
+ 1581              		.file 22 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/lv_btnmatrix.h"
+ 1582              		.file 23 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.h"
+ 1583              		.file 24 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/lv_label.h"
+ 1584              		.file 25 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/lv_textarea.h"
+ 1585              		.file 26 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/stdlib.h"
+ 1586              		.file 27 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/../misc/lv_mem.h"
+ 1587              		.file 28 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/../hal/../draw/sw/
+ 1588              		.file 29 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/../../../widgets/../core/lv_obj_style_gen.h
+ 1589              		.file 30 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/string.h"
+ARM GAS  /tmp/ccNhdHYE.s 			page 38
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_keyboard.c
+     /tmp/ccNhdHYE.s:17     .text.lv_keyboard_update_ctrl_map:0000000000000000 $t
+     /tmp/ccNhdHYE.s:23     .text.lv_keyboard_update_ctrl_map:0000000000000000 lv_keyboard_update_ctrl_map
+     /tmp/ccNhdHYE.s:113    .text.lv_keyboard_update_ctrl_map:0000000000000064 $d
+     /tmp/ccNhdHYE.s:118    .text.lv_keyboard_update_map:0000000000000000 $t
+     /tmp/ccNhdHYE.s:124    .text.lv_keyboard_update_map:0000000000000000 lv_keyboard_update_map
+     /tmp/ccNhdHYE.s:154    .text.lv_keyboard_update_map:000000000000001c $d
+     /tmp/ccNhdHYE.s:159    .text.lv_keyboard_constructor:0000000000000000 $t
+     /tmp/ccNhdHYE.s:165    .text.lv_keyboard_constructor:0000000000000000 lv_keyboard_constructor
+     /tmp/ccNhdHYE.s:226    .text.lv_keyboard_constructor:000000000000004c $d
+     /tmp/ccNhdHYE.s:238    .text.lv_keyboard_def_event_cb:0000000000000000 lv_keyboard_def_event_cb
+     /tmp/ccNhdHYE.s:231    .text.lv_keyboard_def_event_cb:0000000000000000 $t
+     /tmp/ccNhdHYE.s:585    .text.lv_keyboard_def_event_cb:00000000000001dc $d
+     /tmp/ccNhdHYE.s:602    .text.lv_keyboard_create:0000000000000000 $t
+     /tmp/ccNhdHYE.s:609    .text.lv_keyboard_create:0000000000000000 lv_keyboard_create
+     /tmp/ccNhdHYE.s:639    .text.lv_keyboard_create:0000000000000014 $d
+     /tmp/ccNhdHYE.s:644    .text.lv_keyboard_set_textarea:0000000000000000 $t
+     /tmp/ccNhdHYE.s:651    .text.lv_keyboard_set_textarea:0000000000000000 lv_keyboard_set_textarea
+     /tmp/ccNhdHYE.s:693    .text.lv_keyboard_set_mode:0000000000000000 $t
+     /tmp/ccNhdHYE.s:700    .text.lv_keyboard_set_mode:0000000000000000 lv_keyboard_set_mode
+     /tmp/ccNhdHYE.s:729    .text.lv_keyboard_set_popovers:0000000000000000 $t
+     /tmp/ccNhdHYE.s:736    .text.lv_keyboard_set_popovers:0000000000000000 lv_keyboard_set_popovers
+     /tmp/ccNhdHYE.s:768    .text.lv_keyboard_set_map:0000000000000000 $t
+     /tmp/ccNhdHYE.s:775    .text.lv_keyboard_set_map:0000000000000000 lv_keyboard_set_map
+     /tmp/ccNhdHYE.s:802    .text.lv_keyboard_set_map:0000000000000014 $d
+     /tmp/ccNhdHYE.s:808    .text.lv_keyboard_get_textarea:0000000000000000 $t
+     /tmp/ccNhdHYE.s:815    .text.lv_keyboard_get_textarea:0000000000000000 lv_keyboard_get_textarea
+     /tmp/ccNhdHYE.s:831    .text.lv_keyboard_get_mode:0000000000000000 $t
+     /tmp/ccNhdHYE.s:838    .text.lv_keyboard_get_mode:0000000000000000 lv_keyboard_get_mode
+     /tmp/ccNhdHYE.s:854    .text.lv_btnmatrix_get_popovers:0000000000000000 $t
+     /tmp/ccNhdHYE.s:861    .text.lv_btnmatrix_get_popovers:0000000000000000 lv_btnmatrix_get_popovers
+     /tmp/ccNhdHYE.s:1244   .rodata.lv_keyboard_class:0000000000000000 lv_keyboard_class
+     /tmp/ccNhdHYE.s:880    .data.kb_ctrl:0000000000000000 $d
+     /tmp/ccNhdHYE.s:884    .data.kb_ctrl:0000000000000000 kb_ctrl
+     /tmp/ccNhdHYE.s:913    .rodata.default_kb_ctrl_lc_map:0000000000000000 default_kb_ctrl_lc_map
+     /tmp/ccNhdHYE.s:1025   .rodata.default_kb_ctrl_uc_map:0000000000000000 default_kb_ctrl_uc_map
+     /tmp/ccNhdHYE.s:980    .rodata.default_kb_ctrl_spec_map:0000000000000000 default_kb_ctrl_spec_map
+     /tmp/ccNhdHYE.s:958    .rodata.default_kb_ctrl_num_map:0000000000000000 default_kb_ctrl_num_map
+     /tmp/ccNhdHYE.s:895    .data.kb_map:0000000000000000 $d
+     /tmp/ccNhdHYE.s:899    .data.kb_map:0000000000000000 kb_map
+     /tmp/ccNhdHYE.s:1070   .rodata.default_kb_map_lc:0000000000000000 default_kb_map_lc
+     /tmp/ccNhdHYE.s:1194   .rodata.default_kb_map_uc:0000000000000000 default_kb_map_uc
+     /tmp/ccNhdHYE.s:1145   .rodata.default_kb_map_spec:0000000000000000 default_kb_map_spec
+     /tmp/ccNhdHYE.s:1119   .rodata.default_kb_map_num:0000000000000000 default_kb_map_num
+     /tmp/ccNhdHYE.s:910    .rodata.default_kb_ctrl_lc_map:0000000000000000 $d
+     /tmp/ccNhdHYE.s:955    .rodata.default_kb_ctrl_num_map:0000000000000000 $d
+     /tmp/ccNhdHYE.s:977    .rodata.default_kb_ctrl_spec_map:0000000000000000 $d
+     /tmp/ccNhdHYE.s:1022   .rodata.default_kb_ctrl_uc_map:0000000000000000 $d
+     /tmp/ccNhdHYE.s:1067   .rodata.default_kb_map_lc:0000000000000000 $d
+     /tmp/ccNhdHYE.s:1116   .rodata.default_kb_map_num:0000000000000000 $d
+     /tmp/ccNhdHYE.s:1142   .rodata.default_kb_map_spec:0000000000000000 $d
+     /tmp/ccNhdHYE.s:1191   .rodata.default_kb_map_uc:0000000000000000 $d
+     /tmp/ccNhdHYE.s:1240   .rodata.lv_keyboard_class:0000000000000000 $d
+     /tmp/ccNhdHYE.s:1255   .rodata.lv_keyboard_def_event_cb.str1.4:0000000000000000 $d
+     /tmp/ccNhdHYE.s:1283   .rodata.str1.4:0000000000000000 $d
+
+ARM GAS  /tmp/ccNhdHYE.s 			page 39
+
+
+UNDEFINED SYMBOLS
+lv_mem_alloc
+lv_memcpy
+lv_btnmatrix_set_ctrl_map
+lv_mem_free
+lv_btnmatrix_set_map
+lv_obj_clear_flag
+lv_obj_align
+lv_obj_add_event_cb
+lv_obj_set_style_base_dir
+lv_event_get_target
+lv_btnmatrix_get_selected_btn
+lv_btnmatrix_get_btn_text
+strcmp
+lv_event_send
+lv_textarea_add_char
+lv_textarea_get_one_line
+lv_textarea_get_cursor_pos
+lv_textarea_get_text
+lv_textarea_set_cursor_pos
+lv_textarea_cursor_left
+lv_textarea_cursor_right
+lv_textarea_del_char
+lv_textarea_add_text
+lv_obj_class_create_obj
+lv_obj_class_init_obj
+lv_obj_clear_state
+lv_obj_add_flag
+lv_btnmatrix_class

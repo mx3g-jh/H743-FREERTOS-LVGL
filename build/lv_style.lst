@@ -1,0 +1,2927 @@
+ARM GAS  /tmp/ccUrScbL.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_style.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.lv_style_set_prop_helper,"ax",%progbits
+  17              		.align	1
+  18              		.syntax unified
+  19              		.thumb
+  20              		.thumb_func
+  21              		.fpu fpv5-d16
+  23              	lv_style_set_prop_helper:
+  24              	.LFB69:
+  25              		.file 1 "Drivers/lvgl/lvgl/src/misc/lv_style.c"
+   1:Drivers/lvgl/lvgl/src/misc/lv_style.c **** /**
+   2:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  * @file lv_style.c
+   3:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  *
+   4:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  */
+   5:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+   6:Drivers/lvgl/lvgl/src/misc/lv_style.c **** /*********************
+   7:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  *      INCLUDES
+   8:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  *********************/
+   9:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #include "lv_style.h"
+  10:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #include "../misc/lv_gc.h"
+  11:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #include "../misc/lv_mem.h"
+  12:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #include "lv_assert.h"
+  13:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #include "lv_types.h"
+  14:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  15:Drivers/lvgl/lvgl/src/misc/lv_style.c **** /*********************
+  16:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  *      DEFINES
+  17:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  *********************/
+  18:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  19:Drivers/lvgl/lvgl/src/misc/lv_style.c **** /**********************
+  20:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  *      TYPEDEFS
+  21:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  **********************/
+  22:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  23:Drivers/lvgl/lvgl/src/misc/lv_style.c **** /**********************
+  24:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  *  STATIC PROTOTYPES
+  25:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  **********************/
+  26:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  27:Drivers/lvgl/lvgl/src/misc/lv_style.c **** static void lv_style_set_prop_internal(lv_style_t * style, lv_style_prop_t prop_and_meta, lv_style_
+  28:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                                        void (*value_adjustment_helper)(lv_style_prop_t, lv_style_va
+  29:Drivers/lvgl/lvgl/src/misc/lv_style.c **** static void lv_style_set_prop_helper(lv_style_prop_t prop, lv_style_value_t value, uint16_t * prop_
+  30:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                                      lv_style_value_t * value_storage);
+  31:Drivers/lvgl/lvgl/src/misc/lv_style.c **** static void lv_style_set_prop_meta_helper(lv_style_prop_t prop, lv_style_value_t value, uint16_t * 
+  32:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                                           lv_style_value_t * value_storage);
+  33:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ARM GAS  /tmp/ccUrScbL.s 			page 2
+
+
+  34:Drivers/lvgl/lvgl/src/misc/lv_style.c **** /**********************
+  35:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  *  GLOBAL VARIABLES
+  36:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  **********************/
+  37:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  38:Drivers/lvgl/lvgl/src/misc/lv_style.c **** const uint8_t _lv_style_builtin_prop_flag_lookup_table[_LV_STYLE_NUM_BUILT_IN_PROPS] = {
+  39:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_WIDTH] =                    LV_STYLE_PROP_LAYOUT_REFR,
+  40:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_MIN_WIDTH] =                LV_STYLE_PROP_LAYOUT_REFR,
+  41:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_MAX_WIDTH] =                LV_STYLE_PROP_LAYOUT_REFR,
+  42:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_HEIGHT] =                   LV_STYLE_PROP_LAYOUT_REFR,
+  43:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_MIN_HEIGHT] =               LV_STYLE_PROP_LAYOUT_REFR,
+  44:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_MAX_HEIGHT] =               LV_STYLE_PROP_LAYOUT_REFR,
+  45:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_X] =                        LV_STYLE_PROP_LAYOUT_REFR,
+  46:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_Y] =                        LV_STYLE_PROP_LAYOUT_REFR,
+  47:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_ALIGN] =                    LV_STYLE_PROP_LAYOUT_REFR,
+  48:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TRANSFORM_WIDTH] =           LV_STYLE_PROP_EXT_DRAW,
+  49:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TRANSFORM_HEIGHT] =          LV_STYLE_PROP_EXT_DRAW,
+  50:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TRANSLATE_X] =               LV_STYLE_PROP_LAYOUT_REFR | LV_STYLE_PROP_PARENT_LAYOUT_
+  51:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TRANSLATE_Y] =               LV_STYLE_PROP_LAYOUT_REFR | LV_STYLE_PROP_PARENT_LAYOUT_
+  52:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TRANSFORM_ZOOM] =            LV_STYLE_PROP_EXT_DRAW | LV_STYLE_PROP_LAYER_REFR,
+  53:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TRANSFORM_ANGLE] =           LV_STYLE_PROP_EXT_DRAW | LV_STYLE_PROP_LAYER_REFR,
+  54:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  55:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_PAD_TOP] =                   LV_STYLE_PROP_EXT_DRAW | LV_STYLE_PROP_LAYOUT_REFR,
+  56:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_PAD_BOTTOM] =                LV_STYLE_PROP_EXT_DRAW | LV_STYLE_PROP_LAYOUT_REFR,
+  57:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_PAD_LEFT] =                  LV_STYLE_PROP_EXT_DRAW | LV_STYLE_PROP_LAYOUT_REFR,
+  58:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_PAD_RIGHT] =                 LV_STYLE_PROP_EXT_DRAW | LV_STYLE_PROP_LAYOUT_REFR,
+  59:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_PAD_ROW] =                   LV_STYLE_PROP_EXT_DRAW | LV_STYLE_PROP_LAYOUT_REFR,
+  60:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_PAD_COLUMN] =                LV_STYLE_PROP_EXT_DRAW | LV_STYLE_PROP_LAYOUT_REFR,
+  61:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  62:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BG_COLOR] = 0,
+  63:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BG_OPA] = 0,
+  64:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BG_GRAD_COLOR] = 0,
+  65:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BG_GRAD_DIR] = 0,
+  66:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BG_MAIN_STOP] = 0,
+  67:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BG_GRAD_STOP] = 0,
+  68:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BG_GRAD] = 0,
+  69:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BG_DITHER_MODE] = 0,
+  70:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  71:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BG_IMG_SRC] =                LV_STYLE_PROP_EXT_DRAW,
+  72:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BG_IMG_OPA] = 0,
+  73:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BG_IMG_RECOLOR] = 0,
+  74:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BG_IMG_RECOLOR_OPA] = 0,
+  75:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BG_IMG_TILED] = 0,
+  76:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  77:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BORDER_COLOR] = 0,
+  78:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BORDER_OPA] = 0,
+  79:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BORDER_WIDTH] =              LV_STYLE_PROP_LAYOUT_REFR,
+  80:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BORDER_SIDE] = 0,
+  81:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BORDER_POST] = 0,
+  82:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  83:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_OUTLINE_WIDTH] =             LV_STYLE_PROP_EXT_DRAW,
+  84:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_OUTLINE_COLOR] = 0,
+  85:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_OUTLINE_OPA] =               LV_STYLE_PROP_EXT_DRAW,
+  86:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_OUTLINE_PAD] =               LV_STYLE_PROP_EXT_DRAW,
+  87:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  88:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_SHADOW_WIDTH] =              LV_STYLE_PROP_EXT_DRAW,
+  89:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_SHADOW_OFS_X] =              LV_STYLE_PROP_EXT_DRAW,
+  90:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_SHADOW_OFS_Y] =              LV_STYLE_PROP_EXT_DRAW,
+ARM GAS  /tmp/ccUrScbL.s 			page 3
+
+
+  91:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_SHADOW_SPREAD] =             LV_STYLE_PROP_EXT_DRAW,
+  92:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_SHADOW_COLOR] = 0,
+  93:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_SHADOW_OPA] =                LV_STYLE_PROP_EXT_DRAW,
+  94:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  95:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_IMG_OPA] = 0,
+  96:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_IMG_RECOLOR] = 0,
+  97:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_IMG_RECOLOR_OPA] = 0,
+  98:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  99:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_LINE_WIDTH] =                LV_STYLE_PROP_EXT_DRAW,
+ 100:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_LINE_DASH_WIDTH] = 0,
+ 101:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_LINE_DASH_GAP] = 0,
+ 102:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_LINE_ROUNDED] = 0,
+ 103:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_LINE_COLOR] = 0,
+ 104:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_LINE_OPA] = 0,
+ 105:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 106:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_ARC_WIDTH] =                 LV_STYLE_PROP_EXT_DRAW,
+ 107:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_ARC_ROUNDED] = 0,
+ 108:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_ARC_COLOR] = 0,
+ 109:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_ARC_OPA] = 0,
+ 110:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_ARC_IMG_SRC] = 0,
+ 111:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 112:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TEXT_COLOR] =                LV_STYLE_PROP_INHERIT,
+ 113:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TEXT_OPA] =                  LV_STYLE_PROP_INHERIT,
+ 114:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TEXT_FONT] =                 LV_STYLE_PROP_INHERIT | LV_STYLE_PROP_LAYOUT_REFR,
+ 115:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TEXT_LETTER_SPACE] =         LV_STYLE_PROP_INHERIT | LV_STYLE_PROP_LAYOUT_REFR,
+ 116:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TEXT_LINE_SPACE] =           LV_STYLE_PROP_INHERIT | LV_STYLE_PROP_LAYOUT_REFR,
+ 117:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TEXT_DECOR] =                LV_STYLE_PROP_INHERIT,
+ 118:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TEXT_ALIGN] =                LV_STYLE_PROP_INHERIT | LV_STYLE_PROP_LAYOUT_REFR,
+ 119:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 120:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_RADIUS] = 0,
+ 121:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_CLIP_CORNER] = 0,
+ 122:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_OPA] =                       LV_STYLE_PROP_LAYER_REFR,
+ 123:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_COLOR_FILTER_DSC] =          LV_STYLE_PROP_INHERIT,
+ 124:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_COLOR_FILTER_OPA] =          LV_STYLE_PROP_INHERIT,
+ 125:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_ANIM_TIME] = 0,
+ 126:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_ANIM_SPEED] = 0,
+ 127:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_TRANSITION] = 0,
+ 128:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BLEND_MODE] =                LV_STYLE_PROP_LAYER_REFR,
+ 129:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_LAYOUT] =                    LV_STYLE_PROP_LAYOUT_REFR,
+ 130:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     [LV_STYLE_BASE_DIR] =                  LV_STYLE_PROP_INHERIT | LV_STYLE_PROP_LAYOUT_REFR,
+ 131:Drivers/lvgl/lvgl/src/misc/lv_style.c **** };
+ 132:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 133:Drivers/lvgl/lvgl/src/misc/lv_style.c **** uint32_t _lv_style_custom_prop_flag_lookup_table_size = 0;
+ 134:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 135:Drivers/lvgl/lvgl/src/misc/lv_style.c **** /**********************
+ 136:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  *  STATIC VARIABLES
+ 137:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  **********************/
+ 138:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 139:Drivers/lvgl/lvgl/src/misc/lv_style.c **** static uint16_t last_custom_prop_id = (uint16_t)_LV_STYLE_LAST_BUILT_IN_PROP;
+ 140:Drivers/lvgl/lvgl/src/misc/lv_style.c **** static const lv_style_value_t null_style_value = { .num = 0 };
+ 141:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 142:Drivers/lvgl/lvgl/src/misc/lv_style.c **** /**********************
+ 143:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  *      MACROS
+ 144:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  **********************/
+ 145:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 146:Drivers/lvgl/lvgl/src/misc/lv_style.c **** /**********************
+ 147:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  *   GLOBAL FUNCTIONS
+ARM GAS  /tmp/ccUrScbL.s 			page 4
+
+
+ 148:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  **********************/
+ 149:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 150:Drivers/lvgl/lvgl/src/misc/lv_style.c **** void lv_style_init(lv_style_t * style)
+ 151:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 152:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #if LV_USE_ASSERT_STYLE
+ 153:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(style->sentinel == LV_STYLE_SENTINEL_VALUE && style->prop_cnt > 1) {
+ 154:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         LV_LOG_WARN("Style might be already inited. (Potential memory leak)");
+ 155:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 156:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #endif
+ 157:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 158:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     lv_memset_00(style, sizeof(lv_style_t));
+ 159:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #if LV_USE_ASSERT_STYLE
+ 160:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     style->sentinel = LV_STYLE_SENTINEL_VALUE;
+ 161:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #endif
+ 162:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 163:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 164:Drivers/lvgl/lvgl/src/misc/lv_style.c **** void lv_style_reset(lv_style_t * style)
+ 165:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 166:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_ASSERT_STYLE(style);
+ 167:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 168:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(style->prop1 == LV_STYLE_PROP_ANY) {
+ 169:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         LV_LOG_ERROR("Cannot reset const style");
+ 170:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         return;
+ 171:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 172:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 173:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(style->prop_cnt > 1) lv_mem_free(style->v_p.values_and_props);
+ 174:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     lv_memset_00(style, sizeof(lv_style_t));
+ 175:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #if LV_USE_ASSERT_STYLE
+ 176:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     style->sentinel = LV_STYLE_SENTINEL_VALUE;
+ 177:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #endif
+ 178:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 179:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 180:Drivers/lvgl/lvgl/src/misc/lv_style.c **** lv_style_prop_t lv_style_register_prop(uint8_t flag)
+ 181:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 182:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(LV_GC_ROOT(_lv_style_custom_prop_flag_lookup_table) == NULL) {
+ 183:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         _lv_style_custom_prop_flag_lookup_table_size = 0;
+ 184:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         last_custom_prop_id = (uint16_t)_LV_STYLE_LAST_BUILT_IN_PROP;
+ 185:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 186:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 187:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(((last_custom_prop_id + 1) & LV_STYLE_PROP_META_MASK) != 0) {
+ 188:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         LV_LOG_ERROR("No more custom property IDs available");
+ 189:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         return LV_STYLE_PROP_INV;
+ 190:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 191:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 192:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     /*
+ 193:Drivers/lvgl/lvgl/src/misc/lv_style.c ****      * Allocate the lookup table if it's not yet available.
+ 194:Drivers/lvgl/lvgl/src/misc/lv_style.c ****      */
+ 195:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     size_t required_size = (last_custom_prop_id + 1 - _LV_STYLE_LAST_BUILT_IN_PROP);
+ 196:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(_lv_style_custom_prop_flag_lookup_table_size < required_size) {
+ 197:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         /* Round required_size up to the nearest 32-byte value */
+ 198:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         required_size = (required_size + 31) & ~31;
+ 199:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         LV_ASSERT_MSG(required_size > 0, "required size has become 0?");
+ 200:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         uint8_t * old_p = LV_GC_ROOT(_lv_style_custom_prop_flag_lookup_table);
+ 201:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         uint8_t * new_p = lv_mem_realloc(old_p, required_size * sizeof(uint8_t));
+ 202:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         if(new_p == NULL) {
+ 203:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             LV_LOG_ERROR("Unable to allocate space for custom property lookup table");
+ 204:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             return LV_STYLE_PROP_INV;
+ARM GAS  /tmp/ccUrScbL.s 			page 5
+
+
+ 205:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         }
+ 206:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         LV_GC_ROOT(_lv_style_custom_prop_flag_lookup_table) = new_p;
+ 207:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         _lv_style_custom_prop_flag_lookup_table_size = required_size;
+ 208:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 209:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     last_custom_prop_id++;
+ 210:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     /* This should never happen - we should bail out above */
+ 211:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_ASSERT_NULL(LV_GC_ROOT(_lv_style_custom_prop_flag_lookup_table));
+ 212:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_GC_ROOT(_lv_style_custom_prop_flag_lookup_table)[last_custom_prop_id - _LV_STYLE_NUM_BUILT_I
+ 213:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     return last_custom_prop_id;
+ 214:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 215:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 216:Drivers/lvgl/lvgl/src/misc/lv_style.c **** lv_style_prop_t lv_style_get_num_custom_props(void)
+ 217:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 218:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     return last_custom_prop_id - _LV_STYLE_LAST_BUILT_IN_PROP;
+ 219:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 220:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 221:Drivers/lvgl/lvgl/src/misc/lv_style.c **** bool lv_style_remove_prop(lv_style_t * style, lv_style_prop_t prop)
+ 222:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 223:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_ASSERT_STYLE(style);
+ 224:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 225:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(style->prop1 == LV_STYLE_PROP_ANY) {
+ 226:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         LV_LOG_ERROR("Cannot remove prop from const style");
+ 227:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         return false;
+ 228:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 229:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 230:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(style->prop_cnt == 0)  return false;
+ 231:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 232:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(style->prop_cnt == 1) {
+ 233:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         if(LV_STYLE_PROP_ID_MASK(style->prop1) == prop) {
+ 234:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             style->prop1 = LV_STYLE_PROP_INV;
+ 235:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             style->prop_cnt = 0;
+ 236:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             return true;
+ 237:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         }
+ 238:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         return false;
+ 239:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 240:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 241:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     uint8_t * tmp = style->v_p.values_and_props + style->prop_cnt * sizeof(lv_style_value_t);
+ 242:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     uint16_t * old_props = (uint16_t *)tmp;
+ 243:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     uint32_t i;
+ 244:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     for(i = 0; i < style->prop_cnt; i++) {
+ 245:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         if(LV_STYLE_PROP_ID_MASK(old_props[i]) == prop) {
+ 246:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             lv_style_value_t * old_values = (lv_style_value_t *)style->v_p.values_and_props;
+ 247:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 248:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             if(style->prop_cnt == 2) {
+ 249:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->prop_cnt = 1;
+ 250:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->prop1 = i == 0 ? old_props[1] : old_props[0];
+ 251:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->v_p.value1 = i == 0 ? old_values[1] : old_values[0];
+ 252:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             }
+ 253:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             else {
+ 254:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 size_t size = (style->prop_cnt - 1) * (sizeof(lv_style_value_t) + sizeof(uint16_t))
+ 255:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 uint8_t * new_values_and_props = lv_mem_alloc(size);
+ 256:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 if(new_values_and_props == NULL) return false;
+ 257:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->v_p.values_and_props = new_values_and_props;
+ 258:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->prop_cnt--;
+ 259:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 260:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 tmp = new_values_and_props + style->prop_cnt * sizeof(lv_style_value_t);
+ 261:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 uint16_t * new_props = (uint16_t *)tmp;
+ARM GAS  /tmp/ccUrScbL.s 			page 6
+
+
+ 262:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 lv_style_value_t * new_values = (lv_style_value_t *)new_values_and_props;
+ 263:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 264:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 uint32_t j;
+ 265:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 for(i = j = 0; j <= style->prop_cnt;
+ 266:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                     j++) { /*<=: because prop_cnt already reduced but all the old props. needs to b
+ 267:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                     if(old_props[j] != prop) {
+ 268:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                         new_values[i] = old_values[j];
+ 269:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                         new_props[i++] = old_props[j];
+ 270:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                     }
+ 271:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 }
+ 272:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             }
+ 273:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 274:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             lv_mem_free(old_values);
+ 275:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             return true;
+ 276:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         }
+ 277:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 278:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 279:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     return false;
+ 280:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 281:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 282:Drivers/lvgl/lvgl/src/misc/lv_style.c **** void lv_style_set_prop(lv_style_t * style, lv_style_prop_t prop, lv_style_value_t value)
+ 283:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 284:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     lv_style_set_prop_internal(style, prop, value, lv_style_set_prop_helper);
+ 285:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 286:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 287:Drivers/lvgl/lvgl/src/misc/lv_style.c **** void lv_style_set_prop_meta(lv_style_t * style, lv_style_prop_t prop, uint16_t meta)
+ 288:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 289:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     lv_style_set_prop_internal(style, prop | meta, null_style_value, lv_style_set_prop_meta_helper)
+ 290:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 291:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 292:Drivers/lvgl/lvgl/src/misc/lv_style.c **** lv_style_res_t lv_style_get_prop(const lv_style_t * style, lv_style_prop_t prop, lv_style_value_t *
+ 293:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 294:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     return lv_style_get_prop_inlined(style, prop, value);
+ 295:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 296:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 297:Drivers/lvgl/lvgl/src/misc/lv_style.c **** void lv_style_transition_dsc_init(lv_style_transition_dsc_t * tr, const lv_style_prop_t props[],
+ 298:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                                   lv_anim_path_cb_t path_cb, uint32_t time, uint32_t delay, void * 
+ 299:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 300:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     lv_memset_00(tr, sizeof(lv_style_transition_dsc_t));
+ 301:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     tr->props = props;
+ 302:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     tr->path_xcb = path_cb == NULL ? lv_anim_path_linear : path_cb;
+ 303:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     tr->time = time;
+ 304:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     tr->delay = delay;
+ 305:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #if LV_USE_USER_DATA
+ 306:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     tr->user_data = user_data;
+ 307:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #else
+ 308:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_UNUSED(user_data);
+ 309:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #endif
+ 310:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 311:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 312:Drivers/lvgl/lvgl/src/misc/lv_style.c **** lv_style_value_t lv_style_prop_get_default(lv_style_prop_t prop)
+ 313:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 314:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     lv_style_value_t value;
+ 315:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     switch(prop) {
+ 316:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_TRANSFORM_ZOOM:
+ 317:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             value.num = LV_IMG_ZOOM_NONE;
+ 318:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ARM GAS  /tmp/ccUrScbL.s 			page 7
+
+
+ 319:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_BG_COLOR:
+ 320:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             value.color = lv_color_white();
+ 321:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 322:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_BG_GRAD_COLOR:
+ 323:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_BORDER_COLOR:
+ 324:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_SHADOW_COLOR:
+ 325:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_OUTLINE_COLOR:
+ 326:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_ARC_COLOR:
+ 327:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_LINE_COLOR:
+ 328:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_TEXT_COLOR:
+ 329:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_IMG_RECOLOR:
+ 330:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             value.color = lv_color_black();
+ 331:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 332:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_OPA:
+ 333:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_BORDER_OPA:
+ 334:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_TEXT_OPA:
+ 335:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_IMG_OPA:
+ 336:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_BG_IMG_OPA:
+ 337:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_OUTLINE_OPA:
+ 338:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_SHADOW_OPA:
+ 339:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_LINE_OPA:
+ 340:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_ARC_OPA:
+ 341:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             value.num = LV_OPA_COVER;
+ 342:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 343:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_BG_GRAD_STOP:
+ 344:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             value.num = 255;
+ 345:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 346:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_BORDER_SIDE:
+ 347:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             value.num = LV_BORDER_SIDE_FULL;
+ 348:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 349:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_TEXT_FONT:
+ 350:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             value.ptr = LV_FONT_DEFAULT;
+ 351:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 352:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_MAX_WIDTH:
+ 353:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_MAX_HEIGHT:
+ 354:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             value.num = LV_COORD_MAX;
+ 355:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 356:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         default:
+ 357:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             value.ptr = NULL;
+ 358:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             value.num = 0;
+ 359:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 360:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 361:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 362:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     return value;
+ 363:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 364:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 365:Drivers/lvgl/lvgl/src/misc/lv_style.c **** bool lv_style_is_empty(const lv_style_t * style)
+ 366:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 367:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_ASSERT_STYLE(style);
+ 368:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 369:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     return style->prop_cnt == 0 ? true : false;
+ 370:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 371:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 372:Drivers/lvgl/lvgl/src/misc/lv_style.c **** uint8_t _lv_style_get_prop_group(lv_style_prop_t prop)
+ 373:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 374:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     uint16_t group = (prop & 0x1FF) >> 4;
+ 375:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(group > 7) group = 7;    /*The MSB marks all the custom properties*/
+ARM GAS  /tmp/ccUrScbL.s 			page 8
+
+
+ 376:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     return (uint8_t)group;
+ 377:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 378:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 379:Drivers/lvgl/lvgl/src/misc/lv_style.c **** uint8_t _lv_style_prop_lookup_flags(lv_style_prop_t prop)
+ 380:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 381:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     extern const uint8_t _lv_style_builtin_prop_flag_lookup_table[];
+ 382:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     extern uint32_t _lv_style_custom_prop_flag_lookup_table_size;
+ 383:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(prop == LV_STYLE_PROP_ANY) return LV_STYLE_PROP_ALL; /*Any prop can have any flags*/
+ 384:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(prop == LV_STYLE_PROP_INV) return 0;
+ 385:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 386:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(prop < _LV_STYLE_NUM_BUILT_IN_PROPS)
+ 387:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         return _lv_style_builtin_prop_flag_lookup_table[prop];
+ 388:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     prop -= _LV_STYLE_NUM_BUILT_IN_PROPS;
+ 389:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(LV_GC_ROOT(_lv_style_custom_prop_flag_lookup_table) != NULL && prop < _lv_style_custom_prop_
+ 390:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         return LV_GC_ROOT(_lv_style_custom_prop_flag_lookup_table)[prop];
+ 391:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     return 0;
+ 392:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 393:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 394:Drivers/lvgl/lvgl/src/misc/lv_style.c **** /**********************
+ 395:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  *   STATIC FUNCTIONS
+ 396:Drivers/lvgl/lvgl/src/misc/lv_style.c ****  **********************/
+ 397:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 398:Drivers/lvgl/lvgl/src/misc/lv_style.c **** static void lv_style_set_prop_helper(lv_style_prop_t prop, lv_style_value_t value, uint16_t * prop_
+ 399:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                                      lv_style_value_t * value_storage)
+ 400:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+  26              		.loc 1 400 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              	.LVL0:
+ 401:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     *prop_storage = prop;
+  32              		.loc 1 401 0
+  33 0000 1080     		strh	r0, [r2]	@ movhi
+ 402:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     *value_storage = value;
+  34              		.loc 1 402 0
+  35 0002 1960     		str	r1, [r3]
+ 403:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+  36              		.loc 1 403 0
+  37 0004 7047     		bx	lr
+  38              		.cfi_endproc
+  39              	.LFE69:
+  41              		.section	.text.lv_style_set_prop_meta_helper,"ax",%progbits
+  42              		.align	1
+  43              		.syntax unified
+  44              		.thumb
+  45              		.thumb_func
+  46              		.fpu fpv5-d16
+  48              	lv_style_set_prop_meta_helper:
+  49              	.LFB70:
+ 404:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 405:Drivers/lvgl/lvgl/src/misc/lv_style.c **** static void lv_style_set_prop_meta_helper(lv_style_prop_t prop, lv_style_value_t value, uint16_t * 
+ 406:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                                           lv_style_value_t * value_storage)
+ 407:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+  50              		.loc 1 407 0
+  51              		.cfi_startproc
+  52              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  /tmp/ccUrScbL.s 			page 9
+
+
+  53              		@ frame_needed = 0, uses_anonymous_args = 0
+  54              		@ link register save eliminated.
+  55              	.LVL1:
+ 408:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_UNUSED(value);
+ 409:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_UNUSED(value_storage);
+ 410:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     *prop_storage = prop; /* meta is OR-ed into the prop ID already */
+  56              		.loc 1 410 0
+  57 0000 1080     		strh	r0, [r2]	@ movhi
+ 411:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+  58              		.loc 1 411 0
+  59 0002 7047     		bx	lr
+  60              		.cfi_endproc
+  61              	.LFE70:
+  63              		.section	.text.lv_style_init,"ax",%progbits
+  64              		.align	1
+  65              		.global	lv_style_init
+  66              		.syntax unified
+  67              		.thumb
+  68              		.thumb_func
+  69              		.fpu fpv5-d16
+  71              	lv_style_init:
+  72              	.LFB56:
+ 151:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #if LV_USE_ASSERT_STYLE
+  73              		.loc 1 151 0
+  74              		.cfi_startproc
+  75              		@ args = 0, pretend = 0, frame = 0
+  76              		@ frame_needed = 0, uses_anonymous_args = 0
+  77              	.LVL2:
+  78 0000 08B5     		push	{r3, lr}
+  79              	.LCFI0:
+  80              		.cfi_def_cfa_offset 8
+  81              		.cfi_offset 3, -8
+  82              		.cfi_offset 14, -4
+ 158:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #if LV_USE_ASSERT_STYLE
+  83              		.loc 1 158 0
+  84 0002 0821     		movs	r1, #8
+  85 0004 FFF7FEFF 		bl	lv_memset_00
+  86              	.LVL3:
+ 162:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+  87              		.loc 1 162 0
+  88 0008 08BD     		pop	{r3, pc}
+  89              		.cfi_endproc
+  90              	.LFE56:
+  92              		.section	.text.lv_style_reset,"ax",%progbits
+  93              		.align	1
+  94              		.global	lv_style_reset
+  95              		.syntax unified
+  96              		.thumb
+  97              		.thumb_func
+  98              		.fpu fpv5-d16
+ 100              	lv_style_reset:
+ 101              	.LFB57:
+ 165:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_ASSERT_STYLE(style);
+ 102              		.loc 1 165 0
+ 103              		.cfi_startproc
+ 104              		@ args = 0, pretend = 0, frame = 0
+ 105              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/ccUrScbL.s 			page 10
+
+
+ 106              	.LVL4:
+ 168:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         LV_LOG_ERROR("Cannot reset const style");
+ 107              		.loc 1 168 0
+ 108 0000 8288     		ldrh	r2, [r0, #4]
+ 109 0002 4FF6FF73 		movw	r3, #65535
+ 110 0006 9A42     		cmp	r2, r3
+ 111 0008 0DD0     		beq	.L9
+ 165:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_ASSERT_STYLE(style);
+ 112              		.loc 1 165 0
+ 113 000a 10B5     		push	{r4, lr}
+ 114              	.LCFI1:
+ 115              		.cfi_def_cfa_offset 8
+ 116              		.cfi_offset 4, -8
+ 117              		.cfi_offset 14, -4
+ 118 000c 0446     		mov	r4, r0
+ 173:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     lv_memset_00(style, sizeof(lv_style_t));
+ 119              		.loc 1 173 0
+ 120 000e C379     		ldrb	r3, [r0, #7]	@ zero_extendqisi2
+ 121 0010 012B     		cmp	r3, #1
+ 122 0012 04D8     		bhi	.L12
+ 123              	.LVL5:
+ 124              	.L7:
+ 174:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #if LV_USE_ASSERT_STYLE
+ 125              		.loc 1 174 0
+ 126 0014 0821     		movs	r1, #8
+ 127 0016 2046     		mov	r0, r4
+ 128 0018 FFF7FEFF 		bl	lv_memset_00
+ 129              	.LVL6:
+ 178:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 130              		.loc 1 178 0
+ 131 001c 10BD     		pop	{r4, pc}
+ 132              	.LVL7:
+ 133              	.L12:
+ 173:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     lv_memset_00(style, sizeof(lv_style_t));
+ 134              		.loc 1 173 0 discriminator 1
+ 135 001e 0068     		ldr	r0, [r0]
+ 136              	.LVL8:
+ 137 0020 FFF7FEFF 		bl	lv_mem_free
+ 138              	.LVL9:
+ 139 0024 F6E7     		b	.L7
+ 140              	.LVL10:
+ 141              	.L9:
+ 142              	.LCFI2:
+ 143              		.cfi_def_cfa_offset 0
+ 144              		.cfi_restore 4
+ 145              		.cfi_restore 14
+ 146 0026 7047     		bx	lr
+ 147              		.cfi_endproc
+ 148              	.LFE57:
+ 150              		.section	.text.lv_style_register_prop,"ax",%progbits
+ 151              		.align	1
+ 152              		.global	lv_style_register_prop
+ 153              		.syntax unified
+ 154              		.thumb
+ 155              		.thumb_func
+ 156              		.fpu fpv5-d16
+ 158              	lv_style_register_prop:
+ARM GAS  /tmp/ccUrScbL.s 			page 11
+
+
+ 159              	.LFB58:
+ 181:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(LV_GC_ROOT(_lv_style_custom_prop_flag_lookup_table) == NULL) {
+ 160              		.loc 1 181 0
+ 161              		.cfi_startproc
+ 162              		@ args = 0, pretend = 0, frame = 0
+ 163              		@ frame_needed = 0, uses_anonymous_args = 0
+ 164              	.LVL11:
+ 165 0000 38B5     		push	{r3, r4, r5, lr}
+ 166              	.LCFI3:
+ 167              		.cfi_def_cfa_offset 16
+ 168              		.cfi_offset 3, -16
+ 169              		.cfi_offset 4, -12
+ 170              		.cfi_offset 5, -8
+ 171              		.cfi_offset 14, -4
+ 182:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         _lv_style_custom_prop_flag_lookup_table_size = 0;
+ 172              		.loc 1 182 0
+ 173 0002 1A4B     		ldr	r3, .L25
+ 174 0004 1B68     		ldr	r3, [r3]
+ 175 0006 83B1     		cbz	r3, .L24
+ 176              	.L14:
+ 187:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         LV_LOG_ERROR("No more custom property IDs available");
+ 177              		.loc 1 187 0
+ 178 0008 194A     		ldr	r2, .L25+4
+ 179 000a 1488     		ldrh	r4, [r2]
+ 180 000c 621C     		adds	r2, r4, #1
+ 181 000e 12F4404F 		tst	r2, #49152
+ 182 0012 27D1     		bne	.L21
+ 183 0014 0546     		mov	r5, r0
+ 195:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(_lv_style_custom_prop_flag_lookup_table_size < required_size) {
+ 184              		.loc 1 195 0
+ 185 0016 6E3C     		subs	r4, r4, #110
+ 186              	.LVL12:
+ 196:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         /* Round required_size up to the nearest 32-byte value */
+ 187              		.loc 1 196 0
+ 188 0018 164A     		ldr	r2, .L25+8
+ 189 001a 1268     		ldr	r2, [r2]
+ 190 001c A242     		cmp	r2, r4
+ 191 001e 14D2     		bcs	.L16
+ 192              	.LBB14:
+ 198:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         LV_ASSERT_MSG(required_size > 0, "required size has become 0?");
+ 193              		.loc 1 198 0
+ 194 0020 1F34     		adds	r4, r4, #31
+ 195              	.LVL13:
+ 199:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         uint8_t * old_p = LV_GC_ROOT(_lv_style_custom_prop_flag_lookup_table);
+ 196              		.loc 1 199 0
+ 197 0022 34F01F04 		bics	r4, r4, #31
+ 198              	.LVL14:
+ 199 0026 07D1     		bne	.L17
+ 200              	.L18:
+ 201 0028 FEE7     		b	.L18
+ 202              	.LVL15:
+ 203              	.L24:
+ 204              	.LBE14:
+ 183:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         last_custom_prop_id = (uint16_t)_LV_STYLE_LAST_BUILT_IN_PROP;
+ 205              		.loc 1 183 0
+ 206 002a 124A     		ldr	r2, .L25+8
+ 207 002c 0021     		movs	r1, #0
+ARM GAS  /tmp/ccUrScbL.s 			page 12
+
+
+ 208 002e 1160     		str	r1, [r2]
+ 184:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 209              		.loc 1 184 0
+ 210 0030 0F4A     		ldr	r2, .L25+4
+ 211 0032 6F21     		movs	r1, #111
+ 212 0034 1180     		strh	r1, [r2]	@ movhi
+ 213 0036 E7E7     		b	.L14
+ 214              	.LVL16:
+ 215              	.L17:
+ 216              	.LBB15:
+ 201:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         if(new_p == NULL) {
+ 217              		.loc 1 201 0
+ 218 0038 2146     		mov	r1, r4
+ 219 003a 1846     		mov	r0, r3
+ 220              	.LVL17:
+ 221 003c FFF7FEFF 		bl	lv_mem_realloc
+ 222              	.LVL18:
+ 202:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             LV_LOG_ERROR("Unable to allocate space for custom property lookup table");
+ 223              		.loc 1 202 0
+ 224 0040 90B1     		cbz	r0, .L22
+ 206:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         _lv_style_custom_prop_flag_lookup_table_size = required_size;
+ 225              		.loc 1 206 0
+ 226 0042 0A4B     		ldr	r3, .L25
+ 227 0044 1860     		str	r0, [r3]
+ 207:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 228              		.loc 1 207 0
+ 229 0046 0B4B     		ldr	r3, .L25+8
+ 230 0048 1C60     		str	r4, [r3]
+ 231              	.LVL19:
+ 232              	.L16:
+ 233              	.LBE15:
+ 209:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     /* This should never happen - we should bail out above */
+ 234              		.loc 1 209 0
+ 235 004a 094B     		ldr	r3, .L25+4
+ 236 004c 1888     		ldrh	r0, [r3]
+ 237 004e 0130     		adds	r0, r0, #1
+ 238 0050 80B2     		uxth	r0, r0
+ 239 0052 1880     		strh	r0, [r3]	@ movhi
+ 211:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_GC_ROOT(_lv_style_custom_prop_flag_lookup_table)[last_custom_prop_id - _LV_STYLE_NUM_BUILT_I
+ 240              		.loc 1 211 0
+ 241 0054 054B     		ldr	r3, .L25
+ 242 0056 1B68     		ldr	r3, [r3]
+ 243 0058 03B9     		cbnz	r3, .L19
+ 244              	.L20:
+ 245 005a FEE7     		b	.L20
+ 246              	.L19:
+ 212:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     return last_custom_prop_id;
+ 247              		.loc 1 212 0
+ 248 005c A0F17002 		sub	r2, r0, #112
+ 249 0060 9D54     		strb	r5, [r3, r2]
+ 213:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 250              		.loc 1 213 0
+ 251 0062 00E0     		b	.L15
+ 252              	.LVL20:
+ 253              	.L21:
+ 189:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 254              		.loc 1 189 0
+ARM GAS  /tmp/ccUrScbL.s 			page 13
+
+
+ 255 0064 0020     		movs	r0, #0
+ 256              	.LVL21:
+ 257              	.L15:
+ 214:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 258              		.loc 1 214 0
+ 259 0066 38BD     		pop	{r3, r4, r5, pc}
+ 260              	.LVL22:
+ 261              	.L22:
+ 262              	.LBB16:
+ 204:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         }
+ 263              		.loc 1 204 0
+ 264 0068 0020     		movs	r0, #0
+ 265              	.LVL23:
+ 266 006a FCE7     		b	.L15
+ 267              	.L26:
+ 268              		.align	2
+ 269              	.L25:
+ 270 006c 00000000 		.word	_lv_style_custom_prop_flag_lookup_table
+ 271 0070 00000000 		.word	.LANCHOR1
+ 272 0074 00000000 		.word	.LANCHOR0
+ 273              	.LBE16:
+ 274              		.cfi_endproc
+ 275              	.LFE58:
+ 277              		.section	.text.lv_style_get_num_custom_props,"ax",%progbits
+ 278              		.align	1
+ 279              		.global	lv_style_get_num_custom_props
+ 280              		.syntax unified
+ 281              		.thumb
+ 282              		.thumb_func
+ 283              		.fpu fpv5-d16
+ 285              	lv_style_get_num_custom_props:
+ 286              	.LFB59:
+ 217:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     return last_custom_prop_id - _LV_STYLE_LAST_BUILT_IN_PROP;
+ 287              		.loc 1 217 0
+ 288              		.cfi_startproc
+ 289              		@ args = 0, pretend = 0, frame = 0
+ 290              		@ frame_needed = 0, uses_anonymous_args = 0
+ 291              		@ link register save eliminated.
+ 218:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 292              		.loc 1 218 0
+ 293 0000 024B     		ldr	r3, .L28
+ 294 0002 1888     		ldrh	r0, [r3]
+ 295 0004 6F38     		subs	r0, r0, #111
+ 219:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 296              		.loc 1 219 0
+ 297 0006 80B2     		uxth	r0, r0
+ 298 0008 7047     		bx	lr
+ 299              	.L29:
+ 300 000a 00BF     		.align	2
+ 301              	.L28:
+ 302 000c 00000000 		.word	.LANCHOR1
+ 303              		.cfi_endproc
+ 304              	.LFE59:
+ 306              		.section	.text.lv_style_remove_prop,"ax",%progbits
+ 307              		.align	1
+ 308              		.global	lv_style_remove_prop
+ 309              		.syntax unified
+ARM GAS  /tmp/ccUrScbL.s 			page 14
+
+
+ 310              		.thumb
+ 311              		.thumb_func
+ 312              		.fpu fpv5-d16
+ 314              	lv_style_remove_prop:
+ 315              	.LFB60:
+ 222:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_ASSERT_STYLE(style);
+ 316              		.loc 1 222 0
+ 317              		.cfi_startproc
+ 318              		@ args = 0, pretend = 0, frame = 0
+ 319              		@ frame_needed = 0, uses_anonymous_args = 0
+ 320              	.LVL24:
+ 321 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 322              	.LCFI4:
+ 323              		.cfi_def_cfa_offset 24
+ 324              		.cfi_offset 3, -24
+ 325              		.cfi_offset 4, -20
+ 326              		.cfi_offset 5, -16
+ 327              		.cfi_offset 6, -12
+ 328              		.cfi_offset 7, -8
+ 329              		.cfi_offset 14, -4
+ 225:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         LV_LOG_ERROR("Cannot remove prop from const style");
+ 330              		.loc 1 225 0
+ 331 0002 8388     		ldrh	r3, [r0, #4]
+ 332 0004 4FF6FF72 		movw	r2, #65535
+ 333 0008 9342     		cmp	r3, r2
+ 334 000a 62D0     		beq	.L44
+ 230:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 335              		.loc 1 230 0
+ 336 000c 90F807C0 		ldrb	ip, [r0, #7]	@ zero_extendqisi2
+ 337 0010 BCF1000F 		cmp	ip, #0
+ 338 0014 5FD0     		beq	.L45
+ 232:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         if(LV_STYLE_PROP_ID_MASK(style->prop1) == prop) {
+ 339              		.loc 1 232 0
+ 340 0016 BCF1010F 		cmp	ip, #1
+ 341 001a 0ED0     		beq	.L49
+ 241:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     uint16_t * old_props = (uint16_t *)tmp;
+ 342              		.loc 1 241 0
+ 343 001c 0668     		ldr	r6, [r0]
+ 344 001e 6446     		mov	r4, ip
+ 345 0020 06EB8C05 		add	r5, r6, ip, lsl #2
+ 346              	.LVL25:
+ 244:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         if(LV_STYLE_PROP_ID_MASK(old_props[i]) == prop) {
+ 347              		.loc 1 244 0
+ 348 0024 0023     		movs	r3, #0
+ 349              	.LVL26:
+ 350              	.L33:
+ 244:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         if(LV_STYLE_PROP_ID_MASK(old_props[i]) == prop) {
+ 351              		.loc 1 244 0 is_stmt 0 discriminator 1
+ 352 0026 9C42     		cmp	r4, r3
+ 353 0028 51D9     		bls	.L50
+ 245:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             lv_style_value_t * old_values = (lv_style_value_t *)style->v_p.values_and_props;
+ 354              		.loc 1 245 0 is_stmt 1
+ 355 002a 35F81320 		ldrh	r2, [r5, r3, lsl #1]
+ 356 002e C2F30D02 		ubfx	r2, r2, #0, #14
+ 357 0032 8A42     		cmp	r2, r1
+ 358 0034 0CD0     		beq	.L51
+ 244:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         if(LV_STYLE_PROP_ID_MASK(old_props[i]) == prop) {
+ARM GAS  /tmp/ccUrScbL.s 			page 15
+
+
+ 359              		.loc 1 244 0 discriminator 2
+ 360 0036 0133     		adds	r3, r3, #1
+ 361              	.LVL27:
+ 362 0038 F5E7     		b	.L33
+ 363              	.LVL28:
+ 364              	.L49:
+ 233:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             style->prop1 = LV_STYLE_PROP_INV;
+ 365              		.loc 1 233 0
+ 366 003a C3F30D03 		ubfx	r3, r3, #0, #14
+ 367 003e 8B42     		cmp	r3, r1
+ 368 0040 01D0     		beq	.L52
+ 238:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 369              		.loc 1 238 0
+ 370 0042 0020     		movs	r0, #0
+ 371              	.LVL29:
+ 372 0044 48E0     		b	.L31
+ 373              	.LVL30:
+ 374              	.L52:
+ 234:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             style->prop_cnt = 0;
+ 375              		.loc 1 234 0
+ 376 0046 0023     		movs	r3, #0
+ 377 0048 8380     		strh	r3, [r0, #4]	@ movhi
+ 235:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             return true;
+ 378              		.loc 1 235 0
+ 379 004a C371     		strb	r3, [r0, #7]
+ 236:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         }
+ 380              		.loc 1 236 0
+ 381 004c 0120     		movs	r0, #1
+ 382              	.LVL31:
+ 383 004e 43E0     		b	.L31
+ 384              	.LVL32:
+ 385              	.L51:
+ 386 0050 0F46     		mov	r7, r1
+ 387 0052 0446     		mov	r4, r0
+ 388              	.LVL33:
+ 389              	.LBB17:
+ 248:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->prop_cnt = 1;
+ 390              		.loc 1 248 0
+ 391 0054 BCF1020F 		cmp	ip, #2
+ 392 0058 12D1     		bne	.L35
+ 249:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->prop1 = i == 0 ? old_props[1] : old_props[0];
+ 393              		.loc 1 249 0
+ 394 005a 0122     		movs	r2, #1
+ 395 005c C271     		strb	r2, [r0, #7]
+ 250:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->v_p.value1 = i == 0 ? old_values[1] : old_values[0];
+ 396              		.loc 1 250 0
+ 397 005e 4BB9     		cbnz	r3, .L36
+ 250:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->v_p.value1 = i == 0 ? old_values[1] : old_values[0];
+ 398              		.loc 1 250 0 is_stmt 0 discriminator 1
+ 399 0060 6A88     		ldrh	r2, [r5, #2]
+ 400              	.L37:
+ 250:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->v_p.value1 = i == 0 ? old_values[1] : old_values[0];
+ 401              		.loc 1 250 0 discriminator 4
+ 402 0062 A280     		strh	r2, [r4, #4]	@ movhi
+ 251:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             }
+ 403              		.loc 1 251 0 is_stmt 1 discriminator 4
+ 404 0064 4BB9     		cbnz	r3, .L38
+ARM GAS  /tmp/ccUrScbL.s 			page 16
+
+
+ 251:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             }
+ 405              		.loc 1 251 0 is_stmt 0 discriminator 1
+ 406 0066 7368     		ldr	r3, [r6, #4]
+ 407              	.LVL34:
+ 408 0068 2360     		str	r3, [r4]
+ 409              	.LVL35:
+ 410              	.L39:
+ 274:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             return true;
+ 411              		.loc 1 274 0 is_stmt 1
+ 412 006a 3046     		mov	r0, r6
+ 413 006c FFF7FEFF 		bl	lv_mem_free
+ 414              	.LVL36:
+ 275:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         }
+ 415              		.loc 1 275 0
+ 416 0070 0120     		movs	r0, #1
+ 417 0072 31E0     		b	.L31
+ 418              	.LVL37:
+ 419              	.L36:
+ 250:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->v_p.value1 = i == 0 ? old_values[1] : old_values[0];
+ 420              		.loc 1 250 0 discriminator 2
+ 421 0074 36F82C20 		ldrh	r2, [r6, ip, lsl #2]
+ 422 0078 F3E7     		b	.L37
+ 423              	.L38:
+ 251:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             }
+ 424              		.loc 1 251 0 discriminator 2
+ 425 007a 3368     		ldr	r3, [r6]
+ 426              	.LVL38:
+ 427 007c 2360     		str	r3, [r4]
+ 428 007e F4E7     		b	.L39
+ 429              	.LVL39:
+ 430              	.L35:
+ 431              	.LBB18:
+ 254:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 uint8_t * new_values_and_props = lv_mem_alloc(size);
+ 432              		.loc 1 254 0
+ 433 0080 0CF1FF3C 		add	ip, ip, #-1
+ 434 0084 0CEB4C0C 		add	ip, ip, ip, lsl #1
+ 435 0088 4FEA4C00 		lsl	r0, ip, #1
+ 436              	.LVL40:
+ 255:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 if(new_values_and_props == NULL) return false;
+ 437              		.loc 1 255 0
+ 438 008c FFF7FEFF 		bl	lv_mem_alloc
+ 439              	.LVL41:
+ 256:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->v_p.values_and_props = new_values_and_props;
+ 440              		.loc 1 256 0
+ 441 0090 8446     		mov	ip, r0
+ 442 0092 10B3     		cbz	r0, .L47
+ 257:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->prop_cnt--;
+ 443              		.loc 1 257 0
+ 444 0094 2060     		str	r0, [r4]
+ 258:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 445              		.loc 1 258 0
+ 446 0096 E079     		ldrb	r0, [r4, #7]	@ zero_extendqisi2
+ 447              	.LVL42:
+ 448 0098 0138     		subs	r0, r0, #1
+ 449 009a C0B2     		uxtb	r0, r0
+ 450 009c E071     		strb	r0, [r4, #7]
+ 260:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 uint16_t * new_props = (uint16_t *)tmp;
+ARM GAS  /tmp/ccUrScbL.s 			page 17
+
+
+ 451              		.loc 1 260 0
+ 452 009e 8000     		lsls	r0, r0, #2
+ 453              	.LVL43:
+ 265:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                     j++) { /*<=: because prop_cnt already reduced but all the old props. needs to b
+ 454              		.loc 1 265 0
+ 455 00a0 0023     		movs	r3, #0
+ 456 00a2 1A46     		mov	r2, r3
+ 457 00a4 00E0     		b	.L40
+ 458              	.LVL44:
+ 459              	.L41:
+ 266:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                     if(old_props[j] != prop) {
+ 460              		.loc 1 266 0
+ 461 00a6 0133     		adds	r3, r3, #1
+ 462              	.LVL45:
+ 463              	.L40:
+ 265:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                     j++) { /*<=: because prop_cnt already reduced but all the old props. needs to b
+ 464              		.loc 1 265 0 discriminator 1
+ 465 00a8 E179     		ldrb	r1, [r4, #7]	@ zero_extendqisi2
+ 466 00aa 9942     		cmp	r1, r3
+ 467 00ac DDD3     		bcc	.L39
+ 267:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                         new_values[i] = old_values[j];
+ 468              		.loc 1 267 0
+ 469 00ae 35F81310 		ldrh	r1, [r5, r3, lsl #1]
+ 470 00b2 B942     		cmp	r1, r7
+ 471 00b4 F7D0     		beq	.L41
+ 268:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                         new_props[i++] = old_props[j];
+ 472              		.loc 1 268 0
+ 473 00b6 56F82310 		ldr	r1, [r6, r3, lsl #2]
+ 474 00ba 4CF82210 		str	r1, [ip, r2, lsl #2]
+ 475              	.LVL46:
+ 269:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                     }
+ 476              		.loc 1 269 0
+ 477 00be 00EB4201 		add	r1, r0, r2, lsl #1
+ 478 00c2 35F813E0 		ldrh	lr, [r5, r3, lsl #1]
+ 479 00c6 2CF801E0 		strh	lr, [ip, r1]	@ movhi
+ 480 00ca 0132     		adds	r2, r2, #1
+ 481              	.LVL47:
+ 482 00cc EBE7     		b	.L41
+ 483              	.LVL48:
+ 484              	.L50:
+ 485              	.LBE18:
+ 486              	.LBE17:
+ 279:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 487              		.loc 1 279 0
+ 488 00ce 0020     		movs	r0, #0
+ 489              	.LVL49:
+ 490 00d0 02E0     		b	.L31
+ 491              	.LVL50:
+ 492              	.L44:
+ 227:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 493              		.loc 1 227 0
+ 494 00d2 0020     		movs	r0, #0
+ 495              	.LVL51:
+ 496 00d4 00E0     		b	.L31
+ 497              	.LVL52:
+ 498              	.L45:
+ 230:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ARM GAS  /tmp/ccUrScbL.s 			page 18
+
+
+ 499              		.loc 1 230 0
+ 500 00d6 0020     		movs	r0, #0
+ 501              	.LVL53:
+ 502              	.L31:
+ 280:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 503              		.loc 1 280 0
+ 504 00d8 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 505              	.LVL54:
+ 506              	.L47:
+ 507              	.LBB20:
+ 508              	.LBB19:
+ 256:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 style->v_p.values_and_props = new_values_and_props;
+ 509              		.loc 1 256 0
+ 510 00da 0020     		movs	r0, #0
+ 511              	.LVL55:
+ 512 00dc FCE7     		b	.L31
+ 513              	.LBE19:
+ 514              	.LBE20:
+ 515              		.cfi_endproc
+ 516              	.LFE60:
+ 518              		.section	.text.lv_style_transition_dsc_init,"ax",%progbits
+ 519              		.align	1
+ 520              		.global	lv_style_transition_dsc_init
+ 521              		.syntax unified
+ 522              		.thumb
+ 523              		.thumb_func
+ 524              		.fpu fpv5-d16
+ 526              	lv_style_transition_dsc_init:
+ 527              	.LFB64:
+ 299:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     lv_memset_00(tr, sizeof(lv_style_transition_dsc_t));
+ 528              		.loc 1 299 0
+ 529              		.cfi_startproc
+ 530              		@ args = 8, pretend = 0, frame = 0
+ 531              		@ frame_needed = 0, uses_anonymous_args = 0
+ 532              	.LVL56:
+ 533 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 534              	.LCFI5:
+ 535              		.cfi_def_cfa_offset 24
+ 536              		.cfi_offset 3, -24
+ 537              		.cfi_offset 4, -20
+ 538              		.cfi_offset 5, -16
+ 539              		.cfi_offset 6, -12
+ 540              		.cfi_offset 7, -8
+ 541              		.cfi_offset 14, -4
+ 542 0002 0446     		mov	r4, r0
+ 543 0004 0F46     		mov	r7, r1
+ 544 0006 1546     		mov	r5, r2
+ 545 0008 1E46     		mov	r6, r3
+ 300:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     tr->props = props;
+ 546              		.loc 1 300 0
+ 547 000a 1421     		movs	r1, #20
+ 548              	.LVL57:
+ 549 000c FFF7FEFF 		bl	lv_memset_00
+ 550              	.LVL58:
+ 301:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     tr->path_xcb = path_cb == NULL ? lv_anim_path_linear : path_cb;
+ 551              		.loc 1 301 0
+ 552 0010 2760     		str	r7, [r4]
+ARM GAS  /tmp/ccUrScbL.s 			page 19
+
+
+ 302:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     tr->time = time;
+ 553              		.loc 1 302 0
+ 554 0012 35B1     		cbz	r5, .L57
+ 555              	.LVL59:
+ 556              	.L54:
+ 302:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     tr->time = time;
+ 557              		.loc 1 302 0 is_stmt 0 discriminator 4
+ 558 0014 A560     		str	r5, [r4, #8]
+ 303:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     tr->delay = delay;
+ 559              		.loc 1 303 0 is_stmt 1 discriminator 4
+ 560 0016 E660     		str	r6, [r4, #12]
+ 304:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #if LV_USE_USER_DATA
+ 561              		.loc 1 304 0 discriminator 4
+ 562 0018 069B     		ldr	r3, [sp, #24]
+ 563 001a 2361     		str	r3, [r4, #16]
+ 306:Drivers/lvgl/lvgl/src/misc/lv_style.c **** #else
+ 564              		.loc 1 306 0 discriminator 4
+ 565 001c 079B     		ldr	r3, [sp, #28]
+ 566 001e 6360     		str	r3, [r4, #4]
+ 310:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 567              		.loc 1 310 0 discriminator 4
+ 568 0020 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 569              	.LVL60:
+ 570              	.L57:
+ 302:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     tr->time = time;
+ 571              		.loc 1 302 0
+ 572 0022 014D     		ldr	r5, .L58
+ 573              	.LVL61:
+ 574 0024 F6E7     		b	.L54
+ 575              	.L59:
+ 576 0026 00BF     		.align	2
+ 577              	.L58:
+ 578 0028 00000000 		.word	lv_anim_path_linear
+ 579              		.cfi_endproc
+ 580              	.LFE64:
+ 582              		.section	.text.lv_style_prop_get_default,"ax",%progbits
+ 583              		.align	1
+ 584              		.global	lv_style_prop_get_default
+ 585              		.syntax unified
+ 586              		.thumb
+ 587              		.thumb_func
+ 588              		.fpu fpv5-d16
+ 590              	lv_style_prop_get_default:
+ 591              	.LFB65:
+ 313:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     lv_style_value_t value;
+ 592              		.loc 1 313 0
+ 593              		.cfi_startproc
+ 594              		@ args = 0, pretend = 0, frame = 0
+ 595              		@ frame_needed = 0, uses_anonymous_args = 0
+ 596              		@ link register save eliminated.
+ 597              	.LVL62:
+ 315:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_TRANSFORM_ZOOM:
+ 598              		.loc 1 315 0
+ 599 0000 0338     		subs	r0, r0, #3
+ 600              	.LVL63:
+ 601 0002 6928     		cmp	r0, #105
+ 602 0004 4ED8     		bhi	.L61
+ARM GAS  /tmp/ccUrScbL.s 			page 20
+
+
+ 603 0006 DFE800F0 		tbb	[pc, r0]
+ 604              	.L63:
+ 605 000a 4A       		.byte	(.L62-.L63)/2
+ 606 000b 4D       		.byte	(.L61-.L63)/2
+ 607 000c 4D       		.byte	(.L61-.L63)/2
+ 608 000d 4A       		.byte	(.L62-.L63)/2
+ 609 000e 4D       		.byte	(.L61-.L63)/2
+ 610 000f 4D       		.byte	(.L61-.L63)/2
+ 611 0010 4D       		.byte	(.L61-.L63)/2
+ 612 0011 4D       		.byte	(.L61-.L63)/2
+ 613 0012 4D       		.byte	(.L61-.L63)/2
+ 614 0013 4D       		.byte	(.L61-.L63)/2
+ 615 0014 4D       		.byte	(.L61-.L63)/2
+ 616 0015 4D       		.byte	(.L61-.L63)/2
+ 617 0016 4D       		.byte	(.L61-.L63)/2
+ 618 0017 4D       		.byte	(.L61-.L63)/2
+ 619 0018 4D       		.byte	(.L61-.L63)/2
+ 620 0019 4D       		.byte	(.L61-.L63)/2
+ 621 001a 4D       		.byte	(.L61-.L63)/2
+ 622 001b 4D       		.byte	(.L61-.L63)/2
+ 623 001c 4D       		.byte	(.L61-.L63)/2
+ 624 001d 4D       		.byte	(.L61-.L63)/2
+ 625 001e 4D       		.byte	(.L61-.L63)/2
+ 626 001f 4D       		.byte	(.L61-.L63)/2
+ 627 0020 4D       		.byte	(.L61-.L63)/2
+ 628 0021 4D       		.byte	(.L61-.L63)/2
+ 629 0022 4D       		.byte	(.L61-.L63)/2
+ 630 0023 4D       		.byte	(.L61-.L63)/2
+ 631 0024 4D       		.byte	(.L61-.L63)/2
+ 632 0025 4D       		.byte	(.L61-.L63)/2
+ 633 0026 4D       		.byte	(.L61-.L63)/2
+ 634 0027 38       		.byte	(.L64-.L63)/2
+ 635 0028 4D       		.byte	(.L61-.L63)/2
+ 636 0029 3E       		.byte	(.L65-.L63)/2
+ 637 002a 4D       		.byte	(.L61-.L63)/2
+ 638 002b 4D       		.byte	(.L61-.L63)/2
+ 639 002c 44       		.byte	(.L66-.L63)/2
+ 640 002d 4D       		.byte	(.L61-.L63)/2
+ 641 002e 4D       		.byte	(.L61-.L63)/2
+ 642 002f 4D       		.byte	(.L61-.L63)/2
+ 643 0030 42       		.byte	(.L67-.L63)/2
+ 644 0031 4D       		.byte	(.L61-.L63)/2
+ 645 0032 4D       		.byte	(.L61-.L63)/2
+ 646 0033 4D       		.byte	(.L61-.L63)/2
+ 647 0034 4D       		.byte	(.L61-.L63)/2
+ 648 0035 4D       		.byte	(.L61-.L63)/2
+ 649 0036 4D       		.byte	(.L61-.L63)/2
+ 650 0037 3E       		.byte	(.L65-.L63)/2
+ 651 0038 42       		.byte	(.L67-.L63)/2
+ 652 0039 4D       		.byte	(.L61-.L63)/2
+ 653 003a 46       		.byte	(.L68-.L63)/2
+ 654 003b 4D       		.byte	(.L61-.L63)/2
+ 655 003c 4D       		.byte	(.L61-.L63)/2
+ 656 003d 3E       		.byte	(.L65-.L63)/2
+ 657 003e 42       		.byte	(.L67-.L63)/2
+ 658 003f 4D       		.byte	(.L61-.L63)/2
+ 659 0040 4D       		.byte	(.L61-.L63)/2
+ARM GAS  /tmp/ccUrScbL.s 			page 21
+
+
+ 660 0041 4D       		.byte	(.L61-.L63)/2
+ 661 0042 4D       		.byte	(.L61-.L63)/2
+ 662 0043 4D       		.byte	(.L61-.L63)/2
+ 663 0044 4D       		.byte	(.L61-.L63)/2
+ 664 0045 4D       		.byte	(.L61-.L63)/2
+ 665 0046 4D       		.byte	(.L61-.L63)/2
+ 666 0047 4D       		.byte	(.L61-.L63)/2
+ 667 0048 4D       		.byte	(.L61-.L63)/2
+ 668 0049 4D       		.byte	(.L61-.L63)/2
+ 669 004a 4D       		.byte	(.L61-.L63)/2
+ 670 004b 3E       		.byte	(.L65-.L63)/2
+ 671 004c 42       		.byte	(.L67-.L63)/2
+ 672 004d 42       		.byte	(.L67-.L63)/2
+ 673 004e 3E       		.byte	(.L65-.L63)/2
+ 674 004f 4D       		.byte	(.L61-.L63)/2
+ 675 0050 4D       		.byte	(.L61-.L63)/2
+ 676 0051 4D       		.byte	(.L61-.L63)/2
+ 677 0052 4D       		.byte	(.L61-.L63)/2
+ 678 0053 4D       		.byte	(.L61-.L63)/2
+ 679 0054 3E       		.byte	(.L65-.L63)/2
+ 680 0055 42       		.byte	(.L67-.L63)/2
+ 681 0056 4D       		.byte	(.L61-.L63)/2
+ 682 0057 4D       		.byte	(.L61-.L63)/2
+ 683 0058 4D       		.byte	(.L61-.L63)/2
+ 684 0059 3E       		.byte	(.L65-.L63)/2
+ 685 005a 42       		.byte	(.L67-.L63)/2
+ 686 005b 4D       		.byte	(.L61-.L63)/2
+ 687 005c 3E       		.byte	(.L65-.L63)/2
+ 688 005d 42       		.byte	(.L67-.L63)/2
+ 689 005e 48       		.byte	(.L69-.L63)/2
+ 690 005f 4D       		.byte	(.L61-.L63)/2
+ 691 0060 4D       		.byte	(.L61-.L63)/2
+ 692 0061 4D       		.byte	(.L61-.L63)/2
+ 693 0062 4D       		.byte	(.L61-.L63)/2
+ 694 0063 4D       		.byte	(.L61-.L63)/2
+ 695 0064 4D       		.byte	(.L61-.L63)/2
+ 696 0065 4D       		.byte	(.L61-.L63)/2
+ 697 0066 4D       		.byte	(.L61-.L63)/2
+ 698 0067 42       		.byte	(.L67-.L63)/2
+ 699 0068 4D       		.byte	(.L61-.L63)/2
+ 700 0069 4D       		.byte	(.L61-.L63)/2
+ 701 006a 4D       		.byte	(.L61-.L63)/2
+ 702 006b 4D       		.byte	(.L61-.L63)/2
+ 703 006c 4D       		.byte	(.L61-.L63)/2
+ 704 006d 4D       		.byte	(.L61-.L63)/2
+ 705 006e 4D       		.byte	(.L61-.L63)/2
+ 706 006f 4D       		.byte	(.L61-.L63)/2
+ 707 0070 4D       		.byte	(.L61-.L63)/2
+ 708 0071 4D       		.byte	(.L61-.L63)/2
+ 709 0072 4D       		.byte	(.L61-.L63)/2
+ 710 0073 35       		.byte	(.L70-.L63)/2
+ 711              		.p2align 1
+ 712              	.L70:
+ 317:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 713              		.loc 1 317 0
+ 714 0074 4FF48070 		mov	r0, #256
+ 715              	.LVL64:
+ARM GAS  /tmp/ccUrScbL.s 			page 22
+
+
+ 318:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_BG_COLOR:
+ 716              		.loc 1 318 0
+ 717 0078 7047     		bx	lr
+ 718              	.L64:
+ 719              	.LVL65:
+ 720 007a 0020     		movs	r0, #0
+ 721 007c 4FF6FF73 		movw	r3, #65535
+ 722 0080 63F30F00 		bfi	r0, r3, #0, #16
+ 723              	.LVL66:
+ 724              	.LVL67:
+ 725 0084 7047     		bx	lr
+ 726              	.L65:
+ 727 0086 0020     		movs	r0, #0
+ 728 0088 6FF30F00 		bfc	r0, #0, #16
+ 729              	.LVL68:
+ 730              	.LVL69:
+ 731 008c 7047     		bx	lr
+ 732              	.L67:
+ 341:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 733              		.loc 1 341 0
+ 734 008e FF20     		movs	r0, #255
+ 342:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_BG_GRAD_STOP:
+ 735              		.loc 1 342 0
+ 736 0090 7047     		bx	lr
+ 737              	.L66:
+ 344:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 738              		.loc 1 344 0
+ 739 0092 FF20     		movs	r0, #255
+ 345:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_BORDER_SIDE:
+ 740              		.loc 1 345 0
+ 741 0094 7047     		bx	lr
+ 742              	.L68:
+ 347:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 743              		.loc 1 347 0
+ 744 0096 0F20     		movs	r0, #15
+ 348:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_TEXT_FONT:
+ 745              		.loc 1 348 0
+ 746 0098 7047     		bx	lr
+ 747              	.L69:
+ 350:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 748              		.loc 1 350 0
+ 749 009a 0348     		ldr	r0, .L72
+ 351:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         case LV_STYLE_MAX_WIDTH:
+ 750              		.loc 1 351 0
+ 751 009c 7047     		bx	lr
+ 752              	.L62:
+ 354:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             break;
+ 753              		.loc 1 354 0
+ 754 009e 41F6FF70 		movw	r0, #8191
+ 355:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         default:
+ 755              		.loc 1 355 0
+ 756 00a2 7047     		bx	lr
+ 757              	.L61:
+ 357:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             value.num = 0;
+ 758              		.loc 1 357 0
+ 759 00a4 0020     		movs	r0, #0
+ 363:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ARM GAS  /tmp/ccUrScbL.s 			page 23
+
+
+ 760              		.loc 1 363 0
+ 761 00a6 7047     		bx	lr
+ 762              	.L73:
+ 763              		.align	2
+ 764              	.L72:
+ 765 00a8 00000000 		.word	lv_font_montserrat_14
+ 766              		.cfi_endproc
+ 767              	.LFE65:
+ 769              		.section	.text.lv_style_get_prop,"ax",%progbits
+ 770              		.align	1
+ 771              		.global	lv_style_get_prop
+ 772              		.syntax unified
+ 773              		.thumb
+ 774              		.thumb_func
+ 775              		.fpu fpv5-d16
+ 777              	lv_style_get_prop:
+ 778              	.LFB63:
+ 293:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     return lv_style_get_prop_inlined(style, prop, value);
+ 779              		.loc 1 293 0
+ 780              		.cfi_startproc
+ 781              		@ args = 0, pretend = 0, frame = 0
+ 782              		@ frame_needed = 0, uses_anonymous_args = 0
+ 783              	.LVL70:
+ 784 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 785              	.LCFI6:
+ 786              		.cfi_def_cfa_offset 24
+ 787              		.cfi_offset 3, -24
+ 788              		.cfi_offset 4, -20
+ 789              		.cfi_offset 5, -16
+ 790              		.cfi_offset 6, -12
+ 791              		.cfi_offset 7, -8
+ 792              		.cfi_offset 14, -4
+ 793 0002 1446     		mov	r4, r2
+ 794              	.LVL71:
+ 795              	.LBB28:
+ 796              	.LBB29:
+ 797              		.file 2 "Drivers/lvgl/lvgl/src/misc/lv_style.h"
+   1:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+   2:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @file lv_style.h
+   3:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *
+   4:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+   5:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+   6:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #ifndef LV_STYLE_H
+   7:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_H
+   8:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+   9:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #ifdef __cplusplus
+  10:Drivers/lvgl/lvgl/src/misc/lv_style.h **** extern "C" {
+  11:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #endif
+  12:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+  13:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /*********************
+  14:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *      INCLUDES
+  15:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *********************/
+  16:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #include <stdbool.h>
+  17:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #include <stdint.h>
+  18:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #include "../font/lv_font.h"
+  19:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #include "lv_color.h"
+  20:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #include "lv_area.h"
+ARM GAS  /tmp/ccUrScbL.s 			page 24
+
+
+  21:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #include "lv_anim.h"
+  22:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #include "lv_txt.h"
+  23:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #include "lv_types.h"
+  24:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #include "lv_assert.h"
+  25:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #include "lv_bidi.h"
+  26:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+  27:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /*********************
+  28:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *      DEFINES
+  29:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *********************/
+  30:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+  31:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_SENTINEL_VALUE     0xAABBCCDD
+  32:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+  33:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+  34:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Flags for style behavior
+  35:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *
+  36:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * The rest of the flags will have _FLAG added to their name in v9.
+  37:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+  38:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_PROP_FLAG_NONE             (0)
+  39:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_PROP_INHERIT               (1 << 0)  /*Inherited*/
+  40:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_PROP_EXT_DRAW              (1 << 1)  /*Requires ext. draw size update when changed
+  41:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_PROP_LAYOUT_REFR           (1 << 2)  /*Requires layout update when changed*/
+  42:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_PROP_PARENT_LAYOUT_REFR    (1 << 3)  /*Requires layout update on parent when chang
+  43:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_PROP_LAYER_REFR            (1 << 4)  /*Affects layer handling*/
+  44:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_PROP_ALL                   (0x1F)     /*Indicating all flags*/
+  45:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+  46:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+  47:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Other constants
+  48:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+  49:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_IMG_ZOOM_NONE            256        /*Value for not zooming the image*/
+  50:Drivers/lvgl/lvgl/src/misc/lv_style.h **** LV_EXPORT_CONST_INT(LV_IMG_ZOOM_NONE);
+  51:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+  52:Drivers/lvgl/lvgl/src/misc/lv_style.h **** // *INDENT-OFF*
+  53:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #if LV_USE_ASSERT_STYLE
+  54:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_CONST_INIT(var_name, prop_array)                       \
+  55:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     const lv_style_t var_name = {                                       \
+  56:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         .sentinel = LV_STYLE_SENTINEL_VALUE,                            \
+  57:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         .v_p = { .const_props = prop_array },                           \
+  58:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         .has_group = 0xFF,                                              \
+  59:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         .prop1 = LV_STYLE_PROP_ANY,                                     \
+  60:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         .prop_cnt = (sizeof(prop_array) / sizeof((prop_array)[0])),     \
+  61:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     }
+  62:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #else
+  63:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_CONST_INIT(var_name, prop_array)                       \
+  64:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     const lv_style_t var_name = {                                       \
+  65:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         .v_p = { .const_props = prop_array },                           \
+  66:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         .has_group = 0xFF,                                              \
+  67:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         .prop1 = LV_STYLE_PROP_ANY,                                     \
+  68:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         .prop_cnt = (sizeof(prop_array) / sizeof((prop_array)[0])),     \
+  69:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     }
+  70:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #endif
+  71:Drivers/lvgl/lvgl/src/misc/lv_style.h **** // *INDENT-ON*
+  72:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+  73:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_PROP_META_INHERIT 0x8000
+  74:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_PROP_META_INITIAL 0x4000
+  75:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_PROP_META_MASK (LV_STYLE_PROP_META_INHERIT | LV_STYLE_PROP_META_INITIAL)
+  76:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+  77:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #define LV_STYLE_PROP_ID_MASK(prop) ((lv_style_prop_t)((prop) & ~LV_STYLE_PROP_META_MASK))
+ARM GAS  /tmp/ccUrScbL.s 			page 25
+
+
+  78:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+  79:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**********************
+  80:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *      TYPEDEFS
+  81:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  **********************/
+  82:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+  83:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+  84:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Possible options how to blend opaque drawings
+  85:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+  86:Drivers/lvgl/lvgl/src/misc/lv_style.h **** enum {
+  87:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_BLEND_MODE_NORMAL,     /**< Simply mix according to the opacity value*/
+  88:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_BLEND_MODE_ADDITIVE,   /**< Add the respective color channels*/
+  89:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_BLEND_MODE_SUBTRACTIVE,/**< Subtract the foreground from the background*/
+  90:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_BLEND_MODE_MULTIPLY,   /**< Multiply the foreground and background*/
+  91:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_BLEND_MODE_REPLACE,    /**< Replace background with foreground in the area*/
+  92:Drivers/lvgl/lvgl/src/misc/lv_style.h **** };
+  93:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+  94:Drivers/lvgl/lvgl/src/misc/lv_style.h **** typedef uint8_t lv_blend_mode_t;
+  95:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+  96:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+  97:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Some options to apply decorations on texts.
+  98:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * 'OR'ed values can be used.
+  99:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 100:Drivers/lvgl/lvgl/src/misc/lv_style.h **** enum {
+ 101:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_TEXT_DECOR_NONE          = 0x00,
+ 102:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_TEXT_DECOR_UNDERLINE     = 0x01,
+ 103:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_TEXT_DECOR_STRIKETHROUGH = 0x02,
+ 104:Drivers/lvgl/lvgl/src/misc/lv_style.h **** };
+ 105:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 106:Drivers/lvgl/lvgl/src/misc/lv_style.h **** typedef uint8_t lv_text_decor_t;
+ 107:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 108:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 109:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Selects on which sides border should be drawn
+ 110:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * 'OR'ed values can be used.
+ 111:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 112:Drivers/lvgl/lvgl/src/misc/lv_style.h **** enum {
+ 113:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_BORDER_SIDE_NONE     = 0x00,
+ 114:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_BORDER_SIDE_BOTTOM   = 0x01,
+ 115:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_BORDER_SIDE_TOP      = 0x02,
+ 116:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_BORDER_SIDE_LEFT     = 0x04,
+ 117:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_BORDER_SIDE_RIGHT    = 0x08,
+ 118:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_BORDER_SIDE_FULL     = 0x0F,
+ 119:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_BORDER_SIDE_INTERNAL = 0x10, /**< FOR matrix-like objects (e.g. Button matrix)*/
+ 120:Drivers/lvgl/lvgl/src/misc/lv_style.h **** };
+ 121:Drivers/lvgl/lvgl/src/misc/lv_style.h **** typedef uint8_t lv_border_side_t;
+ 122:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 123:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 124:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * The direction of the gradient.
+ 125:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 126:Drivers/lvgl/lvgl/src/misc/lv_style.h **** enum {
+ 127:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_GRAD_DIR_NONE, /**< No gradient (the `grad_color` property is ignored)*/
+ 128:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_GRAD_DIR_VER,  /**< Vertical (top to bottom) gradient*/
+ 129:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_GRAD_DIR_HOR,  /**< Horizontal (left to right) gradient*/
+ 130:Drivers/lvgl/lvgl/src/misc/lv_style.h **** };
+ 131:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 132:Drivers/lvgl/lvgl/src/misc/lv_style.h **** typedef uint8_t lv_grad_dir_t;
+ 133:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 134:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ARM GAS  /tmp/ccUrScbL.s 			page 26
+
+
+ 135:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * The dithering algorithm for the gradient
+ 136:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Depends on LV_DITHER_GRADIENT
+ 137:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 138:Drivers/lvgl/lvgl/src/misc/lv_style.h **** enum {
+ 139:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_DITHER_NONE,     /**< No dithering, colors are just quantized to the output resolution*/
+ 140:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_DITHER_ORDERED,  /**< Ordered dithering. Faster to compute and use less memory but lower qua
+ 141:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_DITHER_ERR_DIFF, /**< Error diffusion mode. Slower to compute and use more memory but give h
+ 142:Drivers/lvgl/lvgl/src/misc/lv_style.h **** };
+ 143:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 144:Drivers/lvgl/lvgl/src/misc/lv_style.h **** typedef uint8_t lv_dither_mode_t;
+ 145:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 146:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /** A gradient stop definition.
+ 147:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *  This matches a color and a position in a virtual 0-255 scale.
+ 148:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 149:Drivers/lvgl/lvgl/src/misc/lv_style.h **** typedef struct {
+ 150:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     lv_color_t color;   /**< The stop color */
+ 151:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     uint8_t    frac;    /**< The stop position in 1/255 unit */
+ 152:Drivers/lvgl/lvgl/src/misc/lv_style.h **** } lv_gradient_stop_t;
+ 153:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 154:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /** A descriptor of a gradient. */
+ 155:Drivers/lvgl/lvgl/src/misc/lv_style.h **** typedef struct {
+ 156:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     lv_gradient_stop_t   stops[LV_GRADIENT_MAX_STOPS]; /**< A gradient stop array */
+ 157:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     uint8_t              stops_count;                  /**< The number of used stops in the array *
+ 158:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     lv_grad_dir_t        dir : 3;                      /**< The gradient direction.
+ 159:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                                                         * Any of LV_GRAD_DIR_HOR, LV_GRAD_DIR_VER, 
+ 160:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     lv_dither_mode_t     dither : 3;                   /**< Whether to dither the gradient or not.
+ 161:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                                                         * Any of LV_DITHER_NONE, LV_DITHER_ORDERED,
+ 162:Drivers/lvgl/lvgl/src/misc/lv_style.h **** } lv_grad_dsc_t;
+ 163:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 164:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 165:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * A common type to handle all the property types in the same way.
+ 166:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 167:Drivers/lvgl/lvgl/src/misc/lv_style.h **** typedef union {
+ 168:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     int32_t num;         /**< Number integer number (opacity, enums, booleans or "normal" numbers)*
+ 169:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     const void * ptr;    /**< Constant pointers  (font, cone text, etc)*/
+ 170:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     lv_color_t color;    /**< Colors*/
+ 171:Drivers/lvgl/lvgl/src/misc/lv_style.h **** } lv_style_value_t;
+ 172:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 173:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 174:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Enumeration of all built in style properties
+ 175:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *
+ 176:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Props are split into groups of 16. When adding a new prop to a group, ensure it does not overflo
+ 177:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 178:Drivers/lvgl/lvgl/src/misc/lv_style.h **** typedef enum {
+ 179:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_PROP_INV               = 0,
+ 180:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 181:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     /*Group 0*/
+ 182:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_WIDTH                  = 1,
+ 183:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_MIN_WIDTH              = 2,
+ 184:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_MAX_WIDTH              = 3,
+ 185:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_HEIGHT                 = 4,
+ 186:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_MIN_HEIGHT             = 5,
+ 187:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_MAX_HEIGHT             = 6,
+ 188:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_X                      = 7,
+ 189:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_Y                      = 8,
+ 190:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_ALIGN                  = 9,
+ 191:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_LAYOUT                 = 10,
+ARM GAS  /tmp/ccUrScbL.s 			page 27
+
+
+ 192:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_RADIUS                 = 11,
+ 193:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 194:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     /*Group 1*/
+ 195:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_PAD_TOP                = 16,
+ 196:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_PAD_BOTTOM             = 17,
+ 197:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_PAD_LEFT               = 18,
+ 198:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_PAD_RIGHT              = 19,
+ 199:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_PAD_ROW                = 20,
+ 200:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_PAD_COLUMN             = 21,
+ 201:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BASE_DIR               = 22,
+ 202:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_CLIP_CORNER            = 23,
+ 203:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 204:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     /*Group 2*/
+ 205:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BG_COLOR               = 32,
+ 206:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BG_OPA                 = 33,
+ 207:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BG_GRAD_COLOR          = 34,
+ 208:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BG_GRAD_DIR            = 35,
+ 209:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BG_MAIN_STOP           = 36,
+ 210:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BG_GRAD_STOP           = 37,
+ 211:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BG_GRAD                = 38,
+ 212:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BG_DITHER_MODE         = 39,
+ 213:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BG_IMG_SRC             = 40,
+ 214:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BG_IMG_OPA             = 41,
+ 215:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BG_IMG_RECOLOR         = 42,
+ 216:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BG_IMG_RECOLOR_OPA     = 43,
+ 217:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BG_IMG_TILED           = 44,
+ 218:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 219:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     /*Group 3*/
+ 220:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BORDER_COLOR           = 48,
+ 221:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BORDER_OPA             = 49,
+ 222:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BORDER_WIDTH           = 50,
+ 223:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BORDER_SIDE            = 51,
+ 224:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BORDER_POST            = 52,
+ 225:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_OUTLINE_WIDTH          = 53,
+ 226:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_OUTLINE_COLOR          = 54,
+ 227:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_OUTLINE_OPA            = 55,
+ 228:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_OUTLINE_PAD            = 56,
+ 229:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 230:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     /*Group 4*/
+ 231:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_SHADOW_WIDTH           = 64,
+ 232:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_SHADOW_OFS_X           = 65,
+ 233:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_SHADOW_OFS_Y           = 66,
+ 234:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_SHADOW_SPREAD          = 67,
+ 235:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_SHADOW_COLOR           = 68,
+ 236:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_SHADOW_OPA             = 69,
+ 237:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_IMG_OPA                = 70,
+ 238:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_IMG_RECOLOR            = 71,
+ 239:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_IMG_RECOLOR_OPA        = 72,
+ 240:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_LINE_WIDTH             = 73,
+ 241:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_LINE_DASH_WIDTH        = 74,
+ 242:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_LINE_DASH_GAP          = 75,
+ 243:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_LINE_ROUNDED           = 76,
+ 244:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_LINE_COLOR             = 77,
+ 245:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_LINE_OPA               = 78,
+ 246:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 247:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     /*Group 5*/
+ 248:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_ARC_WIDTH              = 80,
+ARM GAS  /tmp/ccUrScbL.s 			page 28
+
+
+ 249:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_ARC_ROUNDED            = 81,
+ 250:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_ARC_COLOR              = 82,
+ 251:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_ARC_OPA                = 83,
+ 252:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_ARC_IMG_SRC            = 84,
+ 253:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TEXT_COLOR             = 85,
+ 254:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TEXT_OPA               = 86,
+ 255:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TEXT_FONT              = 87,
+ 256:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TEXT_LETTER_SPACE      = 88,
+ 257:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TEXT_LINE_SPACE        = 89,
+ 258:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TEXT_DECOR             = 90,
+ 259:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TEXT_ALIGN             = 91,
+ 260:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 261:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     /*Group 6*/
+ 262:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_OPA                    = 96,
+ 263:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_COLOR_FILTER_DSC       = 97,
+ 264:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_COLOR_FILTER_OPA       = 98,
+ 265:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_ANIM                   = 99,
+ 266:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_ANIM_TIME              = 100,
+ 267:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_ANIM_SPEED             = 101,
+ 268:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TRANSITION             = 102,
+ 269:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_BLEND_MODE             = 103,
+ 270:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TRANSFORM_WIDTH        = 104,
+ 271:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TRANSFORM_HEIGHT       = 105,
+ 272:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TRANSLATE_X            = 106,
+ 273:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TRANSLATE_Y            = 107,
+ 274:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TRANSFORM_ZOOM         = 108,
+ 275:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TRANSFORM_ANGLE        = 109,
+ 276:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TRANSFORM_PIVOT_X      = 110,
+ 277:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_TRANSFORM_PIVOT_Y      = 111,
+ 278:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 279:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     _LV_STYLE_LAST_BUILT_IN_PROP     = 111,
+ 280:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     _LV_STYLE_NUM_BUILT_IN_PROPS     = _LV_STYLE_LAST_BUILT_IN_PROP + 1,
+ 281:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 282:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_PROP_ANY                = 0xFFFF,
+ 283:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     _LV_STYLE_PROP_CONST             = 0xFFFF /* magic value for const styles */
+ 284:Drivers/lvgl/lvgl/src/misc/lv_style.h **** } lv_style_prop_t;
+ 285:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 286:Drivers/lvgl/lvgl/src/misc/lv_style.h **** enum {
+ 287:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_RES_NOT_FOUND,
+ 288:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_RES_FOUND,
+ 289:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     LV_STYLE_RES_INHERIT
+ 290:Drivers/lvgl/lvgl/src/misc/lv_style.h **** };
+ 291:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 292:Drivers/lvgl/lvgl/src/misc/lv_style.h **** typedef uint8_t lv_style_res_t;
+ 293:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 294:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 295:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Descriptor for style transitions
+ 296:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 297:Drivers/lvgl/lvgl/src/misc/lv_style.h **** typedef struct {
+ 298:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     const lv_style_prop_t * props; /**< An array with the properties to animate.*/
+ 299:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #if LV_USE_USER_DATA
+ 300:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     void * user_data;              /**< A custom user data that will be passed to the animation's u
+ 301:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #endif
+ 302:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     lv_anim_path_cb_t path_xcb;     /**< A path for the animation.*/
+ 303:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     uint32_t time;                 /**< Duration of the transition in [ms]*/
+ 304:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     uint32_t delay;                /**< Delay before the transition in [ms]*/
+ 305:Drivers/lvgl/lvgl/src/misc/lv_style.h **** } lv_style_transition_dsc_t;
+ARM GAS  /tmp/ccUrScbL.s 			page 29
+
+
+ 306:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 307:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 308:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Descriptor of a constant style property.
+ 309:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 310:Drivers/lvgl/lvgl/src/misc/lv_style.h **** typedef struct {
+ 311:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     lv_style_prop_t prop;
+ 312:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     lv_style_value_t value;
+ 313:Drivers/lvgl/lvgl/src/misc/lv_style.h **** } lv_style_const_prop_t;
+ 314:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 315:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 316:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Descriptor of a style (a collection of properties and values).
+ 317:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 318:Drivers/lvgl/lvgl/src/misc/lv_style.h **** typedef struct {
+ 319:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 320:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #if LV_USE_ASSERT_STYLE
+ 321:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     uint32_t sentinel;
+ 322:Drivers/lvgl/lvgl/src/misc/lv_style.h **** #endif
+ 323:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 324:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     /*If there is only one property store it directly.
+ 325:Drivers/lvgl/lvgl/src/misc/lv_style.h ****      *For more properties allocate an array*/
+ 326:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     union {
+ 327:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         lv_style_value_t value1;
+ 328:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         uint8_t * values_and_props;
+ 329:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         const lv_style_const_prop_t * const_props;
+ 330:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     } v_p;
+ 331:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 332:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     uint16_t prop1;
+ 333:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     uint8_t has_group;
+ 334:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     uint8_t prop_cnt;
+ 335:Drivers/lvgl/lvgl/src/misc/lv_style.h **** } lv_style_t;
+ 336:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 337:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**********************
+ 338:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * GLOBAL PROTOTYPES
+ 339:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  **********************/
+ 340:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 341:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 342:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 343:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Initialize a style
+ 344:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param style pointer to a style to initialize
+ 345:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @note Do not call `lv_style_init` on styles that already have some properties
+ 346:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *       because this function won't free the used memory, just sets a default state for the style.
+ 347:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *       In other words be sure to initialize styles only once!
+ 348:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 349:Drivers/lvgl/lvgl/src/misc/lv_style.h **** void lv_style_init(lv_style_t * style);
+ 350:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 351:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 352:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Clear all properties from a style and free all allocated memories.
+ 353:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param style pointer to a style
+ 354:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 355:Drivers/lvgl/lvgl/src/misc/lv_style.h **** void lv_style_reset(lv_style_t * style);
+ 356:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 357:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 358:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Register a new style property for custom usage
+ 359:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @return a new property ID, or LV_STYLE_PROP_INV if there are no more available.
+ 360:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @example
+ 361:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * lv_style_prop_t MY_PROP;
+ 362:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * static inline void lv_style_set_my_prop(lv_style_t * style, lv_color_t value) {
+ARM GAS  /tmp/ccUrScbL.s 			page 30
+
+
+ 363:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * lv_style_value_t v = {.color = value}; lv_style_set_prop(style, MY_PROP, v); }
+ 364:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *
+ 365:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * ...
+ 366:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * MY_PROP = lv_style_register_prop();
+ 367:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * ...
+ 368:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * lv_style_set_my_prop(&style1, lv_palette_main(LV_PALETTE_RED));
+ 369:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 370:Drivers/lvgl/lvgl/src/misc/lv_style.h **** lv_style_prop_t lv_style_register_prop(uint8_t flag);
+ 371:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 372:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 373:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Get the number of custom properties that have been registered thus far.
+ 374:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 375:Drivers/lvgl/lvgl/src/misc/lv_style.h **** lv_style_prop_t lv_style_get_num_custom_props(void);
+ 376:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 377:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 378:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Remove a property from a style
+ 379:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param style pointer to a style
+ 380:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param prop  a style property ORed with a state.
+ 381:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @return true: the property was found and removed; false: the property wasn't found
+ 382:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 383:Drivers/lvgl/lvgl/src/misc/lv_style.h **** bool lv_style_remove_prop(lv_style_t * style, lv_style_prop_t prop);
+ 384:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 385:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 386:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Set the value of property in a style.
+ 387:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * This function shouldn't be used directly by the user.
+ 388:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Instead use `lv_style_set_<prop_name>()`. E.g. `lv_style_set_bg_color()`
+ 389:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param style pointer to style
+ 390:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param prop the ID of a property (e.g. `LV_STYLE_BG_COLOR`)
+ 391:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param value `lv_style_value_t` variable in which a field is set according to the type of `prop`
+ 392:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 393:Drivers/lvgl/lvgl/src/misc/lv_style.h **** void lv_style_set_prop(lv_style_t * style, lv_style_prop_t prop, lv_style_value_t value);
+ 394:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 395:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 396:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Set a special meta state for a property in a style.
+ 397:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * This function shouldn't be used directly by the user.
+ 398:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param style pointer to style
+ 399:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param prop the ID of a property (e.g. `LV_STYLE_BG_COLOR`)
+ 400:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param meta the meta value to attach to the property in the style
+ 401:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 402:Drivers/lvgl/lvgl/src/misc/lv_style.h **** void lv_style_set_prop_meta(lv_style_t * style, lv_style_prop_t prop, uint16_t meta);
+ 403:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 404:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 405:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Get the value of a property
+ 406:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param style pointer to a style
+ 407:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param prop  the ID of a property
+ 408:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param value pointer to a `lv_style_value_t` variable to store the value
+ 409:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @return LV_RES_INV: the property wasn't found in the style (`value` is unchanged)
+ 410:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *         LV_RES_OK: the property was fond, and `value` is set accordingly
+ 411:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @note For performance reasons there are no sanity check on `style`
+ 412:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 413:Drivers/lvgl/lvgl/src/misc/lv_style.h **** lv_style_res_t lv_style_get_prop(const lv_style_t * style, lv_style_prop_t prop, lv_style_value_t *
+ 414:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 415:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 416:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Initialize a transition descriptor.
+ 417:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param tr        pointer to a transition descriptor to initialize
+ 418:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param props     an array with the properties to transition. The last element must be zero.
+ 419:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param path_cb   an animation path (ease) callback. If `NULL` liner path will be used.
+ARM GAS  /tmp/ccUrScbL.s 			page 31
+
+
+ 420:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param time      duration of the transition in [ms]
+ 421:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param delay     delay before the transition in [ms]
+ 422:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param user_data any custom data that will be saved in the transition animation and will be avai
+ 423:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @example
+ 424:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * const static lv_style_prop_t trans_props[] = { LV_STYLE_BG_OPA, LV_STYLE_BG_COLOR, 0 };
+ 425:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *  static lv_style_transition_dsc_t trans1;
+ 426:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *  lv_style_transition_dsc_init(&trans1, trans_props, NULL, 300, 0, NULL);
+ 427:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 428:Drivers/lvgl/lvgl/src/misc/lv_style.h **** void lv_style_transition_dsc_init(lv_style_transition_dsc_t * tr, const lv_style_prop_t props[],
+ 429:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                                   lv_anim_path_cb_t path_cb, uint32_t time, uint32_t delay, void * 
+ 430:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 431:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 432:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Get the default value of a property
+ 433:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param prop the ID of a property
+ 434:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @return the default value
+ 435:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 436:Drivers/lvgl/lvgl/src/misc/lv_style.h **** lv_style_value_t lv_style_prop_get_default(lv_style_prop_t prop);
+ 437:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 438:Drivers/lvgl/lvgl/src/misc/lv_style.h **** /**
+ 439:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * Get the value of a property
+ 440:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param style pointer to a style
+ 441:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param prop  the ID of a property
+ 442:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @param value pointer to a `lv_style_value_t` variable to store the value
+ 443:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @return LV_RES_INV: the property wasn't found in the style (`value` is unchanged)
+ 444:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  *         LV_RES_OK: the property was fond, and `value` is set accordingly
+ 445:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @note For performance reasons there are no sanity check on `style`
+ 446:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  * @note This function is the same as ::lv_style_get_prop but inlined. Use it only on performance c
+ 447:Drivers/lvgl/lvgl/src/misc/lv_style.h ****  */
+ 448:Drivers/lvgl/lvgl/src/misc/lv_style.h **** static inline lv_style_res_t lv_style_get_prop_inlined(const lv_style_t * style, lv_style_prop_t pr
+ 449:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                                                        lv_style_value_t * value)
+ 450:Drivers/lvgl/lvgl/src/misc/lv_style.h **** {
+ 451:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     if(style->prop1 == LV_STYLE_PROP_ANY) {
+ 798              		.loc 2 451 0
+ 799 0004 8288     		ldrh	r2, [r0, #4]
+ 800              	.LVL72:
+ 801 0006 4FF6FF73 		movw	r3, #65535
+ 802 000a 9A42     		cmp	r2, r3
+ 803 000c 23D0     		beq	.L95
+ 452:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         const lv_style_const_prop_t * const_prop;
+ 453:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         uint32_t i;
+ 454:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         for(i = 0; i < style->prop_cnt; i++) {
+ 455:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             const_prop = style->v_p.const_props + i;
+ 456:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             lv_style_prop_t prop_id = LV_STYLE_PROP_ID_MASK(const_prop->prop);
+ 457:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             if(prop_id == prop) {
+ 458:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 if(const_prop->prop & LV_STYLE_PROP_META_INHERIT)
+ 459:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                     return LV_STYLE_RES_INHERIT;
+ 460:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 *value = (const_prop->prop & LV_STYLE_PROP_META_INITIAL) ? lv_style_prop_get_defaul
+ 461:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 return LV_STYLE_RES_FOUND;
+ 462:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             }
+ 463:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         }
+ 464:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         return LV_STYLE_RES_NOT_FOUND;
+ 465:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     }
+ 466:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 467:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     if(style->prop_cnt == 0) return LV_STYLE_RES_NOT_FOUND;
+ 804              		.loc 2 467 0
+ 805 000e C379     		ldrb	r3, [r0, #7]	@ zero_extendqisi2
+ 806 0010 002B     		cmp	r3, #0
+ARM GAS  /tmp/ccUrScbL.s 			page 32
+
+
+ 807 0012 5BD0     		beq	.L89
+ 468:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 469:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     if(style->prop_cnt > 1) {
+ 808              		.loc 2 469 0
+ 809 0014 012B     		cmp	r3, #1
+ 810 0016 41D9     		bls	.L81
+ 811              	.LBB30:
+ 470:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         uint8_t * tmp = style->v_p.values_and_props + style->prop_cnt * sizeof(lv_style_value_t);
+ 812              		.loc 2 470 0
+ 813 0018 0768     		ldr	r7, [r0]
+ 814 001a 1E46     		mov	r6, r3
+ 815 001c 07EB8302 		add	r2, r7, r3, lsl #2
+ 816              	.LVL73:
+ 471:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         uint16_t * props = (uint16_t *)tmp;
+ 472:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         uint32_t i;
+ 473:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         for(i = 0; i < style->prop_cnt; i++) {
+ 817              		.loc 2 473 0
+ 818 0020 0023     		movs	r3, #0
+ 819              	.LVL74:
+ 820              	.L82:
+ 821 0022 9E42     		cmp	r6, r3
+ 822 0024 38D9     		bls	.L96
+ 823              	.LBB31:
+ 474:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             lv_style_prop_t prop_id = LV_STYLE_PROP_ID_MASK(props[i]);
+ 824              		.loc 2 474 0
+ 825 0026 32F81350 		ldrh	r5, [r2, r3, lsl #1]
+ 826 002a C5F30D00 		ubfx	r0, r5, #0, #14
+ 827              	.LVL75:
+ 475:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             if(prop_id == prop) {
+ 828              		.loc 2 475 0
+ 829 002e 8142     		cmp	r1, r0
+ 830 0030 22D0     		beq	.L97
+ 831              	.LBE31:
+ 473:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             lv_style_prop_t prop_id = LV_STYLE_PROP_ID_MASK(props[i]);
+ 832              		.loc 2 473 0
+ 833 0032 0133     		adds	r3, r3, #1
+ 834              	.LVL76:
+ 835 0034 F5E7     		b	.L82
+ 836              	.LVL77:
+ 837              	.L99:
+ 838              	.LBE30:
+ 839              	.LBB35:
+ 840              	.LBB36:
+ 458:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                     return LV_STYLE_RES_INHERIT;
+ 841              		.loc 2 458 0
+ 842 0036 12F4004F 		tst	r2, #32768
+ 843 003a 45D1     		bne	.L88
+ 460:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 return LV_STYLE_RES_FOUND;
+ 844              		.loc 2 460 0
+ 845 003c 12F4804F 		tst	r2, #16384
+ 846 0040 05D0     		beq	.L79
+ 847 0042 2846     		mov	r0, r5
+ 848              	.LVL78:
+ 849 0044 FFF7FEFF 		bl	lv_style_prop_get_default
+ 850              	.LVL79:
+ 851 0048 2060     		str	r0, [r4]
+ 461:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             }
+ARM GAS  /tmp/ccUrScbL.s 			page 33
+
+
+ 852              		.loc 2 461 0
+ 853 004a 0120     		movs	r0, #1
+ 854 004c 3FE0     		b	.L78
+ 855              	.LVL80:
+ 856              	.L79:
+ 460:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 return LV_STYLE_RES_FOUND;
+ 857              		.loc 2 460 0
+ 858 004e 7368     		ldr	r3, [r6, #4]
+ 859              	.LVL81:
+ 860 0050 2360     		str	r3, [r4]
+ 461:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             }
+ 861              		.loc 2 461 0
+ 862 0052 0120     		movs	r0, #1
+ 863              	.LVL82:
+ 864 0054 3BE0     		b	.L78
+ 865              	.LVL83:
+ 866              	.L95:
+ 867              	.LBE36:
+ 454:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             const_prop = style->v_p.const_props + i;
+ 868              		.loc 2 454 0
+ 869 0056 0023     		movs	r3, #0
+ 870              	.L75:
+ 871              	.LVL84:
+ 872 0058 C279     		ldrb	r2, [r0, #7]	@ zero_extendqisi2
+ 873 005a 9342     		cmp	r3, r2
+ 874 005c 0AD2     		bcs	.L98
+ 875              	.LBB37:
+ 455:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             lv_style_prop_t prop_id = LV_STYLE_PROP_ID_MASK(const_prop->prop);
+ 876              		.loc 2 455 0
+ 877 005e 0268     		ldr	r2, [r0]
+ 878 0060 02EBC306 		add	r6, r2, r3, lsl #3
+ 879              	.LVL85:
+ 456:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             if(prop_id == prop) {
+ 880              		.loc 2 456 0
+ 881 0064 32F83320 		ldrh	r2, [r2, r3, lsl #3]
+ 882 0068 C2F30D05 		ubfx	r5, r2, #0, #14
+ 883              	.LVL86:
+ 457:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 if(const_prop->prop & LV_STYLE_PROP_META_INHERIT)
+ 884              		.loc 2 457 0
+ 885 006c A942     		cmp	r1, r5
+ 886 006e E2D0     		beq	.L99
+ 887              	.LBE37:
+ 454:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             const_prop = style->v_p.const_props + i;
+ 888              		.loc 2 454 0
+ 889 0070 0133     		adds	r3, r3, #1
+ 890              	.LVL87:
+ 891 0072 F1E7     		b	.L75
+ 892              	.LVL88:
+ 893              	.L98:
+ 464:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     }
+ 894              		.loc 2 464 0
+ 895 0074 0020     		movs	r0, #0
+ 896              	.LVL89:
+ 897 0076 2AE0     		b	.L78
+ 898              	.LVL90:
+ 899              	.L97:
+ 900              	.LBE35:
+ARM GAS  /tmp/ccUrScbL.s 			page 34
+
+
+ 901              	.LBB39:
+ 902              	.LBB33:
+ 476:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 if(props[i] & LV_STYLE_PROP_META_INHERIT)
+ 903              		.loc 2 476 0
+ 904 0078 15F4004F 		tst	r5, #32768
+ 905 007c 28D1     		bne	.L90
+ 477:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                     return LV_STYLE_RES_INHERIT;
+ 478:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 if(props[i] & LV_STYLE_PROP_META_INITIAL)
+ 906              		.loc 2 478 0
+ 907 007e 15F4804F 		tst	r5, #16384
+ 908 0082 04D0     		beq	.L84
+ 479:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                     *value = lv_style_prop_get_default(prop_id);
+ 909              		.loc 2 479 0
+ 910 0084 FFF7FEFF 		bl	lv_style_prop_get_default
+ 911              	.LVL91:
+ 912 0088 2060     		str	r0, [r4]
+ 480:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 else {
+ 481:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                     lv_style_value_t * values = (lv_style_value_t *)style->v_p.values_and_props;
+ 482:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                     *value = values[i];
+ 483:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 }
+ 484:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 return LV_STYLE_RES_FOUND;
+ 913              		.loc 2 484 0
+ 914 008a 0120     		movs	r0, #1
+ 915 008c 1FE0     		b	.L78
+ 916              	.LVL92:
+ 917              	.L84:
+ 918              	.LBB32:
+ 482:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 }
+ 919              		.loc 2 482 0
+ 920 008e 57F82330 		ldr	r3, [r7, r3, lsl #2]
+ 921              	.LVL93:
+ 922 0092 2360     		str	r3, [r4]
+ 923              	.LBE32:
+ 924              		.loc 2 484 0
+ 925 0094 0120     		movs	r0, #1
+ 926              	.LVL94:
+ 927 0096 1AE0     		b	.L78
+ 928              	.LVL95:
+ 929              	.L96:
+ 930              	.LBE33:
+ 931              	.LBE39:
+ 485:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             }
+ 486:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         }
+ 487:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     }
+ 488:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     else if(LV_STYLE_PROP_ID_MASK(style->prop1) == prop) {
+ 489:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         if(style->prop1 & LV_STYLE_PROP_META_INHERIT)
+ 490:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             return LV_STYLE_RES_INHERIT;
+ 491:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         *value = (style->prop1 & LV_STYLE_PROP_META_INITIAL) ? lv_style_prop_get_default(LV_STYLE_P
+ 492:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                                                                                              style-
+ 493:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         return LV_STYLE_RES_FOUND;
+ 494:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     }
+ 495:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     return LV_STYLE_RES_NOT_FOUND;
+ 932              		.loc 2 495 0
+ 933 0098 0020     		movs	r0, #0
+ 934 009a 18E0     		b	.L78
+ 935              	.LVL96:
+ 936              	.L81:
+ARM GAS  /tmp/ccUrScbL.s 			page 35
+
+
+ 937 009c C2F30D03 		ubfx	r3, r2, #0, #14
+ 488:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         if(style->prop1 & LV_STYLE_PROP_META_INHERIT)
+ 938              		.loc 2 488 0
+ 939 00a0 9942     		cmp	r1, r3
+ 940 00a2 01D0     		beq	.L100
+ 941              		.loc 2 495 0
+ 942 00a4 0020     		movs	r0, #0
+ 943              	.LVL97:
+ 944 00a6 12E0     		b	.L78
+ 945              	.LVL98:
+ 946              	.L100:
+ 489:Drivers/lvgl/lvgl/src/misc/lv_style.h ****             return LV_STYLE_RES_INHERIT;
+ 947              		.loc 2 489 0
+ 948 00a8 12F4004F 		tst	r2, #32768
+ 949 00ac 12D1     		bne	.L92
+ 491:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                                                                                              style-
+ 950              		.loc 2 491 0
+ 951 00ae 12F4804F 		tst	r2, #16384
+ 952 00b2 03D1     		bne	.L101
+ 953 00b4 0368     		ldr	r3, [r0]
+ 954 00b6 2360     		str	r3, [r4]
+ 493:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     }
+ 955              		.loc 2 493 0
+ 956 00b8 0120     		movs	r0, #1
+ 957              	.LVL99:
+ 958 00ba 08E0     		b	.L78
+ 959              	.LVL100:
+ 960              	.L101:
+ 491:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                                                                                              style-
+ 961              		.loc 2 491 0
+ 962 00bc 1846     		mov	r0, r3
+ 963              	.LVL101:
+ 964 00be FFF7FEFF 		bl	lv_style_prop_get_default
+ 965              	.LVL102:
+ 966 00c2 2060     		str	r0, [r4]
+ 493:Drivers/lvgl/lvgl/src/misc/lv_style.h ****     }
+ 967              		.loc 2 493 0
+ 968 00c4 0120     		movs	r0, #1
+ 969 00c6 02E0     		b	.L78
+ 970              	.LVL103:
+ 971              	.L88:
+ 972              	.LBB40:
+ 973              	.LBB38:
+ 459:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 *value = (const_prop->prop & LV_STYLE_PROP_META_INITIAL) ? lv_style_prop_get_defaul
+ 974              		.loc 2 459 0
+ 975 00c8 0220     		movs	r0, #2
+ 976              	.LVL104:
+ 977 00ca 00E0     		b	.L78
+ 978              	.LVL105:
+ 979              	.L89:
+ 980              	.LBE38:
+ 981              	.LBE40:
+ 467:Drivers/lvgl/lvgl/src/misc/lv_style.h **** 
+ 982              		.loc 2 467 0
+ 983 00cc 0020     		movs	r0, #0
+ 984              	.LVL106:
+ 985              	.L78:
+ARM GAS  /tmp/ccUrScbL.s 			page 36
+
+
+ 986              	.LBE29:
+ 987              	.LBE28:
+ 295:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 988              		.loc 1 295 0
+ 989 00ce F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 990              	.LVL107:
+ 991              	.L90:
+ 992              	.LBB43:
+ 993              	.LBB42:
+ 994              	.LBB41:
+ 995              	.LBB34:
+ 477:Drivers/lvgl/lvgl/src/misc/lv_style.h ****                 if(props[i] & LV_STYLE_PROP_META_INITIAL)
+ 996              		.loc 2 477 0
+ 997 00d0 0220     		movs	r0, #2
+ 998              	.LVL108:
+ 999 00d2 FCE7     		b	.L78
+ 1000              	.LVL109:
+ 1001              	.L92:
+ 1002              	.LBE34:
+ 1003              	.LBE41:
+ 490:Drivers/lvgl/lvgl/src/misc/lv_style.h ****         *value = (style->prop1 & LV_STYLE_PROP_META_INITIAL) ? lv_style_prop_get_default(LV_STYLE_P
+ 1004              		.loc 2 490 0
+ 1005 00d4 0220     		movs	r0, #2
+ 1006              	.LVL110:
+ 1007 00d6 FAE7     		b	.L78
+ 1008              	.LBE42:
+ 1009              	.LBE43:
+ 1010              		.cfi_endproc
+ 1011              	.LFE63:
+ 1013              		.section	.text.lv_style_is_empty,"ax",%progbits
+ 1014              		.align	1
+ 1015              		.global	lv_style_is_empty
+ 1016              		.syntax unified
+ 1017              		.thumb
+ 1018              		.thumb_func
+ 1019              		.fpu fpv5-d16
+ 1021              	lv_style_is_empty:
+ 1022              	.LFB66:
+ 366:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_ASSERT_STYLE(style);
+ 1023              		.loc 1 366 0
+ 1024              		.cfi_startproc
+ 1025              		@ args = 0, pretend = 0, frame = 0
+ 1026              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1027              		@ link register save eliminated.
+ 1028              	.LVL111:
+ 369:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 1029              		.loc 1 369 0
+ 1030 0000 C079     		ldrb	r0, [r0, #7]	@ zero_extendqisi2
+ 1031              	.LVL112:
+ 370:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 1032              		.loc 1 370 0
+ 1033 0002 B0FA80F0 		clz	r0, r0
+ 1034 0006 4009     		lsrs	r0, r0, #5
+ 1035 0008 7047     		bx	lr
+ 1036              		.cfi_endproc
+ 1037              	.LFE66:
+ 1039              		.section	.text._lv_style_get_prop_group,"ax",%progbits
+ARM GAS  /tmp/ccUrScbL.s 			page 37
+
+
+ 1040              		.align	1
+ 1041              		.global	_lv_style_get_prop_group
+ 1042              		.syntax unified
+ 1043              		.thumb
+ 1044              		.thumb_func
+ 1045              		.fpu fpv5-d16
+ 1047              	_lv_style_get_prop_group:
+ 1048              	.LFB67:
+ 373:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     uint16_t group = (prop & 0x1FF) >> 4;
+ 1049              		.loc 1 373 0
+ 1050              		.cfi_startproc
+ 1051              		@ args = 0, pretend = 0, frame = 0
+ 1052              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1053              		@ link register save eliminated.
+ 1054              	.LVL113:
+ 374:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(group > 7) group = 7;    /*The MSB marks all the custom properties*/
+ 1055              		.loc 1 374 0
+ 1056 0000 C0F30410 		ubfx	r0, r0, #4, #5
+ 1057              	.LVL114:
+ 375:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     return (uint8_t)group;
+ 1058              		.loc 1 375 0
+ 1059 0004 0728     		cmp	r0, #7
+ 1060 0006 00D9     		bls	.L104
+ 1061 0008 0720     		movs	r0, #7
+ 1062              	.LVL115:
+ 1063              	.L104:
+ 377:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 1064              		.loc 1 377 0
+ 1065 000a 7047     		bx	lr
+ 1066              		.cfi_endproc
+ 1067              	.LFE67:
+ 1069              		.section	.text.lv_style_set_prop_internal,"ax",%progbits
+ 1070              		.align	1
+ 1071              		.syntax unified
+ 1072              		.thumb
+ 1073              		.thumb_func
+ 1074              		.fpu fpv5-d16
+ 1076              	lv_style_set_prop_internal:
+ 1077              	.LFB71:
+ 412:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 413:Drivers/lvgl/lvgl/src/misc/lv_style.c **** static void lv_style_set_prop_internal(lv_style_t * style, lv_style_prop_t prop_and_meta, lv_style_
+ 414:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                                        void (*value_adjustment_helper)(lv_style_prop_t, lv_style_va
+ 415:Drivers/lvgl/lvgl/src/misc/lv_style.c **** {
+ 1078              		.loc 1 415 0
+ 1079              		.cfi_startproc
+ 1080              		@ args = 0, pretend = 0, frame = 0
+ 1081              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1082              	.LVL116:
+ 1083 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 1084              	.LCFI7:
+ 1085              		.cfi_def_cfa_offset 32
+ 1086              		.cfi_offset 4, -32
+ 1087              		.cfi_offset 5, -28
+ 1088              		.cfi_offset 6, -24
+ 1089              		.cfi_offset 7, -20
+ 1090              		.cfi_offset 8, -16
+ 1091              		.cfi_offset 9, -12
+ARM GAS  /tmp/ccUrScbL.s 			page 38
+
+
+ 1092              		.cfi_offset 10, -8
+ 1093              		.cfi_offset 14, -4
+ 416:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     LV_ASSERT_STYLE(style);
+ 417:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 418:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(style->prop1 == LV_STYLE_PROP_ANY) {
+ 1094              		.loc 1 418 0
+ 1095 0004 8488     		ldrh	r4, [r0, #4]
+ 1096 0006 4FF6FF75 		movw	r5, #65535
+ 1097 000a AC42     		cmp	r4, r5
+ 1098 000c 60D0     		beq	.L106
+ 1099 000e 9946     		mov	r9, r3
+ 1100 0010 9246     		mov	r10, r2
+ 1101 0012 8846     		mov	r8, r1
+ 1102 0014 0646     		mov	r6, r0
+ 419:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         LV_LOG_ERROR("Cannot set property of constant style");
+ 420:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         return;
+ 421:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 422:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 423:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     lv_style_prop_t prop_id = LV_STYLE_PROP_ID_MASK(prop_and_meta);
+ 1103              		.loc 1 423 0
+ 1104 0016 C1F30D07 		ubfx	r7, r1, #0, #14
+ 1105              	.LVL117:
+ 424:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 425:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(style->prop_cnt > 1) {
+ 1106              		.loc 1 425 0
+ 1107 001a 90F807C0 		ldrb	ip, [r0, #7]	@ zero_extendqisi2
+ 1108 001e BCF1010F 		cmp	ip, #1
+ 1109 0022 42D9     		bls	.L108
+ 1110              	.LBB44:
+ 426:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         uint8_t * tmp = style->v_p.values_and_props + style->prop_cnt * sizeof(lv_style_value_t);
+ 1111              		.loc 1 426 0
+ 1112 0024 0068     		ldr	r0, [r0]
+ 1113              	.LVL118:
+ 1114 0026 00EB8C01 		add	r1, r0, ip, lsl #2
+ 1115              	.LVL119:
+ 427:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         uint16_t * props = (uint16_t *)tmp;
+ 428:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         int32_t i;
+ 429:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         for(i = style->prop_cnt - 1; i >= 0; i--) {
+ 1116              		.loc 1 429 0
+ 1117 002a 0CF1FF34 		add	r4, ip, #-1
+ 1118              	.LVL120:
+ 1119              	.L109:
+ 1120              		.loc 1 429 0 is_stmt 0 discriminator 1
+ 1121 002e 002C     		cmp	r4, #0
+ 1122 0030 0FDB     		blt	.L119
+ 430:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             if(LV_STYLE_PROP_ID_MASK(props[i]) == prop_id) {
+ 1123              		.loc 1 430 0 is_stmt 1
+ 1124 0032 01EB4402 		add	r2, r1, r4, lsl #1
+ 1125              	.LVL121:
+ 1126 0036 31F81450 		ldrh	r5, [r1, r4, lsl #1]
+ 1127 003a C5F30D05 		ubfx	r5, r5, #0, #14
+ 1128 003e AF42     		cmp	r7, r5
+ 1129 0040 01D0     		beq	.L120
+ 429:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             if(LV_STYLE_PROP_ID_MASK(props[i]) == prop_id) {
+ 1130              		.loc 1 429 0 discriminator 2
+ 1131 0042 013C     		subs	r4, r4, #1
+ 1132              	.LVL122:
+ARM GAS  /tmp/ccUrScbL.s 			page 39
+
+
+ 1133 0044 F3E7     		b	.L109
+ 1134              	.L120:
+ 1135              	.LVL123:
+ 1136              	.LBB45:
+ 431:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 lv_style_value_t * values = (lv_style_value_t *)style->v_p.values_and_props;
+ 432:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 value_adjustment_helper(prop_and_meta, value, &props[i], &values[i]);
+ 1137              		.loc 1 432 0
+ 1138 0046 00EB8403 		add	r3, r0, r4, lsl #2
+ 1139              	.LVL124:
+ 1140 004a 5146     		mov	r1, r10
+ 1141              	.LVL125:
+ 1142 004c 4046     		mov	r0, r8
+ 1143              	.LVL126:
+ 1144 004e C847     		blx	r9
+ 1145              	.LVL127:
+ 433:Drivers/lvgl/lvgl/src/misc/lv_style.c ****                 return;
+ 1146              		.loc 1 433 0
+ 1147 0050 3EE0     		b	.L106
+ 1148              	.LVL128:
+ 1149              	.L119:
+ 1150              	.LBE45:
+ 434:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             }
+ 435:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         }
+ 436:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 437:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         size_t size = (style->prop_cnt + 1) * (sizeof(lv_style_value_t) + sizeof(uint16_t));
+ 1151              		.loc 1 437 0
+ 1152 0052 0CF1010C 		add	ip, ip, #1
+ 1153 0056 0CEB4C0C 		add	ip, ip, ip, lsl #1
+ 1154 005a 4FEA4C01 		lsl	r1, ip, #1
+ 1155              	.LVL129:
+ 438:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         uint8_t * values_and_props = lv_mem_realloc(style->v_p.values_and_props, size);
+ 1156              		.loc 1 438 0
+ 1157 005e FFF7FEFF 		bl	lv_mem_realloc
+ 1158              	.LVL130:
+ 439:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         if(values_and_props == NULL) return;
+ 1159              		.loc 1 439 0
+ 1160 0062 0546     		mov	r5, r0
+ 1161 0064 A0B3     		cbz	r0, .L106
+ 440:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         style->v_p.values_and_props = values_and_props;
+ 1162              		.loc 1 440 0
+ 1163 0066 3060     		str	r0, [r6]
+ 441:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 442:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         tmp = values_and_props + style->prop_cnt * sizeof(lv_style_value_t);
+ 1164              		.loc 1 442 0
+ 1165 0068 F379     		ldrb	r3, [r6, #7]	@ zero_extendqisi2
+ 1166 006a 00EB8301 		add	r1, r0, r3, lsl #2
+ 1167              	.LVL131:
+ 443:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         props = (uint16_t *)tmp;
+ 444:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         /*Shift all props to make place for the value before them*/
+ 445:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         for(i = style->prop_cnt - 1; i >= 0; i--) {
+ 1168              		.loc 1 445 0
+ 1169 006e 013B     		subs	r3, r3, #1
+ 1170              	.LVL132:
+ 1171 0070 05E0     		b	.L112
+ 1172              	.LVL133:
+ 1173              	.L113:
+ 446:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             props[i + sizeof(lv_style_value_t) / sizeof(uint16_t)] = props[i];
+ARM GAS  /tmp/ccUrScbL.s 			page 40
+
+
+ 1174              		.loc 1 446 0 discriminator 3
+ 1175 0072 981C     		adds	r0, r3, #2
+ 1176 0074 31F81340 		ldrh	r4, [r1, r3, lsl #1]
+ 1177 0078 21F81040 		strh	r4, [r1, r0, lsl #1]	@ movhi
+ 445:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             props[i + sizeof(lv_style_value_t) / sizeof(uint16_t)] = props[i];
+ 1178              		.loc 1 445 0 discriminator 3
+ 1179 007c 013B     		subs	r3, r3, #1
+ 1180              	.LVL134:
+ 1181              	.L112:
+ 445:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             props[i + sizeof(lv_style_value_t) / sizeof(uint16_t)] = props[i];
+ 1182              		.loc 1 445 0 is_stmt 0 discriminator 1
+ 1183 007e 002B     		cmp	r3, #0
+ 1184 0080 F7DA     		bge	.L113
+ 447:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         }
+ 448:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         style->prop_cnt++;
+ 1185              		.loc 1 448 0 is_stmt 1
+ 1186 0082 F179     		ldrb	r1, [r6, #7]	@ zero_extendqisi2
+ 1187              	.LVL135:
+ 1188 0084 0131     		adds	r1, r1, #1
+ 1189 0086 C9B2     		uxtb	r1, r1
+ 1190 0088 F171     		strb	r1, [r6, #7]
+ 1191              	.LVL136:
+ 449:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 450:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         /*Go to the new position wit the props*/
+ 451:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         tmp = values_and_props + style->prop_cnt * sizeof(lv_style_value_t);
+ 452:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         props = (uint16_t *)tmp;
+ 453:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         lv_style_value_t * values = (lv_style_value_t *)values_and_props;
+ 454:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 455:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         /*Set the new property and value*/
+ 456:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         value_adjustment_helper(prop_and_meta, value, &props[style->prop_cnt - 1], &values[style->p
+ 1192              		.loc 1 456 0
+ 1193 008a 6FF00043 		mvn	r3, #-2147483648
+ 1194              	.LVL137:
+ 1195 008e 0B44     		add	r3, r3, r1
+ 1196 0090 5A00     		lsls	r2, r3, #1
+ 1197 0092 6FF04043 		mvn	r3, #-1073741824
+ 1198 0096 0B44     		add	r3, r3, r1
+ 1199 0098 02EB8102 		add	r2, r2, r1, lsl #2
+ 1200 009c 05EB8303 		add	r3, r5, r3, lsl #2
+ 1201 00a0 2A44     		add	r2, r2, r5
+ 1202              	.LVL138:
+ 1203 00a2 5146     		mov	r1, r10
+ 1204              	.LVL139:
+ 1205 00a4 4046     		mov	r0, r8
+ 1206 00a6 C847     		blx	r9
+ 1207              	.LVL140:
+ 1208              	.LBE44:
+ 1209 00a8 09E0     		b	.L114
+ 1210              	.LVL141:
+ 1211              	.L108:
+ 457:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 458:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     else if(style->prop_cnt == 1) {
+ 1212              		.loc 1 458 0
+ 1213 00aa BCF1010F 		cmp	ip, #1
+ 1214 00ae 11D0     		beq	.L121
+ 459:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         if(LV_STYLE_PROP_ID_MASK(style->prop1) == prop_id) {
+ 460:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             value_adjustment_helper(prop_and_meta, value, &style->prop1, &style->v_p.value1);
+ARM GAS  /tmp/ccUrScbL.s 			page 41
+
+
+ 461:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             return;
+ 462:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         }
+ 463:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         size_t size = (style->prop_cnt + 1) * (sizeof(lv_style_value_t) + sizeof(uint16_t));
+ 464:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         uint8_t * values_and_props = lv_mem_alloc(size);
+ 465:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         if(values_and_props == NULL) return;
+ 466:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         lv_style_value_t value_tmp = style->v_p.value1;
+ 467:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         style->v_p.values_and_props = values_and_props;
+ 468:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         style->prop_cnt++;
+ 469:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 470:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         uint8_t * tmp = values_and_props + style->prop_cnt * sizeof(lv_style_value_t);
+ 471:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         uint16_t * props = (uint16_t *)tmp;
+ 472:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         lv_style_value_t * values = (lv_style_value_t *)values_and_props;
+ 473:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         props[0] = style->prop1;
+ 474:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         values[0] = value_tmp;
+ 475:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         value_adjustment_helper(prop_and_meta, value, &props[1], &values[1]);
+ 476:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 477:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     else {
+ 478:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         style->prop_cnt = 1;
+ 1215              		.loc 1 478 0
+ 1216 00b0 0123     		movs	r3, #1
+ 1217              	.LVL142:
+ 1218 00b2 C371     		strb	r3, [r0, #7]
+ 479:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         value_adjustment_helper(prop_and_meta, value, &style->prop1, &style->v_p.value1);
+ 1219              		.loc 1 479 0
+ 1220 00b4 0346     		mov	r3, r0
+ 1221 00b6 021D     		adds	r2, r0, #4
+ 1222              	.LVL143:
+ 1223 00b8 5146     		mov	r1, r10
+ 1224              	.LVL144:
+ 1225 00ba 4046     		mov	r0, r8
+ 1226              	.LVL145:
+ 1227 00bc C847     		blx	r9
+ 1228              	.LVL146:
+ 1229              	.L114:
+ 480:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 481:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 482:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     uint8_t group = _lv_style_get_prop_group(prop_id);
+ 1230              		.loc 1 482 0
+ 1231 00be 3846     		mov	r0, r7
+ 1232 00c0 FFF7FEFF 		bl	_lv_style_get_prop_group
+ 1233              	.LVL147:
+ 483:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     style->has_group |= 1 << group;
+ 1234              		.loc 1 483 0
+ 1235 00c4 0123     		movs	r3, #1
+ 1236 00c6 03FA00F0 		lsl	r0, r3, r0
+ 1237              	.LVL148:
+ 1238 00ca B379     		ldrb	r3, [r6, #6]	@ zero_extendqisi2
+ 1239 00cc 1843     		orrs	r0, r0, r3
+ 1240 00ce B071     		strb	r0, [r6, #6]
+ 1241              	.LVL149:
+ 1242              	.L106:
+ 484:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 1243              		.loc 1 484 0
+ 1244 00d0 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 1245              	.LVL150:
+ 1246              	.L121:
+ 1247              	.LBB46:
+ARM GAS  /tmp/ccUrScbL.s 			page 42
+
+
+ 459:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             value_adjustment_helper(prop_and_meta, value, &style->prop1, &style->v_p.value1);
+ 1248              		.loc 1 459 0
+ 1249 00d4 C4F30D04 		ubfx	r4, r4, #0, #14
+ 1250 00d8 BC42     		cmp	r4, r7
+ 1251 00da 05D1     		bne	.L116
+ 460:Drivers/lvgl/lvgl/src/misc/lv_style.c ****             return;
+ 1252              		.loc 1 460 0
+ 1253 00dc 0346     		mov	r3, r0
+ 1254              	.LVL151:
+ 1255 00de 021D     		adds	r2, r0, #4
+ 1256              	.LVL152:
+ 1257 00e0 5146     		mov	r1, r10
+ 1258              	.LVL153:
+ 1259 00e2 4046     		mov	r0, r8
+ 1260              	.LVL154:
+ 1261 00e4 C847     		blx	r9
+ 1262              	.LVL155:
+ 461:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         }
+ 1263              		.loc 1 461 0
+ 1264 00e6 F3E7     		b	.L106
+ 1265              	.LVL156:
+ 1266              	.L116:
+ 463:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         uint8_t * values_and_props = lv_mem_alloc(size);
+ 1267              		.loc 1 463 0
+ 1268 00e8 0CF1010C 		add	ip, ip, #1
+ 1269 00ec 0CEB4C0C 		add	ip, ip, ip, lsl #1
+ 1270 00f0 4FEA4C00 		lsl	r0, ip, #1
+ 1271              	.LVL157:
+ 464:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         if(values_and_props == NULL) return;
+ 1272              		.loc 1 464 0
+ 1273 00f4 FFF7FEFF 		bl	lv_mem_alloc
+ 1274              	.LVL158:
+ 465:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         lv_style_value_t value_tmp = style->v_p.value1;
+ 1275              		.loc 1 465 0
+ 1276 00f8 0346     		mov	r3, r0
+ 1277 00fa 0028     		cmp	r0, #0
+ 1278 00fc E8D0     		beq	.L106
+ 466:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         style->v_p.values_and_props = values_and_props;
+ 1279              		.loc 1 466 0
+ 1280 00fe 3068     		ldr	r0, [r6]
+ 1281              	.LVL159:
+ 467:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         style->prop_cnt++;
+ 1282              		.loc 1 467 0
+ 1283 0100 3360     		str	r3, [r6]
+ 468:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 1284              		.loc 1 468 0
+ 1285 0102 F179     		ldrb	r1, [r6, #7]	@ zero_extendqisi2
+ 1286 0104 0131     		adds	r1, r1, #1
+ 1287 0106 C9B2     		uxtb	r1, r1
+ 1288 0108 F171     		strb	r1, [r6, #7]
+ 470:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         uint16_t * props = (uint16_t *)tmp;
+ 1289              		.loc 1 470 0
+ 1290 010a 03EB8102 		add	r2, r3, r1, lsl #2
+ 1291              	.LVL160:
+ 473:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         values[0] = value_tmp;
+ 1292              		.loc 1 473 0
+ 1293 010e B488     		ldrh	r4, [r6, #4]
+ARM GAS  /tmp/ccUrScbL.s 			page 43
+
+
+ 1294 0110 23F82140 		strh	r4, [r3, r1, lsl #2]	@ movhi
+ 1295              	.LVL161:
+ 474:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         value_adjustment_helper(prop_and_meta, value, &props[1], &values[1]);
+ 1296              		.loc 1 474 0
+ 1297 0114 43F8040B 		str	r0, [r3], #4
+ 1298              	.LVL162:
+ 475:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     }
+ 1299              		.loc 1 475 0
+ 1300 0118 0232     		adds	r2, r2, #2
+ 1301              	.LVL163:
+ 1302 011a 5146     		mov	r1, r10
+ 1303 011c 4046     		mov	r0, r8
+ 1304              	.LVL164:
+ 1305 011e C847     		blx	r9
+ 1306              	.LVL165:
+ 1307              	.LBE46:
+ 1308 0120 CDE7     		b	.L114
+ 1309              		.cfi_endproc
+ 1310              	.LFE71:
+ 1312              		.section	.text.lv_style_set_prop,"ax",%progbits
+ 1313              		.align	1
+ 1314              		.global	lv_style_set_prop
+ 1315              		.syntax unified
+ 1316              		.thumb
+ 1317              		.thumb_func
+ 1318              		.fpu fpv5-d16
+ 1320              	lv_style_set_prop:
+ 1321              	.LFB61:
+ 283:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     lv_style_set_prop_internal(style, prop, value, lv_style_set_prop_helper);
+ 1322              		.loc 1 283 0
+ 1323              		.cfi_startproc
+ 1324              		@ args = 0, pretend = 0, frame = 0
+ 1325              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1326              	.LVL166:
+ 1327 0000 08B5     		push	{r3, lr}
+ 1328              	.LCFI8:
+ 1329              		.cfi_def_cfa_offset 8
+ 1330              		.cfi_offset 3, -8
+ 1331              		.cfi_offset 14, -4
+ 284:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 1332              		.loc 1 284 0
+ 1333 0002 024B     		ldr	r3, .L124
+ 1334 0004 FFF7FEFF 		bl	lv_style_set_prop_internal
+ 1335              	.LVL167:
+ 285:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 1336              		.loc 1 285 0
+ 1337 0008 08BD     		pop	{r3, pc}
+ 1338              	.L125:
+ 1339 000a 00BF     		.align	2
+ 1340              	.L124:
+ 1341 000c 00000000 		.word	lv_style_set_prop_helper
+ 1342              		.cfi_endproc
+ 1343              	.LFE61:
+ 1345              		.section	.text.lv_style_set_prop_meta,"ax",%progbits
+ 1346              		.align	1
+ 1347              		.global	lv_style_set_prop_meta
+ 1348              		.syntax unified
+ARM GAS  /tmp/ccUrScbL.s 			page 44
+
+
+ 1349              		.thumb
+ 1350              		.thumb_func
+ 1351              		.fpu fpv5-d16
+ 1353              	lv_style_set_prop_meta:
+ 1354              	.LFB62:
+ 288:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     lv_style_set_prop_internal(style, prop | meta, null_style_value, lv_style_set_prop_meta_helper)
+ 1355              		.loc 1 288 0
+ 1356              		.cfi_startproc
+ 1357              		@ args = 0, pretend = 0, frame = 0
+ 1358              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1359              	.LVL168:
+ 1360 0000 08B5     		push	{r3, lr}
+ 1361              	.LCFI9:
+ 1362              		.cfi_def_cfa_offset 8
+ 1363              		.cfi_offset 3, -8
+ 1364              		.cfi_offset 14, -4
+ 289:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 1365              		.loc 1 289 0
+ 1366 0002 1143     		orrs	r1, r1, r2
+ 1367              	.LVL169:
+ 1368 0004 024B     		ldr	r3, .L128
+ 1369 0006 034A     		ldr	r2, .L128+4
+ 1370              	.LVL170:
+ 1371 0008 1268     		ldr	r2, [r2]
+ 1372 000a FFF7FEFF 		bl	lv_style_set_prop_internal
+ 1373              	.LVL171:
+ 290:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 1374              		.loc 1 290 0
+ 1375 000e 08BD     		pop	{r3, pc}
+ 1376              	.L129:
+ 1377              		.align	2
+ 1378              	.L128:
+ 1379 0010 00000000 		.word	lv_style_set_prop_meta_helper
+ 1380 0014 00000000 		.word	.LANCHOR2
+ 1381              		.cfi_endproc
+ 1382              	.LFE62:
+ 1384              		.section	.text._lv_style_prop_lookup_flags,"ax",%progbits
+ 1385              		.align	1
+ 1386              		.global	_lv_style_prop_lookup_flags
+ 1387              		.syntax unified
+ 1388              		.thumb
+ 1389              		.thumb_func
+ 1390              		.fpu fpv5-d16
+ 1392              	_lv_style_prop_lookup_flags:
+ 1393              	.LFB68:
+ 380:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     extern const uint8_t _lv_style_builtin_prop_flag_lookup_table[];
+ 1394              		.loc 1 380 0
+ 1395              		.cfi_startproc
+ 1396              		@ args = 0, pretend = 0, frame = 0
+ 1397              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1398              		@ link register save eliminated.
+ 1399              	.LVL172:
+ 383:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(prop == LV_STYLE_PROP_INV) return 0;
+ 1400              		.loc 1 383 0
+ 1401 0000 4FF6FF73 		movw	r3, #65535
+ 1402 0004 9842     		cmp	r0, r3
+ 1403 0006 10D0     		beq	.L133
+ARM GAS  /tmp/ccUrScbL.s 			page 45
+
+
+ 384:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 1404              		.loc 1 384 0
+ 1405 0008 88B1     		cbz	r0, .L134
+ 386:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         return _lv_style_builtin_prop_flag_lookup_table[prop];
+ 1406              		.loc 1 386 0
+ 1407 000a 6F28     		cmp	r0, #111
+ 1408 000c 0AD9     		bls	.L137
+ 388:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(LV_GC_ROOT(_lv_style_custom_prop_flag_lookup_table) != NULL && prop < _lv_style_custom_prop_
+ 1409              		.loc 1 388 0
+ 1410 000e 7038     		subs	r0, r0, #112
+ 1411              	.LVL173:
+ 1412 0010 80B2     		uxth	r0, r0
+ 1413              	.LVL174:
+ 389:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         return LV_GC_ROOT(_lv_style_custom_prop_flag_lookup_table)[prop];
+ 1414              		.loc 1 389 0
+ 1415 0012 0A4B     		ldr	r3, .L138
+ 1416 0014 1B68     		ldr	r3, [r3]
+ 1417 0016 63B1     		cbz	r3, .L135
+ 389:Drivers/lvgl/lvgl/src/misc/lv_style.c ****         return LV_GC_ROOT(_lv_style_custom_prop_flag_lookup_table)[prop];
+ 1418              		.loc 1 389 0 is_stmt 0 discriminator 1
+ 1419 0018 094A     		ldr	r2, .L138+4
+ 1420 001a 1268     		ldr	r2, [r2]
+ 1421 001c 9042     		cmp	r0, r2
+ 1422 001e 0AD2     		bcs	.L136
+ 390:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     return 0;
+ 1423              		.loc 1 390 0 is_stmt 1
+ 1424 0020 185C     		ldrb	r0, [r3, r0]	@ zero_extendqisi2
+ 1425              	.LVL175:
+ 1426 0022 7047     		bx	lr
+ 1427              	.LVL176:
+ 1428              	.L137:
+ 387:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     prop -= _LV_STYLE_NUM_BUILT_IN_PROPS;
+ 1429              		.loc 1 387 0
+ 1430 0024 074B     		ldr	r3, .L138+8
+ 1431 0026 185C     		ldrb	r0, [r3, r0]	@ zero_extendqisi2
+ 1432              	.LVL177:
+ 1433 0028 7047     		bx	lr
+ 1434              	.LVL178:
+ 1435              	.L133:
+ 383:Drivers/lvgl/lvgl/src/misc/lv_style.c ****     if(prop == LV_STYLE_PROP_INV) return 0;
+ 1436              		.loc 1 383 0
+ 1437 002a 1F20     		movs	r0, #31
+ 1438              	.LVL179:
+ 1439 002c 7047     		bx	lr
+ 1440              	.LVL180:
+ 1441              	.L134:
+ 384:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 1442              		.loc 1 384 0
+ 1443 002e 0020     		movs	r0, #0
+ 1444              	.LVL181:
+ 1445 0030 7047     		bx	lr
+ 1446              	.LVL182:
+ 1447              	.L135:
+ 391:Drivers/lvgl/lvgl/src/misc/lv_style.c **** }
+ 1448              		.loc 1 391 0
+ 1449 0032 0020     		movs	r0, #0
+ 1450              	.LVL183:
+ARM GAS  /tmp/ccUrScbL.s 			page 46
+
+
+ 1451 0034 7047     		bx	lr
+ 1452              	.LVL184:
+ 1453              	.L136:
+ 1454 0036 0020     		movs	r0, #0
+ 1455              	.LVL185:
+ 392:Drivers/lvgl/lvgl/src/misc/lv_style.c **** 
+ 1456              		.loc 1 392 0
+ 1457 0038 7047     		bx	lr
+ 1458              	.L139:
+ 1459 003a 00BF     		.align	2
+ 1460              	.L138:
+ 1461 003c 00000000 		.word	_lv_style_custom_prop_flag_lookup_table
+ 1462 0040 00000000 		.word	.LANCHOR0
+ 1463 0044 00000000 		.word	.LANCHOR3
+ 1464              		.cfi_endproc
+ 1465              	.LFE68:
+ 1467              		.global	_lv_style_custom_prop_flag_lookup_table_size
+ 1468              		.global	_lv_style_builtin_prop_flag_lookup_table
+ 1469              		.section	.bss._lv_style_custom_prop_flag_lookup_table_size,"aw",%nobits
+ 1470              		.align	2
+ 1471              		.set	.LANCHOR0,. + 0
+ 1474              	_lv_style_custom_prop_flag_lookup_table_size:
+ 1475 0000 00000000 		.space	4
+ 1476              		.section	.data.last_custom_prop_id,"aw",%progbits
+ 1477              		.align	1
+ 1478              		.set	.LANCHOR1,. + 0
+ 1481              	last_custom_prop_id:
+ 1482 0000 6F00     		.short	111
+ 1483              		.section	.rodata._lv_style_builtin_prop_flag_lookup_table,"a",%progbits
+ 1484              		.align	2
+ 1485              		.set	.LANCHOR3,. + 0
+ 1488              	_lv_style_builtin_prop_flag_lookup_table:
+ 1489 0000 00       		.space	1
+ 1490 0001 04       		.byte	4
+ 1491 0002 04       		.byte	4
+ 1492 0003 04       		.byte	4
+ 1493 0004 04       		.byte	4
+ 1494 0005 04       		.byte	4
+ 1495 0006 04       		.byte	4
+ 1496 0007 04       		.byte	4
+ 1497 0008 04       		.byte	4
+ 1498 0009 04       		.byte	4
+ 1499 000a 04       		.byte	4
+ 1500 000b 00       		.byte	0
+ 1501 000c 00000000 		.space	4
+ 1502 0010 06       		.byte	6
+ 1503 0011 06       		.byte	6
+ 1504 0012 06       		.byte	6
+ 1505 0013 06       		.byte	6
+ 1506 0014 06       		.byte	6
+ 1507 0015 06       		.byte	6
+ 1508 0016 05       		.byte	5
+ 1509 0017 00       		.byte	0
+ 1510 0018 00000000 		.space	8
+ 1510      00000000 
+ 1511 0020 00       		.byte	0
+ 1512 0021 00       		.byte	0
+ARM GAS  /tmp/ccUrScbL.s 			page 47
+
+
+ 1513 0022 00       		.byte	0
+ 1514 0023 00       		.byte	0
+ 1515 0024 00       		.byte	0
+ 1516 0025 00       		.byte	0
+ 1517 0026 00       		.byte	0
+ 1518 0027 00       		.byte	0
+ 1519 0028 02       		.byte	2
+ 1520 0029 00       		.byte	0
+ 1521 002a 00       		.byte	0
+ 1522 002b 00       		.byte	0
+ 1523 002c 00       		.byte	0
+ 1524 002d 000000   		.space	3
+ 1525 0030 00       		.byte	0
+ 1526 0031 00       		.byte	0
+ 1527 0032 04       		.byte	4
+ 1528 0033 00       		.byte	0
+ 1529 0034 00       		.byte	0
+ 1530 0035 02       		.byte	2
+ 1531 0036 00       		.byte	0
+ 1532 0037 02       		.byte	2
+ 1533 0038 02       		.byte	2
+ 1534 0039 00000000 		.space	7
+ 1534      000000
+ 1535 0040 02       		.byte	2
+ 1536 0041 02       		.byte	2
+ 1537 0042 02       		.byte	2
+ 1538 0043 02       		.byte	2
+ 1539 0044 00       		.byte	0
+ 1540 0045 02       		.byte	2
+ 1541 0046 00       		.byte	0
+ 1542 0047 00       		.byte	0
+ 1543 0048 00       		.byte	0
+ 1544 0049 02       		.byte	2
+ 1545 004a 00       		.byte	0
+ 1546 004b 00       		.byte	0
+ 1547 004c 00       		.byte	0
+ 1548 004d 00       		.byte	0
+ 1549 004e 00       		.byte	0
+ 1550 004f 00       		.space	1
+ 1551 0050 02       		.byte	2
+ 1552 0051 00       		.byte	0
+ 1553 0052 00       		.byte	0
+ 1554 0053 00       		.byte	0
+ 1555 0054 00       		.byte	0
+ 1556 0055 01       		.byte	1
+ 1557 0056 01       		.byte	1
+ 1558 0057 05       		.byte	5
+ 1559 0058 05       		.byte	5
+ 1560 0059 05       		.byte	5
+ 1561 005a 01       		.byte	1
+ 1562 005b 05       		.byte	5
+ 1563 005c 00000000 		.space	4
+ 1564 0060 10       		.byte	16
+ 1565 0061 01       		.byte	1
+ 1566 0062 01       		.byte	1
+ 1567 0063 00       		.space	1
+ 1568 0064 00       		.byte	0
+ARM GAS  /tmp/ccUrScbL.s 			page 48
+
+
+ 1569 0065 00       		.byte	0
+ 1570 0066 00       		.byte	0
+ 1571 0067 10       		.byte	16
+ 1572 0068 02       		.byte	2
+ 1573 0069 02       		.byte	2
+ 1574 006a 0C       		.byte	12
+ 1575 006b 0C       		.byte	12
+ 1576 006c 12       		.byte	18
+ 1577 006d 12       		.byte	18
+ 1578 006e 0000     		.space	2
+ 1579              		.section	.rodata.null_style_value,"a",%progbits
+ 1580              		.align	2
+ 1581              		.set	.LANCHOR2,. + 0
+ 1584              	null_style_value:
+ 1585 0000 00000000 		.space	4
+ 1586              		.text
+ 1587              	.Letext0:
+ 1588              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 1589              		.file 4 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ 1590              		.file 5 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 1591              		.file 6 "Drivers/lvgl/lvgl/src/misc/../font/../misc/lv_area.h"
+ 1592              		.file 7 "Drivers/lvgl/lvgl/src/misc/../font/lv_font.h"
+ 1593              		.file 8 "Drivers/lvgl/lvgl/src/misc/lv_types.h"
+ 1594              		.file 9 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+ 1595              		.file 10 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+ 1596              		.file 11 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+ 1597              		.file 12 "Drivers/lvgl/lvgl/src/misc/lv_mem.h"
+ 1598              		.file 13 "Drivers/lvgl/lvgl/src/misc/lv_color.h"
+ 1599              		.file 14 "Drivers/lvgl/lvgl/src/misc/lv_anim.h"
+ 1600              		.file 15 "Drivers/lvgl/lvgl/src/misc/lv_txt.h"
+ 1601              		.file 16 "Drivers/lvgl/lvgl/src/misc/../misc/lv_ll.h"
+ 1602              		.file 17 "Drivers/lvgl/lvgl/src/misc/../misc/lv_timer.h"
+ 1603              		.file 18 "Drivers/lvgl/lvgl/src/misc/../misc/../draw/lv_img_buf.h"
+ 1604              		.file 19 "Drivers/lvgl/lvgl/src/misc/../misc/../draw/lv_img_decoder.h"
+ 1605              		.file 20 "Drivers/lvgl/lvgl/src/misc/../misc/../draw/lv_img_cache.h"
+ 1606              		.file 21 "Drivers/lvgl/lvgl/src/misc/../misc/../draw/lv_draw_mask.h"
+ 1607              		.file 22 "Drivers/lvgl/lvgl/src/misc/../misc/../core/lv_obj_pos.h"
+ 1608              		.file 23 "Drivers/lvgl/lvgl/src/misc/../misc/lv_gc.h"
+ARM GAS  /tmp/ccUrScbL.s 			page 49
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_style.c
+     /tmp/ccUrScbL.s:17     .text.lv_style_set_prop_helper:0000000000000000 $t
+     /tmp/ccUrScbL.s:23     .text.lv_style_set_prop_helper:0000000000000000 lv_style_set_prop_helper
+     /tmp/ccUrScbL.s:42     .text.lv_style_set_prop_meta_helper:0000000000000000 $t
+     /tmp/ccUrScbL.s:48     .text.lv_style_set_prop_meta_helper:0000000000000000 lv_style_set_prop_meta_helper
+     /tmp/ccUrScbL.s:64     .text.lv_style_init:0000000000000000 $t
+     /tmp/ccUrScbL.s:71     .text.lv_style_init:0000000000000000 lv_style_init
+     /tmp/ccUrScbL.s:93     .text.lv_style_reset:0000000000000000 $t
+     /tmp/ccUrScbL.s:100    .text.lv_style_reset:0000000000000000 lv_style_reset
+     /tmp/ccUrScbL.s:151    .text.lv_style_register_prop:0000000000000000 $t
+     /tmp/ccUrScbL.s:158    .text.lv_style_register_prop:0000000000000000 lv_style_register_prop
+     /tmp/ccUrScbL.s:270    .text.lv_style_register_prop:000000000000006c $d
+     /tmp/ccUrScbL.s:278    .text.lv_style_get_num_custom_props:0000000000000000 $t
+     /tmp/ccUrScbL.s:285    .text.lv_style_get_num_custom_props:0000000000000000 lv_style_get_num_custom_props
+     /tmp/ccUrScbL.s:302    .text.lv_style_get_num_custom_props:000000000000000c $d
+     /tmp/ccUrScbL.s:307    .text.lv_style_remove_prop:0000000000000000 $t
+     /tmp/ccUrScbL.s:314    .text.lv_style_remove_prop:0000000000000000 lv_style_remove_prop
+     /tmp/ccUrScbL.s:519    .text.lv_style_transition_dsc_init:0000000000000000 $t
+     /tmp/ccUrScbL.s:526    .text.lv_style_transition_dsc_init:0000000000000000 lv_style_transition_dsc_init
+     /tmp/ccUrScbL.s:578    .text.lv_style_transition_dsc_init:0000000000000028 $d
+     /tmp/ccUrScbL.s:583    .text.lv_style_prop_get_default:0000000000000000 $t
+     /tmp/ccUrScbL.s:590    .text.lv_style_prop_get_default:0000000000000000 lv_style_prop_get_default
+     /tmp/ccUrScbL.s:605    .text.lv_style_prop_get_default:000000000000000a $d
+     /tmp/ccUrScbL.s:711    .text.lv_style_prop_get_default:0000000000000074 $t
+     /tmp/ccUrScbL.s:765    .text.lv_style_prop_get_default:00000000000000a8 $d
+     /tmp/ccUrScbL.s:770    .text.lv_style_get_prop:0000000000000000 $t
+     /tmp/ccUrScbL.s:777    .text.lv_style_get_prop:0000000000000000 lv_style_get_prop
+     /tmp/ccUrScbL.s:1014   .text.lv_style_is_empty:0000000000000000 $t
+     /tmp/ccUrScbL.s:1021   .text.lv_style_is_empty:0000000000000000 lv_style_is_empty
+     /tmp/ccUrScbL.s:1040   .text._lv_style_get_prop_group:0000000000000000 $t
+     /tmp/ccUrScbL.s:1047   .text._lv_style_get_prop_group:0000000000000000 _lv_style_get_prop_group
+     /tmp/ccUrScbL.s:1070   .text.lv_style_set_prop_internal:0000000000000000 $t
+     /tmp/ccUrScbL.s:1076   .text.lv_style_set_prop_internal:0000000000000000 lv_style_set_prop_internal
+     /tmp/ccUrScbL.s:1313   .text.lv_style_set_prop:0000000000000000 $t
+     /tmp/ccUrScbL.s:1320   .text.lv_style_set_prop:0000000000000000 lv_style_set_prop
+     /tmp/ccUrScbL.s:1341   .text.lv_style_set_prop:000000000000000c $d
+     /tmp/ccUrScbL.s:1346   .text.lv_style_set_prop_meta:0000000000000000 $t
+     /tmp/ccUrScbL.s:1353   .text.lv_style_set_prop_meta:0000000000000000 lv_style_set_prop_meta
+     /tmp/ccUrScbL.s:1379   .text.lv_style_set_prop_meta:0000000000000010 $d
+     /tmp/ccUrScbL.s:1385   .text._lv_style_prop_lookup_flags:0000000000000000 $t
+     /tmp/ccUrScbL.s:1392   .text._lv_style_prop_lookup_flags:0000000000000000 _lv_style_prop_lookup_flags
+     /tmp/ccUrScbL.s:1461   .text._lv_style_prop_lookup_flags:000000000000003c $d
+     /tmp/ccUrScbL.s:1474   .bss._lv_style_custom_prop_flag_lookup_table_size:0000000000000000 _lv_style_custom_prop_flag_lookup_table_size
+     /tmp/ccUrScbL.s:1488   .rodata._lv_style_builtin_prop_flag_lookup_table:0000000000000000 _lv_style_builtin_prop_flag_lookup_table
+     /tmp/ccUrScbL.s:1470   .bss._lv_style_custom_prop_flag_lookup_table_size:0000000000000000 $d
+     /tmp/ccUrScbL.s:1477   .data.last_custom_prop_id:0000000000000000 $d
+     /tmp/ccUrScbL.s:1481   .data.last_custom_prop_id:0000000000000000 last_custom_prop_id
+     /tmp/ccUrScbL.s:1484   .rodata._lv_style_builtin_prop_flag_lookup_table:0000000000000000 $d
+     /tmp/ccUrScbL.s:1580   .rodata.null_style_value:0000000000000000 $d
+     /tmp/ccUrScbL.s:1584   .rodata.null_style_value:0000000000000000 null_style_value
+
+UNDEFINED SYMBOLS
+lv_memset_00
+lv_mem_free
+lv_mem_realloc
+_lv_style_custom_prop_flag_lookup_table
+ARM GAS  /tmp/ccUrScbL.s 			page 50
+
+
+lv_mem_alloc
+lv_anim_path_linear
+lv_font_montserrat_14

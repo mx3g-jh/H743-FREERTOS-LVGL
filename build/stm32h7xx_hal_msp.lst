@@ -1,0 +1,234 @@
+ARM GAS  /tmp/cci7nTus.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"stm32h7xx_hal_msp.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.HAL_MspInit,"ax",%progbits
+  17              		.align	1
+  18              		.global	HAL_MspInit
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu fpv5-d16
+  24              	HAL_MspInit:
+  25              	.LFB350:
+  26              		.file 1 "Core/Src/stm32h7xx_hal_msp.c"
+   1:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE BEGIN Header */
+   2:Core/Src/stm32h7xx_hal_msp.c **** /**
+   3:Core/Src/stm32h7xx_hal_msp.c ****   ******************************************************************************
+   4:Core/Src/stm32h7xx_hal_msp.c ****   * @file         stm32h7xx_hal_msp.c
+   5:Core/Src/stm32h7xx_hal_msp.c ****   * @brief        This file provides code for the MSP Initialization
+   6:Core/Src/stm32h7xx_hal_msp.c ****   *               and de-Initialization codes.
+   7:Core/Src/stm32h7xx_hal_msp.c ****   ******************************************************************************
+   8:Core/Src/stm32h7xx_hal_msp.c ****   * @attention
+   9:Core/Src/stm32h7xx_hal_msp.c ****   *
+  10:Core/Src/stm32h7xx_hal_msp.c ****   * Copyright (c) 2023 STMicroelectronics.
+  11:Core/Src/stm32h7xx_hal_msp.c ****   * All rights reserved.
+  12:Core/Src/stm32h7xx_hal_msp.c ****   *
+  13:Core/Src/stm32h7xx_hal_msp.c ****   * This software is licensed under terms that can be found in the LICENSE file
+  14:Core/Src/stm32h7xx_hal_msp.c ****   * in the root directory of this software component.
+  15:Core/Src/stm32h7xx_hal_msp.c ****   * If no LICENSE file comes with this software, it is provided AS-IS.
+  16:Core/Src/stm32h7xx_hal_msp.c ****   *
+  17:Core/Src/stm32h7xx_hal_msp.c ****   ******************************************************************************
+  18:Core/Src/stm32h7xx_hal_msp.c ****   */
+  19:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE END Header */
+  20:Core/Src/stm32h7xx_hal_msp.c **** 
+  21:Core/Src/stm32h7xx_hal_msp.c **** /* Includes ------------------------------------------------------------------*/
+  22:Core/Src/stm32h7xx_hal_msp.c **** #include "main.h"
+  23:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE BEGIN Includes */
+  24:Core/Src/stm32h7xx_hal_msp.c **** 
+  25:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE END Includes */
+  26:Core/Src/stm32h7xx_hal_msp.c **** 
+  27:Core/Src/stm32h7xx_hal_msp.c **** /* Private typedef -----------------------------------------------------------*/
+  28:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE BEGIN TD */
+  29:Core/Src/stm32h7xx_hal_msp.c **** 
+  30:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE END TD */
+  31:Core/Src/stm32h7xx_hal_msp.c **** 
+  32:Core/Src/stm32h7xx_hal_msp.c **** /* Private define ------------------------------------------------------------*/
+ARM GAS  /tmp/cci7nTus.s 			page 2
+
+
+  33:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE BEGIN Define */
+  34:Core/Src/stm32h7xx_hal_msp.c **** 
+  35:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE END Define */
+  36:Core/Src/stm32h7xx_hal_msp.c **** 
+  37:Core/Src/stm32h7xx_hal_msp.c **** /* Private macro -------------------------------------------------------------*/
+  38:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE BEGIN Macro */
+  39:Core/Src/stm32h7xx_hal_msp.c **** 
+  40:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE END Macro */
+  41:Core/Src/stm32h7xx_hal_msp.c **** 
+  42:Core/Src/stm32h7xx_hal_msp.c **** /* Private variables ---------------------------------------------------------*/
+  43:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE BEGIN PV */
+  44:Core/Src/stm32h7xx_hal_msp.c **** 
+  45:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE END PV */
+  46:Core/Src/stm32h7xx_hal_msp.c **** 
+  47:Core/Src/stm32h7xx_hal_msp.c **** /* Private function prototypes -----------------------------------------------*/
+  48:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE BEGIN PFP */
+  49:Core/Src/stm32h7xx_hal_msp.c **** 
+  50:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE END PFP */
+  51:Core/Src/stm32h7xx_hal_msp.c **** 
+  52:Core/Src/stm32h7xx_hal_msp.c **** /* External functions --------------------------------------------------------*/
+  53:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE BEGIN ExternalFunctions */
+  54:Core/Src/stm32h7xx_hal_msp.c **** 
+  55:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE END ExternalFunctions */
+  56:Core/Src/stm32h7xx_hal_msp.c **** 
+  57:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE BEGIN 0 */
+  58:Core/Src/stm32h7xx_hal_msp.c **** 
+  59:Core/Src/stm32h7xx_hal_msp.c **** /* USER CODE END 0 */
+  60:Core/Src/stm32h7xx_hal_msp.c **** /**
+  61:Core/Src/stm32h7xx_hal_msp.c ****   * Initializes the Global MSP.
+  62:Core/Src/stm32h7xx_hal_msp.c ****   */
+  63:Core/Src/stm32h7xx_hal_msp.c **** void HAL_MspInit(void)
+  64:Core/Src/stm32h7xx_hal_msp.c **** {
+  27              		.loc 1 64 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 8
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 00B5     		push	{lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 4
+  34              		.cfi_offset 14, -4
+  35 0002 83B0     		sub	sp, sp, #12
+  36              	.LCFI1:
+  37              		.cfi_def_cfa_offset 16
+  38              	.LBB2:
+  65:Core/Src/stm32h7xx_hal_msp.c ****   /* USER CODE BEGIN MspInit 0 */
+  66:Core/Src/stm32h7xx_hal_msp.c **** 
+  67:Core/Src/stm32h7xx_hal_msp.c ****   /* USER CODE END MspInit 0 */
+  68:Core/Src/stm32h7xx_hal_msp.c **** 
+  69:Core/Src/stm32h7xx_hal_msp.c ****   __HAL_RCC_SYSCFG_CLK_ENABLE();
+  39              		.loc 1 69 0
+  40 0004 0A4B     		ldr	r3, .L3
+  41 0006 D3F8F420 		ldr	r2, [r3, #244]
+  42 000a 42F00202 		orr	r2, r2, #2
+  43 000e C3F8F420 		str	r2, [r3, #244]
+  44 0012 D3F8F430 		ldr	r3, [r3, #244]
+  45 0016 03F00203 		and	r3, r3, #2
+  46 001a 0193     		str	r3, [sp, #4]
+ARM GAS  /tmp/cci7nTus.s 			page 3
+
+
+  47 001c 019B     		ldr	r3, [sp, #4]
+  48              	.LBE2:
+  70:Core/Src/stm32h7xx_hal_msp.c **** 
+  71:Core/Src/stm32h7xx_hal_msp.c ****   /* System interrupt init*/
+  72:Core/Src/stm32h7xx_hal_msp.c ****   /* PendSV_IRQn interrupt configuration */
+  73:Core/Src/stm32h7xx_hal_msp.c ****   HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
+  49              		.loc 1 73 0
+  50 001e 0022     		movs	r2, #0
+  51 0020 0F21     		movs	r1, #15
+  52 0022 6FF00100 		mvn	r0, #1
+  53 0026 FFF7FEFF 		bl	HAL_NVIC_SetPriority
+  54              	.LVL0:
+  74:Core/Src/stm32h7xx_hal_msp.c **** 
+  75:Core/Src/stm32h7xx_hal_msp.c ****   /* USER CODE BEGIN MspInit 1 */
+  76:Core/Src/stm32h7xx_hal_msp.c **** 
+  77:Core/Src/stm32h7xx_hal_msp.c ****   /* USER CODE END MspInit 1 */
+  78:Core/Src/stm32h7xx_hal_msp.c **** }
+  55              		.loc 1 78 0
+  56 002a 03B0     		add	sp, sp, #12
+  57              	.LCFI2:
+  58              		.cfi_def_cfa_offset 4
+  59              		@ sp needed
+  60 002c 5DF804FB 		ldr	pc, [sp], #4
+  61              	.L4:
+  62              		.align	2
+  63              	.L3:
+  64 0030 00440258 		.word	1476543488
+  65              		.cfi_endproc
+  66              	.LFE350:
+  68              		.text
+  69              	.Letext0:
+  70              		.file 2 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+  71              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+  72              		.file 4 "Drivers/CMSIS/Include/core_cm7.h"
+  73              		.file 5 "Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h"
+  74              		.file 6 "Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h743xx.h"
+  75              		.file 7 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+  76              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+  77              		.file 9 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+  78              		.file 10 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+  79              		.file 11 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/math.h"
+  80              		.file 12 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_def.h"
+  81              		.file 13 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_dma.h"
+  82              		.file 14 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_flash.h"
+  83              		.file 15 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_spi.h"
+  84              		.file 16 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h"
+  85              		.file 17 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/../font/../misc/lv_area.h"
+  86              		.file 18 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/../font/lv_font.h"
+  87              		.file 19 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/lv_color.h"
+  88              		.file 20 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/lv_txt.h"
+  89              		.file 21 "Drivers/lvgl/lvgl/src/hal/../draw/../misc/lv_style.h"
+  90              		.file 22 "Drivers/lvgl/lvgl/src/core/lv_obj.h"
+  91              		.file 23 "Drivers/lvgl/lvgl/src/hal/../misc/lv_ll.h"
+  92              		.file 24 "Drivers/lvgl/lvgl/src/core/lv_group.h"
+  93              		.file 25 "Drivers/lvgl/lvgl/src/core/lv_obj_scroll.h"
+  94              		.file 26 "Drivers/lvgl/lvgl/src/core/lv_obj_style.h"
+  95              		.file 27 "Drivers/lvgl/lvgl/src/core/lv_obj_class.h"
+ARM GAS  /tmp/cci7nTus.s 			page 4
+
+
+  96              		.file 28 "Drivers/lvgl/lvgl/src/core/lv_event.h"
+  97              		.file 29 "Drivers/lvgl/lvgl/src/widgets/lv_arc.h"
+  98              		.file 30 "Drivers/lvgl/lvgl/src/widgets/lv_btn.h"
+  99              		.file 31 "Drivers/lvgl/lvgl/src/widgets/lv_img.h"
+ 100              		.file 32 "Drivers/lvgl/lvgl/src/widgets/lv_label.h"
+ 101              		.file 33 "Drivers/lvgl/lvgl/src/widgets/lv_line.h"
+ 102              		.file 34 "Drivers/lvgl/lvgl/src/widgets/lv_table.h"
+ 103              		.file 35 "Drivers/lvgl/lvgl/src/widgets/lv_checkbox.h"
+ 104              		.file 36 "Drivers/lvgl/lvgl/src/widgets/lv_bar.h"
+ 105              		.file 37 "Drivers/lvgl/lvgl/src/widgets/lv_slider.h"
+ 106              		.file 38 "Drivers/lvgl/lvgl/src/widgets/lv_btnmatrix.h"
+ 107              		.file 39 "Drivers/lvgl/lvgl/src/widgets/lv_dropdown.h"
+ 108              		.file 40 "Drivers/lvgl/lvgl/src/widgets/lv_roller.h"
+ 109              		.file 41 "Drivers/lvgl/lvgl/src/widgets/lv_textarea.h"
+ 110              		.file 42 "Drivers/lvgl/lvgl/src/widgets/lv_canvas.h"
+ 111              		.file 43 "Drivers/lvgl/lvgl/src/widgets/lv_switch.h"
+ 112              		.file 44 "Drivers/lvgl/lvgl/src/extra/layouts/flex/lv_flex.h"
+ 113              		.file 45 "Drivers/lvgl/lvgl/src/extra/layouts/grid/lv_grid.h"
+ 114              		.file 46 "Drivers/lvgl/lvgl/src/extra/widgets/animimg/lv_animimg.h"
+ 115              		.file 47 "Drivers/lvgl/lvgl/src/extra/widgets/calendar/lv_calendar.h"
+ 116              		.file 48 "Drivers/lvgl/lvgl/src/extra/widgets/calendar/lv_calendar_header_arrow.h"
+ 117              		.file 49 "Drivers/lvgl/lvgl/src/extra/widgets/calendar/lv_calendar_header_dropdown.h"
+ 118              		.file 50 "Drivers/lvgl/lvgl/src/extra/widgets/chart/lv_chart.h"
+ 119              		.file 51 "Drivers/lvgl/lvgl/src/extra/widgets/keyboard/lv_keyboard.h"
+ 120              		.file 52 "Drivers/lvgl/lvgl/src/extra/widgets/list/lv_list.h"
+ 121              		.file 53 "Drivers/lvgl/lvgl/src/extra/widgets/menu/lv_menu.h"
+ 122              		.file 54 "Drivers/lvgl/lvgl/src/extra/widgets/msgbox/lv_msgbox.h"
+ 123              		.file 55 "Drivers/lvgl/lvgl/src/extra/widgets/meter/lv_meter.h"
+ 124              		.file 56 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.h"
+ 125              		.file 57 "Drivers/lvgl/lvgl/src/extra/widgets/spinner/lv_spinner.h"
+ 126              		.file 58 "Drivers/lvgl/lvgl/src/extra/widgets/tabview/lv_tabview.h"
+ 127              		.file 59 "Drivers/lvgl/lvgl/src/extra/widgets/tileview/lv_tileview.h"
+ 128              		.file 60 "Drivers/lvgl/lvgl/src/extra/widgets/win/lv_win.h"
+ 129              		.file 61 "Drivers/lvgl/lvgl/src/extra/widgets/colorwheel/lv_colorwheel.h"
+ 130              		.file 62 "Drivers/lvgl/lvgl/src/extra/widgets/led/lv_led.h"
+ 131              		.file 63 "Drivers/lvgl/lvgl/src/extra/widgets/imgbtn/lv_imgbtn.h"
+ 132              		.file 64 "Drivers/lvgl/lvgl/src/extra/widgets/span/lv_span.h"
+ 133              		.file 65 "Drivers/ST7789/fonts.h"
+ 134              		.file 66 "Drivers/ST7789/st7789.h"
+ 135              		.file 67 "Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_cortex.h"
+ARM GAS  /tmp/cci7nTus.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 stm32h7xx_hal_msp.c
+     /tmp/cci7nTus.s:17     .text.HAL_MspInit:0000000000000000 $t
+     /tmp/cci7nTus.s:24     .text.HAL_MspInit:0000000000000000 HAL_MspInit
+     /tmp/cci7nTus.s:64     .text.HAL_MspInit:0000000000000030 $d
+
+UNDEFINED SYMBOLS
+HAL_NVIC_SetPriority

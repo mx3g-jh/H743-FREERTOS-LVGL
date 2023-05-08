@@ -1,0 +1,2341 @@
+ARM GAS  /tmp/ccmUdqBI.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_spinbox.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.lv_spinbox_updatevalue,"ax",%progbits
+  17              		.align	1
+  18              		.syntax unified
+  19              		.thumb
+  20              		.thumb_func
+  21              		.fpu fpv5-d16
+  23              	lv_spinbox_updatevalue:
+  24              	.LFB219:
+  25              		.file 1 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c"
+   1:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+   2:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @file lv_spinbox.c
+   3:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *
+   4:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+   5:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+   6:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /*********************
+   7:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *      INCLUDES
+   8:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *********************/
+   9:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** #include "lv_spinbox.h"
+  10:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** #if LV_USE_SPINBOX
+  11:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  12:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** #include "../../../misc/lv_assert.h"
+  13:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  14:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /*********************
+  15:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *      DEFINES
+  16:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *********************/
+  17:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** #define MY_CLASS    &lv_spinbox_class
+  18:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  19:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**********************
+  20:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *      TYPEDEFS
+  21:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  **********************/
+  22:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  23:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**********************
+  24:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *  STATIC PROTOTYPES
+  25:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  **********************/
+  26:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  27:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** static void lv_spinbox_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj);
+  28:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** static void lv_spinbox_event(const lv_obj_class_t * class_p, lv_event_t * e);
+  29:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** static void lv_spinbox_updatevalue(lv_obj_t * obj);
+  30:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  31:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**********************
+  32:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *  STATIC VARIABLES
+  33:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  **********************/
+ARM GAS  /tmp/ccmUdqBI.s 			page 2
+
+
+  34:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** const lv_obj_class_t lv_spinbox_class = {
+  35:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     .constructor_cb = lv_spinbox_constructor,
+  36:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     .event_cb = lv_spinbox_event,
+  37:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     .width_def = LV_DPI_DEF,
+  38:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     .instance_size = sizeof(lv_spinbox_t),
+  39:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     .editable = LV_OBJ_CLASS_EDITABLE_TRUE,
+  40:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     .base_class = &lv_textarea_class
+  41:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** };
+  42:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**********************
+  43:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *      MACROS
+  44:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  **********************/
+  45:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  46:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**********************
+  47:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *   GLOBAL FUNCTIONS
+  48:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  **********************/
+  49:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  50:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** lv_obj_t * lv_spinbox_create(lv_obj_t * parent)
+  51:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+  52:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_LOG_INFO("begin");
+  53:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
+  54:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_obj_class_init_obj(obj);
+  55:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     return obj;
+  56:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+  57:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  58:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /*=====================
+  59:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Setter functions
+  60:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *====================*/
+  61:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  62:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+  63:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Set spinbox value
+  64:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param obj pointer to spinbox
+  65:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param i value to be set
+  66:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+  67:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** void lv_spinbox_set_value(lv_obj_t * obj, int32_t i)
+  68:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+  69:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+  70:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+  71:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  72:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(i > spinbox->range_max) i = spinbox->range_max;
+  73:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(i < spinbox->range_min) i = spinbox->range_min;
+  74:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  75:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->value = i;
+  76:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  77:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_updatevalue(obj);
+  78:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+  79:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  80:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+  81:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Set spinbox rollover function
+  82:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param spinbox pointer to spinbox
+  83:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param b true or false to enable or disable (default)
+  84:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+  85:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** void lv_spinbox_set_rollover(lv_obj_t * obj, bool b)
+  86:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+  87:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+  88:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+  89:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  90:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->rollover = b;
+ARM GAS  /tmp/ccmUdqBI.s 			page 3
+
+
+  91:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+  92:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  93:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+  94:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Set spinbox digit format (digit count and decimal format)
+  95:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param spinbox pointer to spinbox
+  96:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param digit_count number of digit excluding the decimal separator and the sign
+  97:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param separator_position number of digit before the decimal point. If 0, decimal point is not
+  98:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * shown
+  99:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+ 100:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** void lv_spinbox_set_digit_format(lv_obj_t * obj, uint8_t digit_count, uint8_t separator_position)
+ 101:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 102:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 103:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 104:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 105:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(digit_count > LV_SPINBOX_MAX_DIGIT_COUNT) digit_count = LV_SPINBOX_MAX_DIGIT_COUNT;
+ 106:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 107:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(separator_position >= digit_count) separator_position = 0;
+ 108:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 109:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(digit_count < LV_SPINBOX_MAX_DIGIT_COUNT) {
+ 110:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         int64_t max_val = lv_pow(10, digit_count);
+ 111:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         if(spinbox->range_max > max_val - 1) spinbox->range_max = max_val - 1;
+ 112:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         if(spinbox->range_min < - max_val  + 1) spinbox->range_min = - max_val  + 1;
+ 113:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 114:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 115:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->digit_count   = digit_count;
+ 116:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->dec_point_pos = separator_position;
+ 117:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 118:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_updatevalue(obj);
+ 119:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 120:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 121:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+ 122:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Set spinbox step
+ 123:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param spinbox pointer to spinbox
+ 124:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param step steps on increment/decrement
+ 125:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+ 126:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** void lv_spinbox_set_step(lv_obj_t * obj, uint32_t step)
+ 127:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 128:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 129:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 130:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 131:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->step = step;
+ 132:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_updatevalue(obj);
+ 133:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 134:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 135:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+ 136:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Set spinbox value range
+ 137:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param spinbox pointer to spinbox
+ 138:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param range_min maximum value, inclusive
+ 139:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param range_max minimum value, inclusive
+ 140:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+ 141:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** void lv_spinbox_set_range(lv_obj_t * obj, int32_t range_min, int32_t range_max)
+ 142:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 143:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 144:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 145:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 146:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->range_max = range_max;
+ 147:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->range_min = range_min;
+ARM GAS  /tmp/ccmUdqBI.s 			page 4
+
+
+ 148:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 149:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(spinbox->value > spinbox->range_max) spinbox->value = spinbox->range_max;
+ 150:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(spinbox->value < spinbox->range_min) spinbox->value = spinbox->range_min;
+ 151:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 152:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_updatevalue(obj);
+ 153:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 154:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 155:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+ 156:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Set cursor position to a specific digit for edition
+ 157:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param spinbox pointer to spinbox
+ 158:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param pos selected position in spinbox
+ 159:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+ 160:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** void lv_spinbox_set_cursor_pos(lv_obj_t * obj, uint8_t pos)
+ 161:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 162:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 163:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 164:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     int32_t step_limit;
+ 165:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     step_limit       = LV_MAX(spinbox->range_max, (spinbox->range_min < 0 ? (-spinbox->range_min) :
+ 166:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     int32_t new_step = spinbox->step * lv_pow(10, pos);
+ 167:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(pos <= 0) spinbox->step = 1;
+ 168:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     else if(new_step <= step_limit) spinbox->step = new_step;
+ 169:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 170:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_updatevalue(obj);
+ 171:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 172:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 173:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+ 174:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Set direction of digit step when clicking an encoder button while in editing mode
+ 175:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param spinbox pointer to spinbox
+ 176:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param direction the direction (LV_DIR_RIGHT or LV_DIR_LEFT)
+ 177:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+ 178:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** void lv_spinbox_set_digit_step_direction(lv_obj_t * obj, lv_dir_t direction)
+ 179:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 180:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 181:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 182:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->digit_step_dir = direction;
+ 183:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 184:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_updatevalue(obj);
+ 185:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 186:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /*=====================
+ 187:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Getter functions
+ 188:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *====================*/
+ 189:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 190:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+ 191:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Get the spinbox numeral value (user has to convert to float according to its digit format)
+ 192:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param obj pointer to spinbox
+ 193:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @return value integer value of the spinbox
+ 194:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+ 195:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** int32_t lv_spinbox_get_value(lv_obj_t * obj)
+ 196:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 197:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 198:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 199:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 200:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     return spinbox->value;
+ 201:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 202:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+ 203:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Get the spinbox step value (user has to convert to float according to its digit format)
+ 204:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param obj pointer to spinbox
+ARM GAS  /tmp/ccmUdqBI.s 			page 5
+
+
+ 205:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @return value integer step value of the spinbox
+ 206:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+ 207:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** int32_t lv_spinbox_get_step(lv_obj_t * obj)
+ 208:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 209:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 210:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 211:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 212:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     return spinbox->step;
+ 213:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 214:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 215:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /*=====================
+ 216:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Other functions
+ 217:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *====================*/
+ 218:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 219:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+ 220:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Select next lower digit for edition
+ 221:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param obj pointer to spinbox
+ 222:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+ 223:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** void lv_spinbox_step_next(lv_obj_t * obj)
+ 224:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 225:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 226:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 227:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 228:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     int32_t new_step = spinbox->step / 10;
+ 229:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if((new_step) > 0)
+ 230:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         spinbox->step = new_step;
+ 231:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     else
+ 232:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         spinbox->step = 1;
+ 233:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 234:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_updatevalue(obj);
+ 235:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 236:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 237:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+ 238:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Select next higher digit for edition
+ 239:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param obj pointer to spinbox
+ 240:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+ 241:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** void lv_spinbox_step_prev(lv_obj_t * obj)
+ 242:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 243:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 244:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 245:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     int32_t step_limit;
+ 246:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     step_limit       = LV_MAX(spinbox->range_max, (spinbox->range_min < 0 ? (-spinbox->range_min) :
+ 247:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     int32_t new_step = spinbox->step * 10;
+ 248:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(new_step <= step_limit) spinbox->step = new_step;
+ 249:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 250:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_updatevalue(obj);
+ 251:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 252:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 253:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+ 254:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Get spinbox rollover function status
+ 255:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param obj pointer to spinbox
+ 256:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+ 257:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** bool lv_spinbox_get_rollover(lv_obj_t * obj)
+ 258:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 259:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 260:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 261:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ARM GAS  /tmp/ccmUdqBI.s 			page 6
+
+
+ 262:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     return spinbox->rollover;
+ 263:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 264:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 265:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+ 266:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Increment spinbox value by one step
+ 267:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param obj pointer to spinbox
+ 268:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+ 269:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** void lv_spinbox_increment(lv_obj_t * obj)
+ 270:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 271:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 272:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 273:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 274:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(spinbox->value + spinbox->step <= spinbox->range_max) {
+ 275:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         /*Special mode when zero crossing*/
+ 276:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         if((spinbox->value + spinbox->step) > 0 && spinbox->value < 0) spinbox->value = -spinbox->v
+ 277:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         spinbox->value += spinbox->step;
+ 278:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 279:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 280:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     else {
+ 281:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         // Rollover?
+ 282:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         if((spinbox->rollover) && (spinbox->value == spinbox->range_max))
+ 283:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             spinbox->value = spinbox->range_min;
+ 284:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         else
+ 285:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             spinbox->value = spinbox->range_max;
+ 286:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 287:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 288:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_updatevalue(obj);
+ 289:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 290:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 291:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+ 292:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * Decrement spinbox value by one step
+ 293:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  * @param obj pointer to spinbox
+ 294:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  */
+ 295:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** void lv_spinbox_decrement(lv_obj_t * obj)
+ 296:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 297:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 298:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 299:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 300:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(spinbox->value - spinbox->step >= spinbox->range_min) {
+ 301:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         /*Special mode when zero crossing*/
+ 302:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         if((spinbox->value - spinbox->step) < 0 && spinbox->value > 0) spinbox->value = -spinbox->v
+ 303:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         spinbox->value -= spinbox->step;
+ 304:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 305:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     else {
+ 306:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         /*Rollover?*/
+ 307:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         if((spinbox->rollover) && (spinbox->value == spinbox->range_min))
+ 308:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             spinbox->value = spinbox->range_max;
+ 309:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         else
+ 310:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             spinbox->value = spinbox->range_min;
+ 311:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 312:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 313:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_updatevalue(obj);
+ 314:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 315:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 316:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**********************
+ 317:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  *   STATIC FUNCTIONS
+ 318:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****  **********************/
+ARM GAS  /tmp/ccmUdqBI.s 			page 7
+
+
+ 319:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 320:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** static void lv_spinbox_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+ 321:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 322:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_UNUSED(class_p);
+ 323:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_LOG_TRACE("begin");
+ 324:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 325:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 326:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 327:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     /*Initialize the allocated 'ext'*/
+ 328:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->value              = 0;
+ 329:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->dec_point_pos      = 0;
+ 330:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->digit_count        = 5;
+ 331:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->step               = 1;
+ 332:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->range_max          = 99999;
+ 333:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->range_min          = -99999;
+ 334:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->rollover           = false;
+ 335:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->digit_step_dir     = LV_DIR_RIGHT;
+ 336:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 337:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_textarea_set_one_line(obj, true);
+ 338:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_textarea_set_cursor_click_pos(obj, true);
+ 339:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 340:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_updatevalue(obj);
+ 341:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 342:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_LOG_TRACE("Spinbox constructor finished");
+ 343:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 344:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 345:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** static void lv_spinbox_event(const lv_obj_class_t * class_p, lv_event_t * e)
+ 346:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+ 347:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_UNUSED(class_p);
+ 348:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 349:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     /*Call the ancestor's event handler*/
+ 350:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_res_t res = LV_RES_OK;
+ 351:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     res = lv_obj_event_base(MY_CLASS, e);
+ 352:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(res != LV_RES_OK) return;
+ 353:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 354:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_event_code_t code = lv_event_get_code(e);
+ 355:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_obj_t * obj = lv_event_get_target(e);
+ 356:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 357:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(code == LV_EVENT_RELEASED) {
+ 358:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         /*If released with an ENCODER then move to the next digit*/
+ 359:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         lv_indev_t * indev = lv_indev_get_act();
+ 360:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         if(lv_indev_get_type(indev) == LV_INDEV_TYPE_ENCODER) {
+ 361:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             if(lv_group_get_editing(lv_obj_get_group(obj))) {
+ 362:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 if(spinbox->digit_count > 1) {
+ 363:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                     if(spinbox->digit_step_dir == LV_DIR_RIGHT) {
+ 364:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                         if(spinbox->step > 1) {
+ 365:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                             lv_spinbox_step_next(obj);
+ 366:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                         }
+ 367:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                         else {
+ 368:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                             /*Restart from the MSB*/
+ 369:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                             spinbox->step = lv_pow(10, spinbox->digit_count - 2);
+ 370:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                             lv_spinbox_step_prev(obj);
+ 371:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                         }
+ 372:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                     }
+ 373:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                     else {
+ 374:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                         if(spinbox->step < lv_pow(10, spinbox->digit_count - 1)) {
+ 375:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                             lv_spinbox_step_prev(obj);
+ARM GAS  /tmp/ccmUdqBI.s 			page 8
+
+
+ 376:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                         }
+ 377:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                         else {
+ 378:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                             /*Restart from the LSB*/
+ 379:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                             spinbox->step = 10;
+ 380:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                             lv_spinbox_step_next(obj);
+ 381:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                         }
+ 382:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                     }
+ 383:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 }
+ 384:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             }
+ 385:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 386:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         /*The cursor has been positioned to a digit.
+ 387:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****          * Set `step` accordingly*/
+ 388:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         else {
+ 389:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             const char * txt = lv_textarea_get_text(obj);
+ 390:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             size_t txt_len = strlen(txt);
+ 391:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 392:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             if(txt[spinbox->ta.cursor.pos] == '.') {
+ 393:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 lv_textarea_cursor_left(obj);
+ 394:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             }
+ 395:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             else if(spinbox->ta.cursor.pos == (uint32_t)txt_len) {
+ 396:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 lv_textarea_set_cursor_pos(obj, txt_len - 1);
+ 397:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             }
+ 398:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             else if(spinbox->ta.cursor.pos == 0 && spinbox->range_min < 0) {
+ 399:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 lv_textarea_set_cursor_pos(obj, 1);
+ 400:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             }
+ 401:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 402:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             size_t len = spinbox->digit_count - 1;
+ 403:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             uint16_t cp = spinbox->ta.cursor.pos;
+ 404:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 405:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             if(spinbox->ta.cursor.pos > spinbox->dec_point_pos && spinbox->dec_point_pos != 0) cp--
+ 406:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             uint32_t pos = len - cp;
+ 407:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 408:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             if(spinbox->range_min < 0) pos++;
+ 409:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 410:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             spinbox->step = 1;
+ 411:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             uint16_t i;
+ 412:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             for(i = 0; i < pos; i++) spinbox->step *= 10;
+ 413:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 414:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 415:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     else if(code == LV_EVENT_KEY) {
+ 416:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
+ 417:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 418:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         uint32_t c = *((uint32_t *)lv_event_get_param(e)); /*uint32_t because can be UTF-8*/
+ 419:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         if(c == LV_KEY_RIGHT) {
+ 420:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             if(indev_type == LV_INDEV_TYPE_ENCODER)
+ 421:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 lv_spinbox_increment(obj);
+ 422:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             else
+ 423:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 lv_spinbox_step_next(obj);
+ 424:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 425:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         else if(c == LV_KEY_LEFT) {
+ 426:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             if(indev_type == LV_INDEV_TYPE_ENCODER)
+ 427:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 lv_spinbox_decrement(obj);
+ 428:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             else
+ 429:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 lv_spinbox_step_prev(obj);
+ 430:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 431:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         else if(c == LV_KEY_UP) {
+ 432:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             lv_spinbox_increment(obj);
+ARM GAS  /tmp/ccmUdqBI.s 			page 9
+
+
+ 433:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 434:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         else if(c == LV_KEY_DOWN) {
+ 435:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             lv_spinbox_decrement(obj);
+ 436:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 437:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 438:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 439:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 440:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** static void lv_spinbox_updatevalue(lv_obj_t * obj)
+ 441:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** {
+  26              		.loc 1 441 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 40
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 20
+  34              		.cfi_offset 4, -20
+  35              		.cfi_offset 5, -16
+  36              		.cfi_offset 6, -12
+  37              		.cfi_offset 7, -8
+  38              		.cfi_offset 14, -4
+  39 0002 8BB0     		sub	sp, sp, #44
+  40              	.LCFI1:
+  41              		.cfi_def_cfa_offset 64
+  42 0004 0446     		mov	r4, r0
+  43              	.LVL1:
+ 442:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 443:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 444:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     char buf[LV_SPINBOX_MAX_DIGIT_COUNT + 8];
+ 445:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_memset_00(buf, sizeof(buf));
+  44              		.loc 1 445 0
+  45 0006 1221     		movs	r1, #18
+  46 0008 05A8     		add	r0, sp, #20
+  47              	.LVL2:
+  48 000a FFF7FEFF 		bl	lv_memset_00
+  49              	.LVL3:
+ 446:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     char * buf_p = buf;
+ 447:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     uint8_t cur_shift_left = 0;
+ 448:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 449:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(spinbox->range_min < 0) {  // hide sign if there are only positive values
+  50              		.loc 1 449 0
+  51 000e E36E     		ldr	r3, [r4, #108]
+  52 0010 002B     		cmp	r3, #0
+  53 0012 16DB     		blt	.L22
+ 450:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         /*Add the sign*/
+ 451:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         (*buf_p) = spinbox->value >= 0 ? '+' : '-';
+ 452:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         buf_p++;
+ 453:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 454:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     else {
+ 455:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         /*Cursor need shift to left*/
+ 456:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         cur_shift_left++;
+  54              		.loc 1 456 0
+  55 0014 0126     		movs	r6, #1
+ 446:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     char * buf_p = buf;
+  56              		.loc 1 446 0
+  57 0016 05AF     		add	r7, sp, #20
+ARM GAS  /tmp/ccmUdqBI.s 			page 10
+
+
+  58              	.LVL4:
+  59              	.L2:
+ 457:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 458:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 459:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     int32_t i;
+ 460:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     char digits[LV_SPINBOX_MAX_DIGIT_COUNT + 4];
+ 461:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     /*Convert the numbers to string (the sign is already handled so always covert positive number)*
+ 462:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_snprintf(digits, sizeof(digits), "%" LV_PRId32, LV_ABS(spinbox->value));
+  60              		.loc 1 462 0
+  61 0018 636E     		ldr	r3, [r4, #100]
+  62 001a 002B     		cmp	r3, #0
+  63 001c B8BF     		it	lt
+  64 001e 5B42     		rsblt	r3, r3, #0
+  65 0020 3E4A     		ldr	r2, .L23
+  66 0022 0E21     		movs	r1, #14
+  67 0024 01A8     		add	r0, sp, #4
+  68 0026 FFF7FEFF 		bl	lv_snprintf
+  69              	.LVL5:
+ 463:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 464:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     /*Add leading zeros*/
+ 465:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     int lz_cnt = spinbox->digit_count - (int)strlen(digits);
+  70              		.loc 1 465 0
+  71 002a 94F87450 		ldrb	r5, [r4, #116]	@ zero_extendqisi2
+  72 002e 05F00F05 		and	r5, r5, #15
+  73 0032 01A8     		add	r0, sp, #4
+  74 0034 FFF7FEFF 		bl	strlen
+  75              	.LVL6:
+  76 0038 2A1A     		subs	r2, r5, r0
+  77              	.LVL7:
+ 466:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(lz_cnt > 0) {
+  78              		.loc 1 466 0
+  79 003a 002A     		cmp	r2, #0
+  80 003c 24DD     		ble	.L4
+ 467:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         for(i = (uint16_t)strlen(digits); i >= 0; i--) {
+  81              		.loc 1 467 0
+  82 003e 80B2     		uxth	r0, r0
+  83              	.LVL8:
+  84 0040 16E0     		b	.L5
+  85              	.LVL9:
+  86              	.L22:
+ 451:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         buf_p++;
+  87              		.loc 1 451 0
+  88 0042 636E     		ldr	r3, [r4, #100]
+  89 0044 002B     		cmp	r3, #0
+  90 0046 06DB     		blt	.L20
+  91 0048 2B23     		movs	r3, #43
+  92              	.L3:
+ 451:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         buf_p++;
+  93              		.loc 1 451 0 is_stmt 0 discriminator 4
+  94 004a 8DF81430 		strb	r3, [sp, #20]
+  95              	.LVL10:
+ 447:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+  96              		.loc 1 447 0 is_stmt 1 discriminator 4
+  97 004e 0026     		movs	r6, #0
+ 452:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+  98              		.loc 1 452 0 discriminator 4
+  99 0050 0DF11507 		add	r7, sp, #21
+ARM GAS  /tmp/ccmUdqBI.s 			page 11
+
+
+ 100              	.LVL11:
+ 101 0054 E0E7     		b	.L2
+ 102              	.LVL12:
+ 103              	.L20:
+ 451:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         buf_p++;
+ 104              		.loc 1 451 0
+ 105 0056 2D23     		movs	r3, #45
+ 106 0058 F7E7     		b	.L3
+ 107              	.LVL13:
+ 108              	.L6:
+ 468:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             digits[i + lz_cnt] = digits[i];
+ 109              		.loc 1 468 0 discriminator 3
+ 110 005a 8318     		adds	r3, r0, r2
+ 111 005c 0AA9     		add	r1, sp, #40
+ 112 005e 0144     		add	r1, r1, r0
+ 113 0060 11F8241C 		ldrb	r1, [r1, #-36]	@ zero_extendqisi2
+ 114 0064 0DF1280C 		add	ip, sp, #40
+ 115 0068 6344     		add	r3, r3, ip
+ 116 006a 03F8241C 		strb	r1, [r3, #-36]
+ 467:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             digits[i + lz_cnt] = digits[i];
+ 117              		.loc 1 467 0 discriminator 3
+ 118 006e 0138     		subs	r0, r0, #1
+ 119              	.LVL14:
+ 120              	.L5:
+ 467:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             digits[i + lz_cnt] = digits[i];
+ 121              		.loc 1 467 0 is_stmt 0 discriminator 1
+ 122 0070 0028     		cmp	r0, #0
+ 123 0072 F2DA     		bge	.L6
+ 469:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 470:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         for(i = 0; i < lz_cnt; i++) {
+ 124              		.loc 1 470 0 is_stmt 1
+ 125 0074 0023     		movs	r3, #0
+ 126 0076 05E0     		b	.L7
+ 127              	.LVL15:
+ 128              	.L8:
+ 471:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             digits[i] = '0';
+ 129              		.loc 1 471 0 discriminator 3
+ 130 0078 0AA9     		add	r1, sp, #40
+ 131 007a 1944     		add	r1, r1, r3
+ 132 007c 3020     		movs	r0, #48
+ 133 007e 01F8240C 		strb	r0, [r1, #-36]
+ 470:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             digits[i] = '0';
+ 134              		.loc 1 470 0 discriminator 3
+ 135 0082 0133     		adds	r3, r3, #1
+ 136              	.LVL16:
+ 137              	.L7:
+ 470:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             digits[i] = '0';
+ 138              		.loc 1 470 0 is_stmt 0 discriminator 1
+ 139 0084 9342     		cmp	r3, r2
+ 140 0086 F7DB     		blt	.L8
+ 141              	.LVL17:
+ 142              	.L4:
+ 472:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 473:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 474:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 475:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     int32_t intDigits;
+ 476:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     intDigits = (spinbox->dec_point_pos == 0) ? spinbox->digit_count : spinbox->dec_point_pos;
+ARM GAS  /tmp/ccmUdqBI.s 			page 12
+
+
+ 143              		.loc 1 476 0 is_stmt 1
+ 144 0088 94F87430 		ldrb	r3, [r4, #116]	@ zero_extendqisi2
+ 145 008c 13F0F00F 		tst	r3, #240
+ 146 0090 00D0     		beq	.L9
+ 147              		.loc 1 476 0 is_stmt 0 discriminator 2
+ 148 0092 1D09     		lsrs	r5, r3, #4
+ 149              	.L9:
+ 150              	.LVL18:
+ 477:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 478:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     /*Add the decimal part*/
+ 479:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     for(i = 0; i < intDigits && digits[i] != '\0'; i++) {
+ 151              		.loc 1 479 0 is_stmt 1 discriminator 4
+ 152 0094 0023     		movs	r3, #0
+ 153 0096 02E0     		b	.L10
+ 154              	.LVL19:
+ 155              	.L12:
+ 480:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         (*buf_p) = digits[i];
+ 156              		.loc 1 480 0 discriminator 4
+ 157 0098 07F8012B 		strb	r2, [r7], #1
+ 158              	.LVL20:
+ 479:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         (*buf_p) = digits[i];
+ 159              		.loc 1 479 0 discriminator 4
+ 160 009c 0133     		adds	r3, r3, #1
+ 161              	.LVL21:
+ 162              	.L10:
+ 479:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         (*buf_p) = digits[i];
+ 163              		.loc 1 479 0 is_stmt 0 discriminator 1
+ 164 009e AB42     		cmp	r3, r5
+ 165 00a0 05DA     		bge	.L11
+ 479:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         (*buf_p) = digits[i];
+ 166              		.loc 1 479 0 discriminator 3
+ 167 00a2 0AAA     		add	r2, sp, #40
+ 168 00a4 1A44     		add	r2, r2, r3
+ 169 00a6 12F8242C 		ldrb	r2, [r2, #-36]	@ zero_extendqisi2
+ 170 00aa 002A     		cmp	r2, #0
+ 171 00ac F4D1     		bne	.L12
+ 172              	.L11:
+ 481:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         buf_p++;
+ 482:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 483:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 484:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(spinbox->dec_point_pos != 0) {
+ 173              		.loc 1 484 0 is_stmt 1
+ 174 00ae 94F87420 		ldrb	r2, [r4, #116]	@ zero_extendqisi2
+ 175 00b2 12F0F00F 		tst	r2, #240
+ 176 00b6 12D0     		beq	.L13
+ 485:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         /*Insert the decimal point*/
+ 486:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         (*buf_p) = '.';
+ 177              		.loc 1 486 0
+ 178 00b8 2E22     		movs	r2, #46
+ 179 00ba 07F8012B 		strb	r2, [r7], #1
+ 180              	.LVL22:
+ 487:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         buf_p++;
+ 488:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 489:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         for(/*Leave i*/; i < spinbox->digit_count && digits[i] != '\0'; i++) {
+ 181              		.loc 1 489 0
+ 182 00be 02E0     		b	.L14
+ 183              	.L15:
+ARM GAS  /tmp/ccmUdqBI.s 			page 13
+
+
+ 490:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             (*buf_p) = digits[i];
+ 184              		.loc 1 490 0 discriminator 3
+ 185 00c0 07F8012B 		strb	r2, [r7], #1
+ 186              	.LVL23:
+ 489:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             (*buf_p) = digits[i];
+ 187              		.loc 1 489 0 discriminator 3
+ 188 00c4 0133     		adds	r3, r3, #1
+ 189              	.LVL24:
+ 190              	.L14:
+ 489:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             (*buf_p) = digits[i];
+ 191              		.loc 1 489 0 is_stmt 0 discriminator 1
+ 192 00c6 94F87420 		ldrb	r2, [r4, #116]	@ zero_extendqisi2
+ 193 00ca 02F00F02 		and	r2, r2, #15
+ 194 00ce 9A42     		cmp	r2, r3
+ 195 00d0 05DD     		ble	.L13
+ 489:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             (*buf_p) = digits[i];
+ 196              		.loc 1 489 0 discriminator 2
+ 197 00d2 0AAA     		add	r2, sp, #40
+ 198 00d4 1A44     		add	r2, r2, r3
+ 199 00d6 12F8242C 		ldrb	r2, [r2, #-36]	@ zero_extendqisi2
+ 200 00da 002A     		cmp	r2, #0
+ 201 00dc F0D1     		bne	.L15
+ 202              	.L13:
+ 491:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             buf_p++;
+ 492:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 493:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 494:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 495:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     /*Refresh the text*/
+ 496:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_textarea_set_text(obj, (char *)buf);
+ 203              		.loc 1 496 0 is_stmt 1
+ 204 00de 05A9     		add	r1, sp, #20
+ 205 00e0 2046     		mov	r0, r4
+ 206 00e2 FFF7FEFF 		bl	lv_textarea_set_text
+ 207              	.LVL25:
+ 497:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 498:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     /*Set the cursor position*/
+ 499:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     int32_t step    = spinbox->step;
+ 208              		.loc 1 499 0
+ 209 00e6 236F     		ldr	r3, [r4, #112]
+ 210              	.LVL26:
+ 500:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     uint8_t cur_pos = (uint8_t)spinbox->digit_count;
+ 211              		.loc 1 500 0
+ 212 00e8 94F87410 		ldrb	r1, [r4, #116]	@ zero_extendqisi2
+ 213 00ec 01F00F01 		and	r1, r1, #15
+ 214              	.LVL27:
+ 501:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     while(step >= 10) {
+ 215              		.loc 1 501 0
+ 216 00f0 07E0     		b	.L16
+ 217              	.LVL28:
+ 218              	.L17:
+ 502:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         step /= 10;
+ 219              		.loc 1 502 0
+ 220 00f2 0B4A     		ldr	r2, .L23+4
+ 221 00f4 82FB0302 		smull	r0, r2, r2, r3
+ 222 00f8 DB17     		asrs	r3, r3, #31
+ 223              	.LVL29:
+ 224 00fa C3EBA203 		rsb	r3, r3, r2, asr #2
+ARM GAS  /tmp/ccmUdqBI.s 			page 14
+
+
+ 225              	.LVL30:
+ 503:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         cur_pos--;
+ 226              		.loc 1 503 0
+ 227 00fe 0139     		subs	r1, r1, #1
+ 228              	.LVL31:
+ 229 0100 C9B2     		uxtb	r1, r1
+ 230              	.LVL32:
+ 231              	.L16:
+ 501:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     while(step >= 10) {
+ 232              		.loc 1 501 0
+ 233 0102 092B     		cmp	r3, #9
+ 234 0104 F5DC     		bgt	.L17
+ 504:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 505:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 506:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(cur_pos > intDigits) cur_pos++; /*Skip the decimal point*/
+ 235              		.loc 1 506 0
+ 236 0106 A942     		cmp	r1, r5
+ 237 0108 01DD     		ble	.L18
+ 238              		.loc 1 506 0 is_stmt 0 discriminator 1
+ 239 010a 0131     		adds	r1, r1, #1
+ 240              	.LVL33:
+ 241 010c C9B2     		uxtb	r1, r1
+ 242              	.LVL34:
+ 243              	.L18:
+ 507:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 508:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     cur_pos -= cur_shift_left;
+ 244              		.loc 1 508 0 is_stmt 1
+ 245 010e 891B     		subs	r1, r1, r6
+ 246              	.LVL35:
+ 509:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 510:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_textarea_set_cursor_pos(obj, cur_pos);
+ 247              		.loc 1 510 0
+ 248 0110 C9B2     		uxtb	r1, r1
+ 249 0112 2046     		mov	r0, r4
+ 250 0114 FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 251              	.LVL36:
+ 511:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 252              		.loc 1 511 0
+ 253 0118 0BB0     		add	sp, sp, #44
+ 254              	.LCFI2:
+ 255              		.cfi_def_cfa_offset 20
+ 256              		@ sp needed
+ 257 011a F0BD     		pop	{r4, r5, r6, r7, pc}
+ 258              	.LVL37:
+ 259              	.L24:
+ 260              		.align	2
+ 261              	.L23:
+ 262 011c 00000000 		.word	.LC0
+ 263 0120 67666666 		.word	1717986919
+ 264              		.cfi_endproc
+ 265              	.LFE219:
+ 267              		.section	.text.lv_spinbox_constructor,"ax",%progbits
+ 268              		.align	1
+ 269              		.syntax unified
+ 270              		.thumb
+ 271              		.thumb_func
+ 272              		.fpu fpv5-d16
+ARM GAS  /tmp/ccmUdqBI.s 			page 15
+
+
+ 274              	lv_spinbox_constructor:
+ 275              	.LFB217:
+ 321:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_UNUSED(class_p);
+ 276              		.loc 1 321 0
+ 277              		.cfi_startproc
+ 278              		@ args = 0, pretend = 0, frame = 0
+ 279              		@ frame_needed = 0, uses_anonymous_args = 0
+ 280              	.LVL38:
+ 281 0000 38B5     		push	{r3, r4, r5, lr}
+ 282              	.LCFI3:
+ 283              		.cfi_def_cfa_offset 16
+ 284              		.cfi_offset 3, -16
+ 285              		.cfi_offset 4, -12
+ 286              		.cfi_offset 5, -8
+ 287              		.cfi_offset 14, -4
+ 288 0002 0C46     		mov	r4, r1
+ 289              	.LVL39:
+ 328:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->dec_point_pos      = 0;
+ 290              		.loc 1 328 0
+ 291 0004 0023     		movs	r3, #0
+ 292 0006 4B66     		str	r3, [r1, #100]
+ 329:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->digit_count        = 5;
+ 293              		.loc 1 329 0
+ 294 0008 91F87430 		ldrb	r3, [r1, #116]	@ zero_extendqisi2
+ 330:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->step               = 1;
+ 295              		.loc 1 330 0
+ 296 000c 03F00F03 		and	r3, r3, #15
+ 297 0010 0522     		movs	r2, #5
+ 298 0012 62F30303 		bfi	r3, r2, #0, #4
+ 299 0016 81F87430 		strb	r3, [r1, #116]
+ 331:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->range_max          = 99999;
+ 300              		.loc 1 331 0
+ 301 001a 0125     		movs	r5, #1
+ 302 001c 0D67     		str	r5, [r1, #112]
+ 332:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->range_min          = -99999;
+ 303              		.loc 1 332 0
+ 304 001e 0C4B     		ldr	r3, .L27
+ 305 0020 8B66     		str	r3, [r1, #104]
+ 333:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->rollover           = false;
+ 306              		.loc 1 333 0
+ 307 0022 0C4B     		ldr	r3, .L27+4
+ 308 0024 CB66     		str	r3, [r1, #108]
+ 334:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->digit_step_dir     = LV_DIR_RIGHT;
+ 309              		.loc 1 334 0
+ 310 0026 91F87530 		ldrb	r3, [r1, #117]	@ zero_extendqisi2
+ 335:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 311              		.loc 1 335 0
+ 312 002a 03F0FE03 		and	r3, r3, #254
+ 313 002e 0222     		movs	r2, #2
+ 314 0030 62F34203 		bfi	r3, r2, #1, #2
+ 315 0034 81F87530 		strb	r3, [r1, #117]
+ 337:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_textarea_set_cursor_click_pos(obj, true);
+ 316              		.loc 1 337 0
+ 317 0038 2946     		mov	r1, r5
+ 318              	.LVL40:
+ 319 003a 2046     		mov	r0, r4
+ 320              	.LVL41:
+ARM GAS  /tmp/ccmUdqBI.s 			page 16
+
+
+ 321 003c FFF7FEFF 		bl	lv_textarea_set_one_line
+ 322              	.LVL42:
+ 338:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 323              		.loc 1 338 0
+ 324 0040 2946     		mov	r1, r5
+ 325 0042 2046     		mov	r0, r4
+ 326 0044 FFF7FEFF 		bl	lv_textarea_set_cursor_click_pos
+ 327              	.LVL43:
+ 340:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 328              		.loc 1 340 0
+ 329 0048 2046     		mov	r0, r4
+ 330 004a FFF7FEFF 		bl	lv_spinbox_updatevalue
+ 331              	.LVL44:
+ 343:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 332              		.loc 1 343 0
+ 333 004e 38BD     		pop	{r3, r4, r5, pc}
+ 334              	.LVL45:
+ 335              	.L28:
+ 336              		.align	2
+ 337              	.L27:
+ 338 0050 9F860100 		.word	99999
+ 339 0054 6179FEFF 		.word	-99999
+ 340              		.cfi_endproc
+ 341              	.LFE217:
+ 343              		.section	.text.lv_spinbox_create,"ax",%progbits
+ 344              		.align	1
+ 345              		.global	lv_spinbox_create
+ 346              		.syntax unified
+ 347              		.thumb
+ 348              		.thumb_func
+ 349              		.fpu fpv5-d16
+ 351              	lv_spinbox_create:
+ 352              	.LFB202:
+  51:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_LOG_INFO("begin");
+ 353              		.loc 1 51 0
+ 354              		.cfi_startproc
+ 355              		@ args = 0, pretend = 0, frame = 0
+ 356              		@ frame_needed = 0, uses_anonymous_args = 0
+ 357              	.LVL46:
+ 358 0000 10B5     		push	{r4, lr}
+ 359              	.LCFI4:
+ 360              		.cfi_def_cfa_offset 8
+ 361              		.cfi_offset 4, -8
+ 362              		.cfi_offset 14, -4
+  53:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_obj_class_init_obj(obj);
+ 363              		.loc 1 53 0
+ 364 0002 0146     		mov	r1, r0
+ 365 0004 0348     		ldr	r0, .L31
+ 366              	.LVL47:
+ 367 0006 FFF7FEFF 		bl	lv_obj_class_create_obj
+ 368              	.LVL48:
+ 369 000a 0446     		mov	r4, r0
+ 370              	.LVL49:
+  54:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     return obj;
+ 371              		.loc 1 54 0
+ 372 000c FFF7FEFF 		bl	lv_obj_class_init_obj
+ 373              	.LVL50:
+ARM GAS  /tmp/ccmUdqBI.s 			page 17
+
+
+  56:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 374              		.loc 1 56 0
+ 375 0010 2046     		mov	r0, r4
+ 376 0012 10BD     		pop	{r4, pc}
+ 377              	.LVL51:
+ 378              	.L32:
+ 379              		.align	2
+ 380              	.L31:
+ 381 0014 00000000 		.word	.LANCHOR0
+ 382              		.cfi_endproc
+ 383              	.LFE202:
+ 385              		.section	.text.lv_spinbox_set_value,"ax",%progbits
+ 386              		.align	1
+ 387              		.global	lv_spinbox_set_value
+ 388              		.syntax unified
+ 389              		.thumb
+ 390              		.thumb_func
+ 391              		.fpu fpv5-d16
+ 393              	lv_spinbox_set_value:
+ 394              	.LFB203:
+  68:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 395              		.loc 1 68 0
+ 396              		.cfi_startproc
+ 397              		@ args = 0, pretend = 0, frame = 0
+ 398              		@ frame_needed = 0, uses_anonymous_args = 0
+ 399              	.LVL52:
+ 400 0000 08B5     		push	{r3, lr}
+ 401              	.LCFI5:
+ 402              		.cfi_def_cfa_offset 8
+ 403              		.cfi_offset 3, -8
+ 404              		.cfi_offset 14, -4
+ 405              	.LVL53:
+  72:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(i < spinbox->range_min) i = spinbox->range_min;
+ 406              		.loc 1 72 0
+ 407 0002 836E     		ldr	r3, [r0, #104]
+ 408 0004 8B42     		cmp	r3, r1
+ 409 0006 00DB     		blt	.L34
+ 410 0008 0B46     		mov	r3, r1
+ 411              	.L34:
+ 412              	.LVL54:
+  73:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 413              		.loc 1 73 0
+ 414 000a C26E     		ldr	r2, [r0, #108]
+ 415 000c 9A42     		cmp	r2, r3
+ 416 000e 03DD     		ble	.L37
+ 417              	.L35:
+ 418              	.LVL55:
+  75:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 419              		.loc 1 75 0
+ 420 0010 4266     		str	r2, [r0, #100]
+  77:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 421              		.loc 1 77 0
+ 422 0012 FFF7FEFF 		bl	lv_spinbox_updatevalue
+ 423              	.LVL56:
+  78:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 424              		.loc 1 78 0
+ 425 0016 08BD     		pop	{r3, pc}
+ARM GAS  /tmp/ccmUdqBI.s 			page 18
+
+
+ 426              	.LVL57:
+ 427              	.L37:
+  73:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 428              		.loc 1 73 0
+ 429 0018 1A46     		mov	r2, r3
+ 430 001a F9E7     		b	.L35
+ 431              		.cfi_endproc
+ 432              	.LFE203:
+ 434              		.section	.text.lv_spinbox_set_rollover,"ax",%progbits
+ 435              		.align	1
+ 436              		.global	lv_spinbox_set_rollover
+ 437              		.syntax unified
+ 438              		.thumb
+ 439              		.thumb_func
+ 440              		.fpu fpv5-d16
+ 442              	lv_spinbox_set_rollover:
+ 443              	.LFB204:
+  86:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 444              		.loc 1 86 0
+ 445              		.cfi_startproc
+ 446              		@ args = 0, pretend = 0, frame = 0
+ 447              		@ frame_needed = 0, uses_anonymous_args = 0
+ 448              		@ link register save eliminated.
+ 449              	.LVL58:
+  90:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 450              		.loc 1 90 0
+ 451 0000 90F87530 		ldrb	r3, [r0, #117]	@ zero_extendqisi2
+ 452 0004 61F30003 		bfi	r3, r1, #0, #1
+ 453              	.LVL59:
+ 454 0008 80F87530 		strb	r3, [r0, #117]
+  91:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 455              		.loc 1 91 0
+ 456 000c 7047     		bx	lr
+ 457              		.cfi_endproc
+ 458              	.LFE204:
+ 460              		.section	.text.lv_spinbox_set_digit_format,"ax",%progbits
+ 461              		.align	1
+ 462              		.global	lv_spinbox_set_digit_format
+ 463              		.syntax unified
+ 464              		.thumb
+ 465              		.thumb_func
+ 466              		.fpu fpv5-d16
+ 468              	lv_spinbox_set_digit_format:
+ 469              	.LFB205:
+ 101:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 470              		.loc 1 101 0
+ 471              		.cfi_startproc
+ 472              		@ args = 0, pretend = 0, frame = 0
+ 473              		@ frame_needed = 0, uses_anonymous_args = 0
+ 474              	.LVL60:
+ 475 0000 2DE9784B 		push	{r3, r4, r5, r6, r8, r9, fp, lr}
+ 476              	.LCFI6:
+ 477              		.cfi_def_cfa_offset 32
+ 478              		.cfi_offset 3, -32
+ 479              		.cfi_offset 4, -28
+ 480              		.cfi_offset 5, -24
+ 481              		.cfi_offset 6, -20
+ARM GAS  /tmp/ccmUdqBI.s 			page 19
+
+
+ 482              		.cfi_offset 8, -16
+ 483              		.cfi_offset 9, -12
+ 484              		.cfi_offset 11, -8
+ 485              		.cfi_offset 14, -4
+ 486 0004 0546     		mov	r5, r0
+ 487 0006 0C46     		mov	r4, r1
+ 488 0008 1646     		mov	r6, r2
+ 489              	.LVL61:
+ 105:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 490              		.loc 1 105 0
+ 491 000a 0A29     		cmp	r1, #10
+ 492 000c 00D9     		bls	.L40
+ 493 000e 0A24     		movs	r4, #10
+ 494              	.L40:
+ 495              	.LVL62:
+ 107:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 496              		.loc 1 107 0
+ 497 0010 B442     		cmp	r4, r6
+ 498 0012 00D8     		bhi	.L41
+ 499 0014 0026     		movs	r6, #0
+ 500              	.L41:
+ 501              	.LVL63:
+ 109:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         int64_t max_val = lv_pow(10, digit_count);
+ 502              		.loc 1 109 0
+ 503 0016 092C     		cmp	r4, #9
+ 504 0018 0CD9     		bls	.L47
+ 505              	.LVL64:
+ 506              	.L42:
+ 115:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->dec_point_pos = separator_position;
+ 507              		.loc 1 115 0
+ 508 001a 95F87430 		ldrb	r3, [r5, #116]	@ zero_extendqisi2
+ 509 001e 64F30303 		bfi	r3, r4, #0, #4
+ 116:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 510              		.loc 1 116 0
+ 511 0022 66F30713 		bfi	r3, r6, #4, #4
+ 512 0026 85F87430 		strb	r3, [r5, #116]
+ 118:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 513              		.loc 1 118 0
+ 514 002a 2846     		mov	r0, r5
+ 515 002c FFF7FEFF 		bl	lv_spinbox_updatevalue
+ 516              	.LVL65:
+ 119:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 517              		.loc 1 119 0
+ 518 0030 BDE8788B 		pop	{r3, r4, r5, r6, r8, r9, fp, pc}
+ 519              	.LVL66:
+ 520              	.L47:
+ 521              	.LBB2:
+ 110:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         if(spinbox->range_max > max_val - 1) spinbox->range_max = max_val - 1;
+ 522              		.loc 1 110 0
+ 523 0034 62B2     		sxtb	r2, r4
+ 524 0036 0A20     		movs	r0, #10
+ 525              	.LVL67:
+ 526 0038 0021     		movs	r1, #0
+ 527 003a FFF7FEFF 		bl	lv_pow
+ 528              	.LVL68:
+ 529 003e 8046     		mov	r8, r0
+ 530 0040 8946     		mov	r9, r1
+ARM GAS  /tmp/ccmUdqBI.s 			page 20
+
+
+ 531              	.LVL69:
+ 111:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         if(spinbox->range_min < - max_val  + 1) spinbox->range_min = - max_val  + 1;
+ 532              		.loc 1 111 0
+ 533 0042 AA6E     		ldr	r2, [r5, #104]
+ 534 0044 D317     		asrs	r3, r2, #31
+ 535 0046 10F1FF30 		adds	r0, r0, #-1
+ 536 004a 41F1FF31 		adc	r1, r1, #-1
+ 537 004e 9042     		cmp	r0, r2
+ 538 0050 71EB0303 		sbcs	r3, r1, r3
+ 539 0054 02DA     		bge	.L43
+ 111:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         if(spinbox->range_min < - max_val  + 1) spinbox->range_min = - max_val  + 1;
+ 540              		.loc 1 111 0 is_stmt 0 discriminator 1
+ 541 0056 08F1FF33 		add	r3, r8, #-1
+ 542 005a AB66     		str	r3, [r5, #104]
+ 543              	.L43:
+ 112:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 544              		.loc 1 112 0 is_stmt 1
+ 545 005c E86E     		ldr	r0, [r5, #108]
+ 546 005e C117     		asrs	r1, r0, #31
+ 547 0060 0122     		movs	r2, #1
+ 548 0062 0023     		movs	r3, #0
+ 549 0064 B2EB0802 		subs	r2, r2, r8
+ 550 0068 63EB0903 		sbc	r3, r3, r9
+ 551 006c 9C46     		mov	ip, r3
+ 552 006e 9042     		cmp	r0, r2
+ 553 0070 71EB0C03 		sbcs	r3, r1, ip
+ 554 0074 D1DA     		bge	.L42
+ 112:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 555              		.loc 1 112 0 is_stmt 0 discriminator 1
+ 556 0076 C8F10100 		rsb	r0, r8, #1
+ 557 007a E866     		str	r0, [r5, #108]
+ 558 007c CDE7     		b	.L42
+ 559              	.LBE2:
+ 560              		.cfi_endproc
+ 561              	.LFE205:
+ 563              		.section	.text.lv_spinbox_set_step,"ax",%progbits
+ 564              		.align	1
+ 565              		.global	lv_spinbox_set_step
+ 566              		.syntax unified
+ 567              		.thumb
+ 568              		.thumb_func
+ 569              		.fpu fpv5-d16
+ 571              	lv_spinbox_set_step:
+ 572              	.LFB206:
+ 127:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 573              		.loc 1 127 0 is_stmt 1
+ 574              		.cfi_startproc
+ 575              		@ args = 0, pretend = 0, frame = 0
+ 576              		@ frame_needed = 0, uses_anonymous_args = 0
+ 577              	.LVL70:
+ 578 0000 08B5     		push	{r3, lr}
+ 579              	.LCFI7:
+ 580              		.cfi_def_cfa_offset 8
+ 581              		.cfi_offset 3, -8
+ 582              		.cfi_offset 14, -4
+ 583              	.LVL71:
+ 131:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_updatevalue(obj);
+ARM GAS  /tmp/ccmUdqBI.s 			page 21
+
+
+ 584              		.loc 1 131 0
+ 585 0002 0167     		str	r1, [r0, #112]
+ 132:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 586              		.loc 1 132 0
+ 587 0004 FFF7FEFF 		bl	lv_spinbox_updatevalue
+ 588              	.LVL72:
+ 133:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 589              		.loc 1 133 0
+ 590 0008 08BD     		pop	{r3, pc}
+ 591              		.cfi_endproc
+ 592              	.LFE206:
+ 594              		.section	.text.lv_spinbox_set_range,"ax",%progbits
+ 595              		.align	1
+ 596              		.global	lv_spinbox_set_range
+ 597              		.syntax unified
+ 598              		.thumb
+ 599              		.thumb_func
+ 600              		.fpu fpv5-d16
+ 602              	lv_spinbox_set_range:
+ 603              	.LFB207:
+ 142:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 604              		.loc 1 142 0
+ 605              		.cfi_startproc
+ 606              		@ args = 0, pretend = 0, frame = 0
+ 607              		@ frame_needed = 0, uses_anonymous_args = 0
+ 608              	.LVL73:
+ 609 0000 08B5     		push	{r3, lr}
+ 610              	.LCFI8:
+ 611              		.cfi_def_cfa_offset 8
+ 612              		.cfi_offset 3, -8
+ 613              		.cfi_offset 14, -4
+ 614              	.LVL74:
+ 146:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     spinbox->range_min = range_min;
+ 615              		.loc 1 146 0
+ 616 0002 8266     		str	r2, [r0, #104]
+ 147:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 617              		.loc 1 147 0
+ 618 0004 C166     		str	r1, [r0, #108]
+ 149:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(spinbox->value < spinbox->range_min) spinbox->value = spinbox->range_min;
+ 619              		.loc 1 149 0
+ 620 0006 436E     		ldr	r3, [r0, #100]
+ 621 0008 9342     		cmp	r3, r2
+ 622 000a 00DD     		ble	.L51
+ 149:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(spinbox->value < spinbox->range_min) spinbox->value = spinbox->range_min;
+ 623              		.loc 1 149 0 is_stmt 0 discriminator 1
+ 624 000c 4266     		str	r2, [r0, #100]
+ 625              	.L51:
+ 150:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 626              		.loc 1 150 0 is_stmt 1
+ 627 000e 436E     		ldr	r3, [r0, #100]
+ 628 0010 8B42     		cmp	r3, r1
+ 629 0012 00DA     		bge	.L52
+ 150:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 630              		.loc 1 150 0 is_stmt 0 discriminator 1
+ 631 0014 4166     		str	r1, [r0, #100]
+ 632              	.L52:
+ 152:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ARM GAS  /tmp/ccmUdqBI.s 			page 22
+
+
+ 633              		.loc 1 152 0 is_stmt 1
+ 634 0016 FFF7FEFF 		bl	lv_spinbox_updatevalue
+ 635              	.LVL75:
+ 153:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 636              		.loc 1 153 0
+ 637 001a 08BD     		pop	{r3, pc}
+ 638              		.cfi_endproc
+ 639              	.LFE207:
+ 641              		.section	.text.lv_spinbox_set_cursor_pos,"ax",%progbits
+ 642              		.align	1
+ 643              		.global	lv_spinbox_set_cursor_pos
+ 644              		.syntax unified
+ 645              		.thumb
+ 646              		.thumb_func
+ 647              		.fpu fpv5-d16
+ 649              	lv_spinbox_set_cursor_pos:
+ 650              	.LFB208:
+ 161:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 651              		.loc 1 161 0
+ 652              		.cfi_startproc
+ 653              		@ args = 0, pretend = 0, frame = 0
+ 654              		@ frame_needed = 0, uses_anonymous_args = 0
+ 655              	.LVL76:
+ 656 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 657              	.LCFI9:
+ 658              		.cfi_def_cfa_offset 24
+ 659              		.cfi_offset 3, -24
+ 660              		.cfi_offset 4, -20
+ 661              		.cfi_offset 5, -16
+ 662              		.cfi_offset 6, -12
+ 663              		.cfi_offset 7, -8
+ 664              		.cfi_offset 14, -4
+ 665 0002 0446     		mov	r4, r0
+ 666 0004 0F46     		mov	r7, r1
+ 667              	.LVL77:
+ 165:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     int32_t new_step = spinbox->step * lv_pow(10, pos);
+ 668              		.loc 1 165 0
+ 669 0006 C36E     		ldr	r3, [r0, #108]
+ 670 0008 002B     		cmp	r3, #0
+ 671 000a B8BF     		it	lt
+ 672 000c 5B42     		rsblt	r3, r3, #0
+ 673 000e 856E     		ldr	r5, [r0, #104]
+ 674 0010 9D42     		cmp	r5, r3
+ 675 0012 B8BF     		it	lt
+ 676 0014 1D46     		movlt	r5, r3
+ 677              	.LVL78:
+ 166:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(pos <= 0) spinbox->step = 1;
+ 678              		.loc 1 166 0
+ 679 0016 066F     		ldr	r6, [r0, #112]
+ 680 0018 4AB2     		sxtb	r2, r1
+ 681 001a 0A20     		movs	r0, #10
+ 682              	.LVL79:
+ 683 001c 0021     		movs	r1, #0
+ 684              	.LVL80:
+ 685 001e FFF7FEFF 		bl	lv_pow
+ 686              	.LVL81:
+ 687 0022 00FB06F0 		mul	r0, r0, r6
+ARM GAS  /tmp/ccmUdqBI.s 			page 23
+
+
+ 688              	.LVL82:
+ 167:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     else if(new_step <= step_limit) spinbox->step = new_step;
+ 689              		.loc 1 167 0
+ 690 0026 1FB1     		cbz	r7, .L58
+ 168:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 691              		.loc 1 168 0
+ 692 0028 8542     		cmp	r5, r0
+ 693 002a 03DB     		blt	.L56
+ 168:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 694              		.loc 1 168 0 is_stmt 0 discriminator 1
+ 695 002c 2067     		str	r0, [r4, #112]
+ 696 002e 01E0     		b	.L56
+ 697              	.L58:
+ 167:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     else if(new_step <= step_limit) spinbox->step = new_step;
+ 698              		.loc 1 167 0 is_stmt 1 discriminator 1
+ 699 0030 0123     		movs	r3, #1
+ 700 0032 2367     		str	r3, [r4, #112]
+ 701              	.L56:
+ 170:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 702              		.loc 1 170 0
+ 703 0034 2046     		mov	r0, r4
+ 704              	.LVL83:
+ 705 0036 FFF7FEFF 		bl	lv_spinbox_updatevalue
+ 706              	.LVL84:
+ 171:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 707              		.loc 1 171 0
+ 708 003a F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 709              		.cfi_endproc
+ 710              	.LFE208:
+ 712              		.section	.text.lv_spinbox_set_digit_step_direction,"ax",%progbits
+ 713              		.align	1
+ 714              		.global	lv_spinbox_set_digit_step_direction
+ 715              		.syntax unified
+ 716              		.thumb
+ 717              		.thumb_func
+ 718              		.fpu fpv5-d16
+ 720              	lv_spinbox_set_digit_step_direction:
+ 721              	.LFB209:
+ 179:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 722              		.loc 1 179 0
+ 723              		.cfi_startproc
+ 724              		@ args = 0, pretend = 0, frame = 0
+ 725              		@ frame_needed = 0, uses_anonymous_args = 0
+ 726              	.LVL85:
+ 727 0000 08B5     		push	{r3, lr}
+ 728              	.LCFI10:
+ 729              		.cfi_def_cfa_offset 8
+ 730              		.cfi_offset 3, -8
+ 731              		.cfi_offset 14, -4
+ 732              	.LVL86:
+ 182:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 733              		.loc 1 182 0
+ 734 0002 90F87520 		ldrb	r2, [r0, #117]	@ zero_extendqisi2
+ 735 0006 61F34202 		bfi	r2, r1, #1, #2
+ 736              	.LVL87:
+ 737 000a 80F87520 		strb	r2, [r0, #117]
+ 184:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ARM GAS  /tmp/ccmUdqBI.s 			page 24
+
+
+ 738              		.loc 1 184 0
+ 739 000e FFF7FEFF 		bl	lv_spinbox_updatevalue
+ 740              	.LVL88:
+ 185:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /*=====================
+ 741              		.loc 1 185 0
+ 742 0012 08BD     		pop	{r3, pc}
+ 743              		.cfi_endproc
+ 744              	.LFE209:
+ 746              		.section	.text.lv_spinbox_get_value,"ax",%progbits
+ 747              		.align	1
+ 748              		.global	lv_spinbox_get_value
+ 749              		.syntax unified
+ 750              		.thumb
+ 751              		.thumb_func
+ 752              		.fpu fpv5-d16
+ 754              	lv_spinbox_get_value:
+ 755              	.LFB210:
+ 196:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 756              		.loc 1 196 0
+ 757              		.cfi_startproc
+ 758              		@ args = 0, pretend = 0, frame = 0
+ 759              		@ frame_needed = 0, uses_anonymous_args = 0
+ 760              		@ link register save eliminated.
+ 761              	.LVL89:
+ 201:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** /**
+ 762              		.loc 1 201 0
+ 763 0000 406E     		ldr	r0, [r0, #100]
+ 764              	.LVL90:
+ 765 0002 7047     		bx	lr
+ 766              		.cfi_endproc
+ 767              	.LFE210:
+ 769              		.section	.text.lv_spinbox_get_step,"ax",%progbits
+ 770              		.align	1
+ 771              		.global	lv_spinbox_get_step
+ 772              		.syntax unified
+ 773              		.thumb
+ 774              		.thumb_func
+ 775              		.fpu fpv5-d16
+ 777              	lv_spinbox_get_step:
+ 778              	.LFB211:
+ 208:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 779              		.loc 1 208 0
+ 780              		.cfi_startproc
+ 781              		@ args = 0, pretend = 0, frame = 0
+ 782              		@ frame_needed = 0, uses_anonymous_args = 0
+ 783              		@ link register save eliminated.
+ 784              	.LVL91:
+ 213:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 785              		.loc 1 213 0
+ 786 0000 006F     		ldr	r0, [r0, #112]
+ 787              	.LVL92:
+ 788 0002 7047     		bx	lr
+ 789              		.cfi_endproc
+ 790              	.LFE211:
+ 792              		.section	.text.lv_spinbox_step_next,"ax",%progbits
+ 793              		.align	1
+ 794              		.global	lv_spinbox_step_next
+ARM GAS  /tmp/ccmUdqBI.s 			page 25
+
+
+ 795              		.syntax unified
+ 796              		.thumb
+ 797              		.thumb_func
+ 798              		.fpu fpv5-d16
+ 800              	lv_spinbox_step_next:
+ 801              	.LFB212:
+ 224:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 802              		.loc 1 224 0
+ 803              		.cfi_startproc
+ 804              		@ args = 0, pretend = 0, frame = 0
+ 805              		@ frame_needed = 0, uses_anonymous_args = 0
+ 806              	.LVL93:
+ 807 0000 08B5     		push	{r3, lr}
+ 808              	.LCFI11:
+ 809              		.cfi_def_cfa_offset 8
+ 810              		.cfi_offset 3, -8
+ 811              		.cfi_offset 14, -4
+ 812              	.LVL94:
+ 228:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if((new_step) > 0)
+ 813              		.loc 1 228 0
+ 814 0002 036F     		ldr	r3, [r0, #112]
+ 815 0004 074A     		ldr	r2, .L67
+ 816 0006 82FB0312 		smull	r1, r2, r2, r3
+ 817 000a DB17     		asrs	r3, r3, #31
+ 818 000c C3EBA203 		rsb	r3, r3, r2, asr #2
+ 819              	.LVL95:
+ 229:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         spinbox->step = new_step;
+ 820              		.loc 1 229 0
+ 821 0010 002B     		cmp	r3, #0
+ 822 0012 03DD     		ble	.L64
+ 230:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     else
+ 823              		.loc 1 230 0
+ 824 0014 0367     		str	r3, [r0, #112]
+ 825              	.LVL96:
+ 826              	.L65:
+ 234:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 827              		.loc 1 234 0
+ 828 0016 FFF7FEFF 		bl	lv_spinbox_updatevalue
+ 829              	.LVL97:
+ 235:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 830              		.loc 1 235 0
+ 831 001a 08BD     		pop	{r3, pc}
+ 832              	.LVL98:
+ 833              	.L64:
+ 232:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 834              		.loc 1 232 0
+ 835 001c 0123     		movs	r3, #1
+ 836              	.LVL99:
+ 837 001e 0367     		str	r3, [r0, #112]
+ 838              	.LVL100:
+ 839 0020 F9E7     		b	.L65
+ 840              	.L68:
+ 841 0022 00BF     		.align	2
+ 842              	.L67:
+ 843 0024 67666666 		.word	1717986919
+ 844              		.cfi_endproc
+ 845              	.LFE212:
+ARM GAS  /tmp/ccmUdqBI.s 			page 26
+
+
+ 847              		.section	.text.lv_spinbox_step_prev,"ax",%progbits
+ 848              		.align	1
+ 849              		.global	lv_spinbox_step_prev
+ 850              		.syntax unified
+ 851              		.thumb
+ 852              		.thumb_func
+ 853              		.fpu fpv5-d16
+ 855              	lv_spinbox_step_prev:
+ 856              	.LFB213:
+ 242:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 857              		.loc 1 242 0
+ 858              		.cfi_startproc
+ 859              		@ args = 0, pretend = 0, frame = 0
+ 860              		@ frame_needed = 0, uses_anonymous_args = 0
+ 861              	.LVL101:
+ 862 0000 08B5     		push	{r3, lr}
+ 863              	.LCFI12:
+ 864              		.cfi_def_cfa_offset 8
+ 865              		.cfi_offset 3, -8
+ 866              		.cfi_offset 14, -4
+ 867              	.LVL102:
+ 246:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     int32_t new_step = spinbox->step * 10;
+ 868              		.loc 1 246 0
+ 869 0002 C36E     		ldr	r3, [r0, #108]
+ 870 0004 002B     		cmp	r3, #0
+ 871 0006 B8BF     		it	lt
+ 872 0008 5B42     		rsblt	r3, r3, #0
+ 873 000a 826E     		ldr	r2, [r0, #104]
+ 874 000c 9342     		cmp	r3, r2
+ 875 000e B8BF     		it	lt
+ 876 0010 1346     		movlt	r3, r2
+ 877              	.LVL103:
+ 247:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(new_step <= step_limit) spinbox->step = new_step;
+ 878              		.loc 1 247 0
+ 879 0012 026F     		ldr	r2, [r0, #112]
+ 880 0014 02EB8202 		add	r2, r2, r2, lsl #2
+ 881 0018 5100     		lsls	r1, r2, #1
+ 882              	.LVL104:
+ 248:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 883              		.loc 1 248 0
+ 884 001a 8B42     		cmp	r3, r1
+ 885 001c 00DB     		blt	.L70
+ 248:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 886              		.loc 1 248 0 is_stmt 0 discriminator 1
+ 887 001e 0167     		str	r1, [r0, #112]
+ 888              	.L70:
+ 250:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 889              		.loc 1 250 0 is_stmt 1
+ 890 0020 FFF7FEFF 		bl	lv_spinbox_updatevalue
+ 891              	.LVL105:
+ 251:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 892              		.loc 1 251 0
+ 893 0024 08BD     		pop	{r3, pc}
+ 894              		.cfi_endproc
+ 895              	.LFE213:
+ 897              		.section	.text.lv_spinbox_get_rollover,"ax",%progbits
+ 898              		.align	1
+ARM GAS  /tmp/ccmUdqBI.s 			page 27
+
+
+ 899              		.global	lv_spinbox_get_rollover
+ 900              		.syntax unified
+ 901              		.thumb
+ 902              		.thumb_func
+ 903              		.fpu fpv5-d16
+ 905              	lv_spinbox_get_rollover:
+ 906              	.LFB214:
+ 258:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 907              		.loc 1 258 0
+ 908              		.cfi_startproc
+ 909              		@ args = 0, pretend = 0, frame = 0
+ 910              		@ frame_needed = 0, uses_anonymous_args = 0
+ 911              		@ link register save eliminated.
+ 912              	.LVL106:
+ 262:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 913              		.loc 1 262 0
+ 914 0000 90F87500 		ldrb	r0, [r0, #117]	@ zero_extendqisi2
+ 915              	.LVL107:
+ 263:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 916              		.loc 1 263 0
+ 917 0004 00F00100 		and	r0, r0, #1
+ 918 0008 7047     		bx	lr
+ 919              		.cfi_endproc
+ 920              	.LFE214:
+ 922              		.section	.text.lv_spinbox_increment,"ax",%progbits
+ 923              		.align	1
+ 924              		.global	lv_spinbox_increment
+ 925              		.syntax unified
+ 926              		.thumb
+ 927              		.thumb_func
+ 928              		.fpu fpv5-d16
+ 930              	lv_spinbox_increment:
+ 931              	.LFB215:
+ 270:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 932              		.loc 1 270 0
+ 933              		.cfi_startproc
+ 934              		@ args = 0, pretend = 0, frame = 0
+ 935              		@ frame_needed = 0, uses_anonymous_args = 0
+ 936              	.LVL108:
+ 937 0000 10B5     		push	{r4, lr}
+ 938              	.LCFI13:
+ 939              		.cfi_def_cfa_offset 8
+ 940              		.cfi_offset 4, -8
+ 941              		.cfi_offset 14, -4
+ 942              	.LVL109:
+ 274:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         /*Special mode when zero crossing*/
+ 943              		.loc 1 274 0
+ 944 0002 436E     		ldr	r3, [r0, #100]
+ 945 0004 016F     		ldr	r1, [r0, #112]
+ 946 0006 5C18     		adds	r4, r3, r1
+ 947 0008 826E     		ldr	r2, [r0, #104]
+ 948 000a 9442     		cmp	r4, r2
+ 949 000c 0CDC     		bgt	.L74
+ 276:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         spinbox->value += spinbox->step;
+ 950              		.loc 1 276 0
+ 951 000e 002C     		cmp	r4, #0
+ 952 0010 01DD     		ble	.L75
+ARM GAS  /tmp/ccmUdqBI.s 			page 28
+
+
+ 276:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         spinbox->value += spinbox->step;
+ 953              		.loc 1 276 0 is_stmt 0 discriminator 1
+ 954 0012 002B     		cmp	r3, #0
+ 955 0014 05DB     		blt	.L79
+ 956              	.L75:
+ 277:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 957              		.loc 1 277 0 is_stmt 1
+ 958 0016 436E     		ldr	r3, [r0, #100]
+ 959 0018 1944     		add	r1, r1, r3
+ 960 001a 4166     		str	r1, [r0, #100]
+ 961              	.L76:
+ 288:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 962              		.loc 1 288 0
+ 963 001c FFF7FEFF 		bl	lv_spinbox_updatevalue
+ 964              	.LVL110:
+ 289:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 965              		.loc 1 289 0
+ 966 0020 10BD     		pop	{r4, pc}
+ 967              	.LVL111:
+ 968              	.L79:
+ 276:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         spinbox->value += spinbox->step;
+ 969              		.loc 1 276 0 discriminator 2
+ 970 0022 5B42     		negs	r3, r3
+ 971 0024 4366     		str	r3, [r0, #100]
+ 972 0026 F6E7     		b	.L75
+ 973              	.L74:
+ 282:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             spinbox->value = spinbox->range_min;
+ 974              		.loc 1 282 0
+ 975 0028 90F87510 		ldrb	r1, [r0, #117]	@ zero_extendqisi2
+ 976 002c 11F0010F 		tst	r1, #1
+ 977 0030 01D0     		beq	.L77
+ 282:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             spinbox->value = spinbox->range_min;
+ 978              		.loc 1 282 0 is_stmt 0 discriminator 1
+ 979 0032 9342     		cmp	r3, r2
+ 980 0034 01D0     		beq	.L80
+ 981              	.L77:
+ 285:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 982              		.loc 1 285 0 is_stmt 1
+ 983 0036 4266     		str	r2, [r0, #100]
+ 984 0038 F0E7     		b	.L76
+ 985              	.L80:
+ 283:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         else
+ 986              		.loc 1 283 0
+ 987 003a C36E     		ldr	r3, [r0, #108]
+ 988 003c 4366     		str	r3, [r0, #100]
+ 989 003e EDE7     		b	.L76
+ 990              		.cfi_endproc
+ 991              	.LFE215:
+ 993              		.section	.text.lv_spinbox_decrement,"ax",%progbits
+ 994              		.align	1
+ 995              		.global	lv_spinbox_decrement
+ 996              		.syntax unified
+ 997              		.thumb
+ 998              		.thumb_func
+ 999              		.fpu fpv5-d16
+ 1001              	lv_spinbox_decrement:
+ 1002              	.LFB216:
+ARM GAS  /tmp/ccmUdqBI.s 			page 29
+
+
+ 296:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 1003              		.loc 1 296 0
+ 1004              		.cfi_startproc
+ 1005              		@ args = 0, pretend = 0, frame = 0
+ 1006              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1007              	.LVL112:
+ 1008 0000 10B5     		push	{r4, lr}
+ 1009              	.LCFI14:
+ 1010              		.cfi_def_cfa_offset 8
+ 1011              		.cfi_offset 4, -8
+ 1012              		.cfi_offset 14, -4
+ 1013              	.LVL113:
+ 300:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         /*Special mode when zero crossing*/
+ 1014              		.loc 1 300 0
+ 1015 0002 436E     		ldr	r3, [r0, #100]
+ 1016 0004 016F     		ldr	r1, [r0, #112]
+ 1017 0006 5C1A     		subs	r4, r3, r1
+ 1018 0008 C26E     		ldr	r2, [r0, #108]
+ 1019 000a 9442     		cmp	r4, r2
+ 1020 000c 0CDB     		blt	.L82
+ 302:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         spinbox->value -= spinbox->step;
+ 1021              		.loc 1 302 0
+ 1022 000e 002C     		cmp	r4, #0
+ 1023 0010 05DB     		blt	.L87
+ 1024              	.L83:
+ 303:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 1025              		.loc 1 303 0
+ 1026 0012 436E     		ldr	r3, [r0, #100]
+ 1027 0014 591A     		subs	r1, r3, r1
+ 1028 0016 4166     		str	r1, [r0, #100]
+ 1029              	.L84:
+ 313:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** }
+ 1030              		.loc 1 313 0
+ 1031 0018 FFF7FEFF 		bl	lv_spinbox_updatevalue
+ 1032              	.LVL114:
+ 314:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 1033              		.loc 1 314 0
+ 1034 001c 10BD     		pop	{r4, pc}
+ 1035              	.LVL115:
+ 1036              	.L87:
+ 302:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         spinbox->value -= spinbox->step;
+ 1037              		.loc 1 302 0 discriminator 1
+ 1038 001e 002B     		cmp	r3, #0
+ 1039 0020 F7DD     		ble	.L83
+ 302:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         spinbox->value -= spinbox->step;
+ 1040              		.loc 1 302 0 is_stmt 0 discriminator 2
+ 1041 0022 5B42     		negs	r3, r3
+ 1042 0024 4366     		str	r3, [r0, #100]
+ 1043 0026 F4E7     		b	.L83
+ 1044              	.L82:
+ 307:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             spinbox->value = spinbox->range_max;
+ 1045              		.loc 1 307 0 is_stmt 1
+ 1046 0028 90F87510 		ldrb	r1, [r0, #117]	@ zero_extendqisi2
+ 1047 002c 11F0010F 		tst	r1, #1
+ 1048 0030 01D0     		beq	.L85
+ 307:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             spinbox->value = spinbox->range_max;
+ 1049              		.loc 1 307 0 is_stmt 0 discriminator 1
+ARM GAS  /tmp/ccmUdqBI.s 			page 30
+
+
+ 1050 0032 9342     		cmp	r3, r2
+ 1051 0034 01D0     		beq	.L88
+ 1052              	.L85:
+ 310:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     }
+ 1053              		.loc 1 310 0 is_stmt 1
+ 1054 0036 4266     		str	r2, [r0, #100]
+ 1055 0038 EEE7     		b	.L84
+ 1056              	.L88:
+ 308:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         else
+ 1057              		.loc 1 308 0
+ 1058 003a 836E     		ldr	r3, [r0, #104]
+ 1059 003c 4366     		str	r3, [r0, #100]
+ 1060 003e EBE7     		b	.L84
+ 1061              		.cfi_endproc
+ 1062              	.LFE216:
+ 1064              		.section	.text.lv_spinbox_event,"ax",%progbits
+ 1065              		.align	1
+ 1066              		.syntax unified
+ 1067              		.thumb
+ 1068              		.thumb_func
+ 1069              		.fpu fpv5-d16
+ 1071              	lv_spinbox_event:
+ 1072              	.LFB218:
+ 346:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     LV_UNUSED(class_p);
+ 1073              		.loc 1 346 0
+ 1074              		.cfi_startproc
+ 1075              		@ args = 0, pretend = 0, frame = 0
+ 1076              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1077              	.LVL116:
+ 1078 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 1079              	.LCFI15:
+ 1080              		.cfi_def_cfa_offset 24
+ 1081              		.cfi_offset 3, -24
+ 1082              		.cfi_offset 4, -20
+ 1083              		.cfi_offset 5, -16
+ 1084              		.cfi_offset 6, -12
+ 1085              		.cfi_offset 7, -8
+ 1086              		.cfi_offset 14, -4
+ 1087 0002 0C46     		mov	r4, r1
+ 1088              	.LVL117:
+ 351:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     if(res != LV_RES_OK) return;
+ 1089              		.loc 1 351 0
+ 1090 0004 6048     		ldr	r0, .L121
+ 1091              	.LVL118:
+ 1092 0006 FFF7FEFF 		bl	lv_obj_event_base
+ 1093              	.LVL119:
+ 352:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 1094              		.loc 1 352 0
+ 1095 000a 0128     		cmp	r0, #1
+ 1096 000c 00D0     		beq	.L109
+ 1097              	.LVL120:
+ 1098              	.L89:
+ 438:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 1099              		.loc 1 438 0
+ 1100 000e F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 1101              	.LVL121:
+ 1102              	.L109:
+ARM GAS  /tmp/ccmUdqBI.s 			page 31
+
+
+ 354:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_obj_t * obj = lv_event_get_target(e);
+ 1103              		.loc 1 354 0
+ 1104 0010 2046     		mov	r0, r4
+ 1105              	.LVL122:
+ 1106 0012 FFF7FEFF 		bl	lv_event_get_code
+ 1107              	.LVL123:
+ 1108 0016 0646     		mov	r6, r0
+ 1109              	.LVL124:
+ 355:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****     lv_spinbox_t * spinbox = (lv_spinbox_t *)obj;
+ 1110              		.loc 1 355 0
+ 1111 0018 2046     		mov	r0, r4
+ 1112 001a FFF7FEFF 		bl	lv_event_get_target
+ 1113              	.LVL125:
+ 1114 001e 0546     		mov	r5, r0
+ 1115              	.LVL126:
+ 357:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         /*If released with an ENCODER then move to the next digit*/
+ 1116              		.loc 1 357 0
+ 1117 0020 082E     		cmp	r6, #8
+ 1118 0022 19D0     		beq	.L110
+ 415:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
+ 1119              		.loc 1 415 0
+ 1120 0024 0D2E     		cmp	r6, #13
+ 1121 0026 F2D1     		bne	.L89
+ 1122              	.LBB3:
+ 416:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 1123              		.loc 1 416 0
+ 1124 0028 FFF7FEFF 		bl	lv_indev_get_act
+ 1125              	.LVL127:
+ 1126 002c FFF7FEFF 		bl	lv_indev_get_type
+ 1127              	.LVL128:
+ 1128 0030 0646     		mov	r6, r0
+ 1129              	.LVL129:
+ 418:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         if(c == LV_KEY_RIGHT) {
+ 1130              		.loc 1 418 0
+ 1131 0032 2046     		mov	r0, r4
+ 1132 0034 FFF7FEFF 		bl	lv_event_get_param
+ 1133              	.LVL130:
+ 1134 0038 0368     		ldr	r3, [r0]
+ 1135              	.LVL131:
+ 419:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             if(indev_type == LV_INDEV_TYPE_ENCODER)
+ 1136              		.loc 1 419 0
+ 1137 003a 132B     		cmp	r3, #19
+ 1138 003c 00F08C80 		beq	.L111
+ 425:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             if(indev_type == LV_INDEV_TYPE_ENCODER)
+ 1139              		.loc 1 425 0
+ 1140 0040 142B     		cmp	r3, #20
+ 1141 0042 00F09380 		beq	.L112
+ 431:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             lv_spinbox_increment(obj);
+ 1142              		.loc 1 431 0
+ 1143 0046 112B     		cmp	r3, #17
+ 1144 0048 00F09A80 		beq	.L113
+ 434:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             lv_spinbox_decrement(obj);
+ 1145              		.loc 1 434 0
+ 1146 004c 122B     		cmp	r3, #18
+ 1147 004e DED1     		bne	.L89
+ 435:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 1148              		.loc 1 435 0
+ARM GAS  /tmp/ccmUdqBI.s 			page 32
+
+
+ 1149 0050 2846     		mov	r0, r5
+ 1150 0052 FFF7FEFF 		bl	lv_spinbox_decrement
+ 1151              	.LVL132:
+ 1152 0056 DAE7     		b	.L89
+ 1153              	.LVL133:
+ 1154              	.L110:
+ 1155              	.LBE3:
+ 1156              	.LBB4:
+ 359:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         if(lv_indev_get_type(indev) == LV_INDEV_TYPE_ENCODER) {
+ 1157              		.loc 1 359 0
+ 1158 0058 FFF7FEFF 		bl	lv_indev_get_act
+ 1159              	.LVL134:
+ 360:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             if(lv_group_get_editing(lv_obj_get_group(obj))) {
+ 1160              		.loc 1 360 0
+ 1161 005c FFF7FEFF 		bl	lv_indev_get_type
+ 1162              	.LVL135:
+ 1163 0060 0428     		cmp	r0, #4
+ 1164 0062 26D0     		beq	.L114
+ 1165              	.LBB5:
+ 389:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             size_t txt_len = strlen(txt);
+ 1166              		.loc 1 389 0
+ 1167 0064 2846     		mov	r0, r5
+ 1168 0066 FFF7FEFF 		bl	lv_textarea_get_text
+ 1169              	.LVL136:
+ 1170 006a 0446     		mov	r4, r0
+ 1171              	.LVL137:
+ 390:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 1172              		.loc 1 390 0
+ 1173 006c FFF7FEFF 		bl	strlen
+ 1174              	.LVL138:
+ 392:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 lv_textarea_cursor_left(obj);
+ 1175              		.loc 1 392 0
+ 1176 0070 6B6C     		ldr	r3, [r5, #68]
+ 1177 0072 E25C     		ldrb	r2, [r4, r3]	@ zero_extendqisi2
+ 1178 0074 2E2A     		cmp	r2, #46
+ 1179 0076 55D0     		beq	.L115
+ 395:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 lv_textarea_set_cursor_pos(obj, txt_len - 1);
+ 1180              		.loc 1 395 0
+ 1181 0078 8342     		cmp	r3, r0
+ 1182 007a 57D0     		beq	.L116
+ 398:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 lv_textarea_set_cursor_pos(obj, 1);
+ 1183              		.loc 1 398 0
+ 1184 007c 13B9     		cbnz	r3, .L97
+ 398:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 lv_textarea_set_cursor_pos(obj, 1);
+ 1185              		.loc 1 398 0 is_stmt 0 discriminator 1
+ 1186 007e EB6E     		ldr	r3, [r5, #108]
+ 1187 0080 002B     		cmp	r3, #0
+ 1188 0082 58DB     		blt	.L117
+ 1189              	.LVL139:
+ 1190              	.L97:
+ 402:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             uint16_t cp = spinbox->ta.cursor.pos;
+ 1191              		.loc 1 402 0 is_stmt 1
+ 1192 0084 95F87420 		ldrb	r2, [r5, #116]	@ zero_extendqisi2
+ 1193 0088 02F00F00 		and	r0, r2, #15
+ 1194 008c 0138     		subs	r0, r0, #1
+ 1195              	.LVL140:
+ 403:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ARM GAS  /tmp/ccmUdqBI.s 			page 33
+
+
+ 1196              		.loc 1 403 0
+ 1197 008e 6B6C     		ldr	r3, [r5, #68]
+ 1198 0090 99B2     		uxth	r1, r3
+ 1199              	.LVL141:
+ 405:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             uint32_t pos = len - cp;
+ 1200              		.loc 1 405 0
+ 1201 0092 B3EB121F 		cmp	r3, r2, lsr #4
+ 1202 0096 04D9     		bls	.L99
+ 405:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             uint32_t pos = len - cp;
+ 1203              		.loc 1 405 0 is_stmt 0 discriminator 1
+ 1204 0098 12F0F00F 		tst	r2, #240
+ 1205 009c 01D0     		beq	.L99
+ 405:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             uint32_t pos = len - cp;
+ 1206              		.loc 1 405 0 discriminator 2
+ 1207 009e 0139     		subs	r1, r1, #1
+ 1208              	.LVL142:
+ 1209 00a0 89B2     		uxth	r1, r1
+ 1210              	.LVL143:
+ 1211              	.L99:
+ 406:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 1212              		.loc 1 406 0 is_stmt 1
+ 1213 00a2 401A     		subs	r0, r0, r1
+ 1214              	.LVL144:
+ 408:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 1215              		.loc 1 408 0
+ 1216 00a4 EB6E     		ldr	r3, [r5, #108]
+ 1217 00a6 002B     		cmp	r3, #0
+ 1218 00a8 4ADB     		blt	.L118
+ 1219              	.L100:
+ 410:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             uint16_t i;
+ 1220              		.loc 1 410 0
+ 1221 00aa 0123     		movs	r3, #1
+ 1222 00ac 2B67     		str	r3, [r5, #112]
+ 1223              	.LVL145:
+ 412:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 1224              		.loc 1 412 0
+ 1225 00ae 0022     		movs	r2, #0
+ 1226              	.LVL146:
+ 1227 00b0 4FE0     		b	.L101
+ 1228              	.LVL147:
+ 1229              	.L114:
+ 1230              	.LBE5:
+ 361:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 if(spinbox->digit_count > 1) {
+ 1231              		.loc 1 361 0
+ 1232 00b2 2846     		mov	r0, r5
+ 1233 00b4 FFF7FEFF 		bl	lv_obj_get_group
+ 1234              	.LVL148:
+ 1235 00b8 FFF7FEFF 		bl	lv_group_get_editing
+ 1236              	.LVL149:
+ 1237 00bc 0028     		cmp	r0, #0
+ 1238 00be A6D0     		beq	.L89
+ 362:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                     if(spinbox->digit_step_dir == LV_DIR_RIGHT) {
+ 1239              		.loc 1 362 0
+ 1240 00c0 95F87420 		ldrb	r2, [r5, #116]	@ zero_extendqisi2
+ 1241 00c4 02F00F02 		and	r2, r2, #15
+ 1242 00c8 012A     		cmp	r2, #1
+ 1243 00ca A0D9     		bls	.L89
+ARM GAS  /tmp/ccmUdqBI.s 			page 34
+
+
+ 363:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                         if(spinbox->step > 1) {
+ 1244              		.loc 1 363 0
+ 1245 00cc 95F87530 		ldrb	r3, [r5, #117]	@ zero_extendqisi2
+ 1246 00d0 03F00603 		and	r3, r3, #6
+ 1247 00d4 042B     		cmp	r3, #4
+ 1248 00d6 10D1     		bne	.L93
+ 364:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                             lv_spinbox_step_next(obj);
+ 1249              		.loc 1 364 0
+ 1250 00d8 2B6F     		ldr	r3, [r5, #112]
+ 1251 00da 012B     		cmp	r3, #1
+ 1252 00dc 03DD     		ble	.L94
+ 365:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                         }
+ 1253              		.loc 1 365 0
+ 1254 00de 2846     		mov	r0, r5
+ 1255 00e0 FFF7FEFF 		bl	lv_spinbox_step_next
+ 1256              	.LVL150:
+ 1257 00e4 93E7     		b	.L89
+ 1258              	.L94:
+ 369:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                             lv_spinbox_step_prev(obj);
+ 1259              		.loc 1 369 0
+ 1260 00e6 023A     		subs	r2, r2, #2
+ 1261 00e8 0A20     		movs	r0, #10
+ 1262 00ea 0021     		movs	r1, #0
+ 1263 00ec FFF7FEFF 		bl	lv_pow
+ 1264              	.LVL151:
+ 1265 00f0 2867     		str	r0, [r5, #112]
+ 370:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                         }
+ 1266              		.loc 1 370 0
+ 1267 00f2 2846     		mov	r0, r5
+ 1268 00f4 FFF7FEFF 		bl	lv_spinbox_step_prev
+ 1269              	.LVL152:
+ 1270 00f8 89E7     		b	.L89
+ 1271              	.L93:
+ 374:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                             lv_spinbox_step_prev(obj);
+ 1272              		.loc 1 374 0
+ 1273 00fa 2E6F     		ldr	r6, [r5, #112]
+ 1274              	.LVL153:
+ 1275 00fc F717     		asrs	r7, r6, #31
+ 1276 00fe 013A     		subs	r2, r2, #1
+ 1277 0100 0A20     		movs	r0, #10
+ 1278 0102 0021     		movs	r1, #0
+ 1279 0104 FFF7FEFF 		bl	lv_pow
+ 1280              	.LVL154:
+ 1281 0108 8642     		cmp	r6, r0
+ 1282 010a 77EB0103 		sbcs	r3, r7, r1
+ 1283 010e 03DA     		bge	.L95
+ 375:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                         }
+ 1284              		.loc 1 375 0
+ 1285 0110 2846     		mov	r0, r5
+ 1286 0112 FFF7FEFF 		bl	lv_spinbox_step_prev
+ 1287              	.LVL155:
+ 1288 0116 7AE7     		b	.L89
+ 1289              	.L95:
+ 379:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                             lv_spinbox_step_next(obj);
+ 1290              		.loc 1 379 0
+ 1291 0118 0A23     		movs	r3, #10
+ 1292 011a 2B67     		str	r3, [r5, #112]
+ARM GAS  /tmp/ccmUdqBI.s 			page 35
+
+
+ 380:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                         }
+ 1293              		.loc 1 380 0
+ 1294 011c 2846     		mov	r0, r5
+ 1295 011e FFF7FEFF 		bl	lv_spinbox_step_next
+ 1296              	.LVL156:
+ 1297 0122 74E7     		b	.L89
+ 1298              	.LVL157:
+ 1299              	.L115:
+ 1300              	.LBB6:
+ 393:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             }
+ 1301              		.loc 1 393 0
+ 1302 0124 2846     		mov	r0, r5
+ 1303              	.LVL158:
+ 1304 0126 FFF7FEFF 		bl	lv_textarea_cursor_left
+ 1305              	.LVL159:
+ 1306 012a ABE7     		b	.L97
+ 1307              	.LVL160:
+ 1308              	.L116:
+ 396:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             }
+ 1309              		.loc 1 396 0
+ 1310 012c 411E     		subs	r1, r0, #1
+ 1311 012e 2846     		mov	r0, r5
+ 1312              	.LVL161:
+ 1313 0130 FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 1314              	.LVL162:
+ 1315 0134 A6E7     		b	.L97
+ 1316              	.LVL163:
+ 1317              	.L117:
+ 399:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             }
+ 1318              		.loc 1 399 0
+ 1319 0136 0121     		movs	r1, #1
+ 1320 0138 2846     		mov	r0, r5
+ 1321              	.LVL164:
+ 1322 013a FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 1323              	.LVL165:
+ 1324 013e A1E7     		b	.L97
+ 1325              	.LVL166:
+ 1326              	.L118:
+ 408:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c **** 
+ 1327              		.loc 1 408 0 discriminator 1
+ 1328 0140 0130     		adds	r0, r0, #1
+ 1329              	.LVL167:
+ 1330 0142 B2E7     		b	.L100
+ 1331              	.LVL168:
+ 1332              	.L102:
+ 412:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 1333              		.loc 1 412 0 discriminator 3
+ 1334 0144 2B6F     		ldr	r3, [r5, #112]
+ 1335 0146 03EB8303 		add	r3, r3, r3, lsl #2
+ 1336 014a 5900     		lsls	r1, r3, #1
+ 1337 014c 2967     		str	r1, [r5, #112]
+ 1338 014e 0132     		adds	r2, r2, #1
+ 1339              	.LVL169:
+ 1340 0150 92B2     		uxth	r2, r2
+ 1341              	.LVL170:
+ 1342              	.L101:
+ 412:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ARM GAS  /tmp/ccmUdqBI.s 			page 36
+
+
+ 1343              		.loc 1 412 0 is_stmt 0 discriminator 1
+ 1344 0152 8242     		cmp	r2, r0
+ 1345 0154 F6D3     		bcc	.L102
+ 1346 0156 5AE7     		b	.L89
+ 1347              	.LVL171:
+ 1348              	.L111:
+ 1349              	.LBE6:
+ 1350              	.LBE4:
+ 1351              	.LBB7:
+ 420:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 lv_spinbox_increment(obj);
+ 1352              		.loc 1 420 0 is_stmt 1
+ 1353 0158 042E     		cmp	r6, #4
+ 1354 015a 03D0     		beq	.L119
+ 423:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 1355              		.loc 1 423 0
+ 1356 015c 2846     		mov	r0, r5
+ 1357 015e FFF7FEFF 		bl	lv_spinbox_step_next
+ 1358              	.LVL172:
+ 1359 0162 54E7     		b	.L89
+ 1360              	.LVL173:
+ 1361              	.L119:
+ 421:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             else
+ 1362              		.loc 1 421 0
+ 1363 0164 2846     		mov	r0, r5
+ 1364 0166 FFF7FEFF 		bl	lv_spinbox_increment
+ 1365              	.LVL174:
+ 1366 016a 50E7     		b	.L89
+ 1367              	.LVL175:
+ 1368              	.L112:
+ 426:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****                 lv_spinbox_decrement(obj);
+ 1369              		.loc 1 426 0
+ 1370 016c 042E     		cmp	r6, #4
+ 1371 016e 03D0     		beq	.L120
+ 429:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 1372              		.loc 1 429 0
+ 1373 0170 2846     		mov	r0, r5
+ 1374 0172 FFF7FEFF 		bl	lv_spinbox_step_prev
+ 1375              	.LVL176:
+ 1376 0176 4AE7     		b	.L89
+ 1377              	.LVL177:
+ 1378              	.L120:
+ 427:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****             else
+ 1379              		.loc 1 427 0
+ 1380 0178 2846     		mov	r0, r5
+ 1381 017a FFF7FEFF 		bl	lv_spinbox_decrement
+ 1382              	.LVL178:
+ 1383 017e 46E7     		b	.L89
+ 1384              	.LVL179:
+ 1385              	.L113:
+ 432:Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.c ****         }
+ 1386              		.loc 1 432 0
+ 1387 0180 2846     		mov	r0, r5
+ 1388 0182 FFF7FEFF 		bl	lv_spinbox_increment
+ 1389              	.LVL180:
+ 1390 0186 42E7     		b	.L89
+ 1391              	.L122:
+ 1392              		.align	2
+ARM GAS  /tmp/ccmUdqBI.s 			page 37
+
+
+ 1393              	.L121:
+ 1394 0188 00000000 		.word	.LANCHOR0
+ 1395              	.LBE7:
+ 1396              		.cfi_endproc
+ 1397              	.LFE218:
+ 1399              		.global	lv_spinbox_class
+ 1400              		.section	.rodata.lv_spinbox_class,"a",%progbits
+ 1401              		.align	2
+ 1402              		.set	.LANCHOR0,. + 0
+ 1405              	lv_spinbox_class:
+ 1406 0000 00000000 		.word	lv_textarea_class
+ 1407 0004 00000000 		.word	lv_spinbox_constructor
+ 1408 0008 00000000 		.space	8
+ 1408      00000000 
+ 1409 0010 00000000 		.word	lv_spinbox_event
+ 1410 0014 8200     		.short	130
+ 1411 0016 0000     		.space	2
+ 1412 0018 81       		.byte	129
+ 1413 0019 07       		.byte	7
+ 1414 001a 00       		.byte	0
+ 1415 001b 00       		.space	1
+ 1416              		.section	.rodata.lv_spinbox_updatevalue.str1.4,"aMS",%progbits,1
+ 1417              		.align	2
+ 1418              	.LC0:
+ 1419 0000 256C6400 		.ascii	"%ld\000"
+ 1420              		.text
+ 1421              	.Letext0:
+ 1422              		.file 2 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 1423              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ 1424              		.file 4 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/misc/lv_types.h"
+ 1425              		.file 5 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/misc/lv_timer.h"
+ 1426              		.file 6 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 1427              		.file 7 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+ 1428              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+ 1429              		.file 9 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+ 1430              		.file 10 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/../misc/../font/
+ 1431              		.file 11 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/../misc/../font/
+ 1432              		.file 12 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/../misc/lv_color
+ 1433              		.file 13 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/../misc/lv_txt.h
+ 1434              		.file 14 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/../misc/lv_bidi.
+ 1435              		.file 15 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/../misc/lv_style
+ 1436              		.file 16 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/lv_img_buf.h"
+ 1437              		.file 17 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/core/lv_obj.h"
+ 1438              		.file 18 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/lv_draw_rect.h"
+ 1439              		.file 19 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/lv_draw_label.h"
+ 1440              		.file 20 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/lv_draw_img.h"
+ 1441              		.file 21 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/lv_draw_line.h"
+ 1442              		.file 22 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/lv_draw_arc.h"
+ 1443              		.file 23 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/lv_draw_layer.h"
+ 1444              		.file 24 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../draw/lv_draw.h"
+ 1445              		.file 25 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/../misc/lv_ll.h"
+ 1446              		.file 26 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/lv_hal_disp.h"
+ 1447              		.file 27 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/core/lv_theme.h"
+ 1448              		.file 28 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/hal/lv_hal_indev.h"
+ 1449              		.file 29 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/core/lv_group.h"
+ 1450              		.file 30 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/core/lv_obj_scroll.h"
+ 1451              		.file 31 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/core/lv_obj_style.h"
+ARM GAS  /tmp/ccmUdqBI.s 			page 38
+
+
+ 1452              		.file 32 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/core/lv_obj_class.h"
+ 1453              		.file 33 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/core/lv_event.h"
+ 1454              		.file 34 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_arc.h"
+ 1455              		.file 35 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_btn.h"
+ 1456              		.file 36 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_img.h"
+ 1457              		.file 37 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_label.h"
+ 1458              		.file 38 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_line.h"
+ 1459              		.file 39 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_table.h"
+ 1460              		.file 40 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_checkbox.h"
+ 1461              		.file 41 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_bar.h"
+ 1462              		.file 42 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_slider.h"
+ 1463              		.file 43 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_btnmatrix.h"
+ 1464              		.file 44 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_dropdown.h"
+ 1465              		.file 45 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_roller.h"
+ 1466              		.file 46 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_textarea.h"
+ 1467              		.file 47 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_canvas.h"
+ 1468              		.file 48 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/widgets/lv_switch.h"
+ 1469              		.file 49 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/layouts/flex/lv_flex.h
+ 1470              		.file 50 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/layouts/grid/lv_grid.h
+ 1471              		.file 51 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/animimg/lv_ani
+ 1472              		.file 52 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/calendar/lv_ca
+ 1473              		.file 53 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/calendar/lv_ca
+ 1474              		.file 54 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/calendar/lv_ca
+ 1475              		.file 55 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/chart/lv_chart
+ 1476              		.file 56 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/keyboard/lv_ke
+ 1477              		.file 57 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/list/lv_list.h
+ 1478              		.file 58 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/menu/lv_menu.h
+ 1479              		.file 59 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/msgbox/lv_msgb
+ 1480              		.file 60 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/meter/lv_meter
+ 1481              		.file 61 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/spinner/lv_spi
+ 1482              		.file 62 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/tabview/lv_tab
+ 1483              		.file 63 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/tileview/lv_ti
+ 1484              		.file 64 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/win/lv_win.h"
+ 1485              		.file 65 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/colorwheel/lv_
+ 1486              		.file 66 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/led/lv_led.h"
+ 1487              		.file 67 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/imgbtn/lv_imgb
+ 1488              		.file 68 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/extra/widgets/span/lv_span.h
+ 1489              		.file 69 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/lv_spinbox.h"
+ 1490              		.file 70 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/misc/lv_mem.h"
+ 1491              		.file 71 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/misc/lv_printf.h"
+ 1492              		.file 72 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/string.h"
+ 1493              		.file 73 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/core/lv_indev.h"
+ 1494              		.file 74 "Drivers/lvgl/lvgl/src/extra/widgets/spinbox/../../../../src/misc/lv_math.h"
+ARM GAS  /tmp/ccmUdqBI.s 			page 39
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_spinbox.c
+     /tmp/ccmUdqBI.s:17     .text.lv_spinbox_updatevalue:0000000000000000 $t
+     /tmp/ccmUdqBI.s:23     .text.lv_spinbox_updatevalue:0000000000000000 lv_spinbox_updatevalue
+     /tmp/ccmUdqBI.s:262    .text.lv_spinbox_updatevalue:000000000000011c $d
+     /tmp/ccmUdqBI.s:268    .text.lv_spinbox_constructor:0000000000000000 $t
+     /tmp/ccmUdqBI.s:274    .text.lv_spinbox_constructor:0000000000000000 lv_spinbox_constructor
+     /tmp/ccmUdqBI.s:338    .text.lv_spinbox_constructor:0000000000000050 $d
+     /tmp/ccmUdqBI.s:344    .text.lv_spinbox_create:0000000000000000 $t
+     /tmp/ccmUdqBI.s:351    .text.lv_spinbox_create:0000000000000000 lv_spinbox_create
+     /tmp/ccmUdqBI.s:381    .text.lv_spinbox_create:0000000000000014 $d
+     /tmp/ccmUdqBI.s:386    .text.lv_spinbox_set_value:0000000000000000 $t
+     /tmp/ccmUdqBI.s:393    .text.lv_spinbox_set_value:0000000000000000 lv_spinbox_set_value
+     /tmp/ccmUdqBI.s:435    .text.lv_spinbox_set_rollover:0000000000000000 $t
+     /tmp/ccmUdqBI.s:442    .text.lv_spinbox_set_rollover:0000000000000000 lv_spinbox_set_rollover
+     /tmp/ccmUdqBI.s:461    .text.lv_spinbox_set_digit_format:0000000000000000 $t
+     /tmp/ccmUdqBI.s:468    .text.lv_spinbox_set_digit_format:0000000000000000 lv_spinbox_set_digit_format
+     /tmp/ccmUdqBI.s:564    .text.lv_spinbox_set_step:0000000000000000 $t
+     /tmp/ccmUdqBI.s:571    .text.lv_spinbox_set_step:0000000000000000 lv_spinbox_set_step
+     /tmp/ccmUdqBI.s:595    .text.lv_spinbox_set_range:0000000000000000 $t
+     /tmp/ccmUdqBI.s:602    .text.lv_spinbox_set_range:0000000000000000 lv_spinbox_set_range
+     /tmp/ccmUdqBI.s:642    .text.lv_spinbox_set_cursor_pos:0000000000000000 $t
+     /tmp/ccmUdqBI.s:649    .text.lv_spinbox_set_cursor_pos:0000000000000000 lv_spinbox_set_cursor_pos
+     /tmp/ccmUdqBI.s:713    .text.lv_spinbox_set_digit_step_direction:0000000000000000 $t
+     /tmp/ccmUdqBI.s:720    .text.lv_spinbox_set_digit_step_direction:0000000000000000 lv_spinbox_set_digit_step_direction
+     /tmp/ccmUdqBI.s:747    .text.lv_spinbox_get_value:0000000000000000 $t
+     /tmp/ccmUdqBI.s:754    .text.lv_spinbox_get_value:0000000000000000 lv_spinbox_get_value
+     /tmp/ccmUdqBI.s:770    .text.lv_spinbox_get_step:0000000000000000 $t
+     /tmp/ccmUdqBI.s:777    .text.lv_spinbox_get_step:0000000000000000 lv_spinbox_get_step
+     /tmp/ccmUdqBI.s:793    .text.lv_spinbox_step_next:0000000000000000 $t
+     /tmp/ccmUdqBI.s:800    .text.lv_spinbox_step_next:0000000000000000 lv_spinbox_step_next
+     /tmp/ccmUdqBI.s:843    .text.lv_spinbox_step_next:0000000000000024 $d
+     /tmp/ccmUdqBI.s:848    .text.lv_spinbox_step_prev:0000000000000000 $t
+     /tmp/ccmUdqBI.s:855    .text.lv_spinbox_step_prev:0000000000000000 lv_spinbox_step_prev
+     /tmp/ccmUdqBI.s:898    .text.lv_spinbox_get_rollover:0000000000000000 $t
+     /tmp/ccmUdqBI.s:905    .text.lv_spinbox_get_rollover:0000000000000000 lv_spinbox_get_rollover
+     /tmp/ccmUdqBI.s:923    .text.lv_spinbox_increment:0000000000000000 $t
+     /tmp/ccmUdqBI.s:930    .text.lv_spinbox_increment:0000000000000000 lv_spinbox_increment
+     /tmp/ccmUdqBI.s:994    .text.lv_spinbox_decrement:0000000000000000 $t
+     /tmp/ccmUdqBI.s:1001   .text.lv_spinbox_decrement:0000000000000000 lv_spinbox_decrement
+     /tmp/ccmUdqBI.s:1065   .text.lv_spinbox_event:0000000000000000 $t
+     /tmp/ccmUdqBI.s:1071   .text.lv_spinbox_event:0000000000000000 lv_spinbox_event
+     /tmp/ccmUdqBI.s:1394   .text.lv_spinbox_event:0000000000000188 $d
+     /tmp/ccmUdqBI.s:1405   .rodata.lv_spinbox_class:0000000000000000 lv_spinbox_class
+     /tmp/ccmUdqBI.s:1401   .rodata.lv_spinbox_class:0000000000000000 $d
+     /tmp/ccmUdqBI.s:1417   .rodata.lv_spinbox_updatevalue.str1.4:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+lv_memset_00
+lv_snprintf
+strlen
+lv_textarea_set_text
+lv_textarea_set_cursor_pos
+lv_textarea_set_one_line
+lv_textarea_set_cursor_click_pos
+lv_obj_class_create_obj
+lv_obj_class_init_obj
+ARM GAS  /tmp/ccmUdqBI.s 			page 40
+
+
+lv_pow
+lv_obj_event_base
+lv_event_get_code
+lv_event_get_target
+lv_indev_get_act
+lv_indev_get_type
+lv_event_get_param
+lv_textarea_get_text
+lv_obj_get_group
+lv_group_get_editing
+lv_textarea_cursor_left
+lv_textarea_class

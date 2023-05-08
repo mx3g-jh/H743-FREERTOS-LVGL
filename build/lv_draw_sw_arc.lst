@@ -1,0 +1,3193 @@
+ARM GAS  /tmp/ccowqxLj.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_draw_sw_arc.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.draw_quarter_0,"ax",%progbits
+  17              		.align	1
+  18              		.syntax unified
+  19              		.thumb
+  20              		.thumb_func
+  21              		.fpu fpv5-d16
+  23              	draw_quarter_0:
+  24              	.LFB57:
+  25              		.file 1 "Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c"
+   1:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** /**
+   2:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  * @file lv_draw_arc.c
+   3:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  *
+   4:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  */
+   5:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+   6:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** /*********************
+   7:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  *      INCLUDES
+   8:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  *********************/
+   9:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #include "lv_draw_sw.h"
+  10:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #include "../../misc/lv_math.h"
+  11:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #include "../../misc/lv_log.h"
+  12:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #include "../../misc/lv_mem.h"
+  13:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #include "../lv_draw.h"
+  14:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+  15:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** /*********************
+  16:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  *      DEFINES
+  17:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  *********************/
+  18:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #define SPLIT_RADIUS_LIMIT 10  /*With radius greater than this the arc will drawn in quarters. A qu
+  19:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #define SPLIT_ANGLE_GAP_LIMIT 60  /*With small gaps in the arc don't bother with splitting because 
+  20:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+  21:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** /**********************
+  22:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  *      TYPEDEFS
+  23:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  **********************/
+  24:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** typedef struct {
+  25:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     const lv_point_t * center;
+  26:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_coord_t radius;
+  27:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     uint16_t start_angle;
+  28:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     uint16_t end_angle;
+  29:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     uint16_t start_quarter;
+  30:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     uint16_t end_quarter;
+  31:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_coord_t width;
+  32:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_rect_dsc_t * draw_dsc;
+  33:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     const lv_area_t * draw_area;
+ARM GAS  /tmp/ccowqxLj.s 			page 2
+
+
+  34:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_ctx_t * draw_ctx;
+  35:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** } quarter_draw_dsc_t;
+  36:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+  37:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** /**********************
+  38:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  *  STATIC PROTOTYPES
+  39:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  **********************/
+  40:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #if LV_DRAW_COMPLEX
+  41:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     static void draw_quarter_0(quarter_draw_dsc_t * q);
+  42:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     static void draw_quarter_1(quarter_draw_dsc_t * q);
+  43:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     static void draw_quarter_2(quarter_draw_dsc_t * q);
+  44:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     static void draw_quarter_3(quarter_draw_dsc_t * q);
+  45:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     static void get_rounded_area(int16_t angle, lv_coord_t radius, uint8_t thickness, lv_area_t * r
+  46:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #endif /*LV_DRAW_COMPLEX*/
+  47:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+  48:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** /**********************
+  49:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  *  STATIC VARIABLES
+  50:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  **********************/
+  51:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+  52:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** /**********************
+  53:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  *      MACROS
+  54:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  **********************/
+  55:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+  56:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** /**********************
+  57:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  *   GLOBAL FUNCTIONS
+  58:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  **********************/
+  59:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+  60:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** void lv_draw_sw_arc(lv_draw_ctx_t * draw_ctx, const lv_draw_arc_dsc_t * dsc, const lv_point_t * cen
+  61:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                     uint16_t start_angle, uint16_t end_angle)
+  62:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** {
+  63:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #if LV_DRAW_COMPLEX
+  64:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(dsc->opa <= LV_OPA_MIN) return;
+  65:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(dsc->width == 0) return;
+  66:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(start_angle == end_angle) return;
+  67:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+  68:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_coord_t width = dsc->width;
+  69:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(width > radius) width = radius;
+  70:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+  71:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_rect_dsc_t cir_dsc;
+  72:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_rect_dsc_init(&cir_dsc);
+  73:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     cir_dsc.blend_mode = dsc->blend_mode;
+  74:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(dsc->img_src) {
+  75:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_dsc.bg_opa = LV_OPA_TRANSP;
+  76:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_dsc.bg_img_src = dsc->img_src;
+  77:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_dsc.bg_img_opa = dsc->opa;
+  78:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+  79:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     else {
+  80:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_dsc.bg_opa = dsc->opa;
+  81:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_dsc.bg_color = dsc->color;
+  82:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+  83:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+  84:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_area_t area_out;
+  85:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_out.x1 = center->x - radius;
+  86:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_out.y1 = center->y - radius;
+  87:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_out.x2 = center->x + radius - 1;  /*-1 because the center already belongs to the left/bott
+  88:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_out.y2 = center->y + radius - 1;
+  89:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+  90:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_area_t area_in;
+ARM GAS  /tmp/ccowqxLj.s 			page 3
+
+
+  91:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_area_copy(&area_in, &area_out);
+  92:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_in.x1 += dsc->width;
+  93:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_in.y1 += dsc->width;
+  94:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_in.x2 -= dsc->width;
+  95:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_in.y2 -= dsc->width;
+  96:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+  97:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     /*Create inner the mask*/
+  98:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     int16_t mask_in_id = LV_MASK_ID_INV;
+  99:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_mask_radius_param_t mask_in_param;
+ 100:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     bool mask_in_param_valid = false;
+ 101:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(lv_area_get_width(&area_in) > 0 && lv_area_get_height(&area_in) > 0) {
+ 102:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_draw_mask_radius_init(&mask_in_param, &area_in, LV_RADIUS_CIRCLE, true);
+ 103:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         mask_in_param_valid = true;
+ 104:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         mask_in_id = lv_draw_mask_add(&mask_in_param, NULL);
+ 105:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 106:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 107:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_mask_radius_param_t mask_out_param;
+ 108:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_mask_radius_init(&mask_out_param, &area_out, LV_RADIUS_CIRCLE, false);
+ 109:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     int16_t mask_out_id = lv_draw_mask_add(&mask_out_param, NULL);
+ 110:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 111:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     /*Draw a full ring*/
+ 112:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(start_angle + 360 == end_angle || start_angle == end_angle + 360) {
+ 113:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_dsc.radius = LV_RADIUS_CIRCLE;
+ 114:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_draw_rect(draw_ctx, &cir_dsc, &area_out);
+ 115:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 116:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_draw_mask_remove_id(mask_out_id);
+ 117:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(mask_in_id != LV_MASK_ID_INV) lv_draw_mask_remove_id(mask_in_id);
+ 118:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 119:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_draw_mask_free_param(&mask_out_param);
+ 120:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(mask_in_param_valid) {
+ 121:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_free_param(&mask_in_param);
+ 122:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 123:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 124:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         return;
+ 125:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 126:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 127:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     while(start_angle >= 360) start_angle -= 360;
+ 128:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     while(end_angle >= 360) end_angle -= 360;
+ 129:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 130:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_mask_angle_param_t mask_angle_param;
+ 131:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_mask_angle_init(&mask_angle_param, center->x, center->y, start_angle, end_angle);
+ 132:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     int16_t mask_angle_id = lv_draw_mask_add(&mask_angle_param, NULL);
+ 133:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 134:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     int32_t angle_gap;
+ 135:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(end_angle > start_angle) {
+ 136:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         angle_gap = 360 - (end_angle - start_angle);
+ 137:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 138:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     else {
+ 139:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         angle_gap = start_angle - end_angle;
+ 140:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 141:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 142:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     const lv_area_t * clip_area_ori = draw_ctx->clip_area;
+ 143:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 144:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(angle_gap > SPLIT_ANGLE_GAP_LIMIT && radius > SPLIT_RADIUS_LIMIT) {
+ 145:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Handle each quarter individually and skip which is empty*/
+ 146:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_draw_dsc_t q_dsc;
+ 147:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.center = center;
+ARM GAS  /tmp/ccowqxLj.s 			page 4
+
+
+ 148:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.radius = radius;
+ 149:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.start_angle = start_angle;
+ 150:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.end_angle = end_angle;
+ 151:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.start_quarter = (start_angle / 90) & 0x3;
+ 152:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.end_quarter = (end_angle / 90) & 0x3;
+ 153:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.width = width;
+ 154:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.draw_dsc = &cir_dsc;
+ 155:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.draw_area = &area_out;
+ 156:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.draw_ctx = draw_ctx;
+ 157:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 158:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         draw_quarter_0(&q_dsc);
+ 159:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         draw_quarter_1(&q_dsc);
+ 160:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         draw_quarter_2(&q_dsc);
+ 161:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         draw_quarter_3(&q_dsc);
+ 162:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 163:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     else {
+ 164:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_draw_rect(draw_ctx, &cir_dsc, &area_out);
+ 165:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 166:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 167:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_mask_free_param(&mask_angle_param);
+ 168:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_mask_free_param(&mask_out_param);
+ 169:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(mask_in_param_valid) {
+ 170:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_draw_mask_free_param(&mask_in_param);
+ 171:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 172:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 173:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_mask_remove_id(mask_angle_id);
+ 174:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_mask_remove_id(mask_out_id);
+ 175:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(mask_in_id != LV_MASK_ID_INV) lv_draw_mask_remove_id(mask_in_id);
+ 176:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 177:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(dsc->rounded) {
+ 178:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 179:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_draw_mask_radius_param_t mask_end_param;
+ 180:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 181:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_area_t round_area;
+ 182:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         get_rounded_area(start_angle, radius, width, &round_area);
+ 183:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.x1 += center->x;
+ 184:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.x2 += center->x;
+ 185:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.y1 += center->y;
+ 186:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.y2 += center->y;
+ 187:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_area_t clip_area2;
+ 188:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(_lv_area_intersect(&clip_area2, clip_area_ori, &round_area)) {
+ 189:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_radius_init(&mask_end_param, &round_area, LV_RADIUS_CIRCLE, false);
+ 190:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             int16_t mask_end_id = lv_draw_mask_add(&mask_end_param, NULL);
+ 191:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 192:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             draw_ctx->clip_area = &clip_area2;
+ 193:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(draw_ctx, &cir_dsc, &area_out);
+ 194:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_remove_id(mask_end_id);
+ 195:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_free_param(&mask_end_param);
+ 196:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 197:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 198:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         get_rounded_area(end_angle, radius, width, &round_area);
+ 199:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.x1 += center->x;
+ 200:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.x2 += center->x;
+ 201:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.y1 += center->y;
+ 202:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.y2 += center->y;
+ 203:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(_lv_area_intersect(&clip_area2, clip_area_ori, &round_area)) {
+ 204:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_radius_init(&mask_end_param, &round_area, LV_RADIUS_CIRCLE, false);
+ARM GAS  /tmp/ccowqxLj.s 			page 5
+
+
+ 205:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             int16_t mask_end_id = lv_draw_mask_add(&mask_end_param, NULL);
+ 206:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 207:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             draw_ctx->clip_area = &clip_area2;
+ 208:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(draw_ctx, &cir_dsc, &area_out);
+ 209:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_remove_id(mask_end_id);
+ 210:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_free_param(&mask_end_param);
+ 211:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 212:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         draw_ctx->clip_area = clip_area_ori;
+ 213:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 214:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #else
+ 215:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     LV_LOG_WARN("Can't draw arc with LV_DRAW_COMPLEX == 0");
+ 216:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     LV_UNUSED(center);
+ 217:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     LV_UNUSED(radius);
+ 218:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     LV_UNUSED(start_angle);
+ 219:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     LV_UNUSED(end_angle);
+ 220:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     LV_UNUSED(draw_ctx);
+ 221:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     LV_UNUSED(dsc);
+ 222:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #endif /*LV_DRAW_COMPLEX*/
+ 223:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** }
+ 224:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 225:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** /**********************
+ 226:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  *   STATIC FUNCTIONS
+ 227:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****  **********************/
+ 228:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 229:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #if LV_DRAW_COMPLEX
+ 230:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** static void draw_quarter_0(quarter_draw_dsc_t * q)
+ 231:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** {
+  26              		.loc 1 231 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 8
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 70B5     		push	{r4, r5, r6, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 16
+  34              		.cfi_offset 4, -16
+  35              		.cfi_offset 5, -12
+  36              		.cfi_offset 6, -8
+  37              		.cfi_offset 14, -4
+  38 0002 82B0     		sub	sp, sp, #8
+  39              	.LCFI1:
+  40              		.cfi_def_cfa_offset 24
+  41 0004 0446     		mov	r4, r0
+ 232:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     const lv_area_t * clip_area_ori = q->draw_ctx->clip_area;
+  42              		.loc 1 232 0
+  43 0006 8369     		ldr	r3, [r0, #24]
+  44 0008 9D68     		ldr	r5, [r3, #8]
+  45              	.LVL1:
+ 233:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_area_t quarter_area;
+ 234:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 235:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(q->start_quarter == 0 && q->end_quarter == 0 && q->start_angle < q->end_angle) {
+  46              		.loc 1 235 0
+  47 000a 4389     		ldrh	r3, [r0, #10]
+  48 000c 2BB9     		cbnz	r3, .L2
+  49              		.loc 1 235 0 is_stmt 0 discriminator 1
+  50 000e 8289     		ldrh	r2, [r0, #12]
+  51 0010 1AB9     		cbnz	r2, .L2
+ARM GAS  /tmp/ccowqxLj.s 			page 6
+
+
+  52              		.loc 1 235 0 discriminator 2
+  53 0012 C088     		ldrh	r0, [r0, #6]
+  54              	.LVL2:
+  55 0014 2289     		ldrh	r2, [r4, #8]
+  56 0016 9042     		cmp	r0, r2
+  57 0018 0ED3     		bcc	.L12
+  58              	.L2:
+ 236:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Small arc here*/
+ 237:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y1 = q->center->y + ((lv_trigo_sin(q->start_angle) * (q->radius - q->width)) >
+ 238:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x + ((lv_trigo_sin(q->start_angle + 90) * (q->radius)) >> LV_T
+ 239:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 240:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y + ((lv_trigo_sin(q->end_angle) * q->radius) >> LV_TRIGO_SHIF
+ 241:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x1 = q->center->x + ((lv_trigo_sin(q->end_angle + 90) * (q->radius - q->width)
+ 242:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 243:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 244:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 245:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 246:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 247:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 248:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 249:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     else if(q->start_quarter == 0 || q->end_quarter == 0) {
+  59              		.loc 1 249 0 is_stmt 1
+  60 001a 1BB1     		cbz	r3, .L4
+  61              		.loc 1 249 0 is_stmt 0 discriminator 1
+  62 001c A289     		ldrh	r2, [r4, #12]
+  63 001e 002A     		cmp	r2, #0
+  64 0020 40F0CD80 		bne	.L5
+  65              	.L4:
+ 250:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Start and/or end arcs here*/
+ 251:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(q->start_quarter == 0) {
+  66              		.loc 1 251 0 is_stmt 1
+  67 0024 002B     		cmp	r3, #0
+  68 0026 56D0     		beq	.L13
+  69              	.L6:
+ 252:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x1 = q->center->x;
+ 253:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y + q->radius;
+ 254:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 255:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y + ((lv_trigo_sin(q->start_angle) * (q->radius - q->width
+ 256:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x2 = q->center->x + ((lv_trigo_sin(q->start_angle + 90) * (q->radius)) >> 
+ 257:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 258:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 259:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 260:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 261:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 262:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 263:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 264:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(q->end_quarter == 0) {
+  70              		.loc 1 264 0
+  71 0028 A389     		ldrh	r3, [r4, #12]
+  72 002a 002B     		cmp	r3, #0
+  73 002c 00F08D80 		beq	.L14
+  74              	.L3:
+ 265:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x2 = q->center->x + q->radius;
+ 266:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y;
+ 267:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 268:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y + ((lv_trigo_sin(q->end_angle) * q->radius) >> LV_TRIGO_
+ 269:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x1 = q->center->x + ((lv_trigo_sin(q->end_angle + 90) * (q->radius - q->wi
+ARM GAS  /tmp/ccowqxLj.s 			page 7
+
+
+ 270:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 271:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 272:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 273:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 274:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 275:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 276:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 277:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 278:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     else if((q->start_quarter == q->end_quarter && q->start_quarter != 0 && q->end_angle < q->start
+ 279:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 2 && q->end_quarter == 1) ||
+ 280:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 3 && q->end_quarter == 2) ||
+ 281:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 3 && q->end_quarter == 1)) {
+ 282:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Arc crosses here*/
+ 283:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x1 = q->center->x;
+ 284:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y1 = q->center->y;
+ 285:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x + q->radius;
+ 286:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y + q->radius;
+ 287:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 288:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 289:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 290:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 291:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 292:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 293:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 294:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     q->draw_ctx->clip_area = clip_area_ori;
+  75              		.loc 1 294 0
+  76 0030 A369     		ldr	r3, [r4, #24]
+  77 0032 9D60     		str	r5, [r3, #8]
+ 295:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** }
+  78              		.loc 1 295 0
+  79 0034 02B0     		add	sp, sp, #8
+  80              	.LCFI2:
+  81              		.cfi_remember_state
+  82              		.cfi_def_cfa_offset 16
+  83              		@ sp needed
+  84 0036 70BD     		pop	{r4, r5, r6, pc}
+  85              	.LVL3:
+  86              	.L12:
+  87              	.LCFI3:
+  88              		.cfi_restore_state
+  89              	.LBB12:
+ 237:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x + ((lv_trigo_sin(q->start_angle + 90) * (q->radius)) >> LV_T
+  90              		.loc 1 237 0
+  91 0038 2368     		ldr	r3, [r4]
+  92 003a 5E88     		ldrh	r6, [r3, #2]
+  93 003c 00B2     		sxth	r0, r0
+  94 003e FFF7FEFF 		bl	lv_trigo_sin
+  95              	.LVL4:
+  96 0042 B4F90430 		ldrsh	r3, [r4, #4]
+  97 0046 B4F90E20 		ldrsh	r2, [r4, #14]
+  98 004a 9B1A     		subs	r3, r3, r2
+  99 004c 03FB00F0 		mul	r0, r3, r0
+ 100 0050 06EBE030 		add	r0, r6, r0, asr #15
+ 101 0054 ADF80200 		strh	r0, [sp, #2]	@ movhi
+ 238:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 102              		.loc 1 238 0
+ 103 0058 2368     		ldr	r3, [r4]
+ARM GAS  /tmp/ccowqxLj.s 			page 8
+
+
+ 104 005a 1E88     		ldrh	r6, [r3]
+ 105 005c E088     		ldrh	r0, [r4, #6]
+ 106 005e 5A30     		adds	r0, r0, #90
+ 107 0060 00B2     		sxth	r0, r0
+ 108 0062 FFF7FEFF 		bl	lv_trigo_sin
+ 109              	.LVL5:
+ 110 0066 B4F90430 		ldrsh	r3, [r4, #4]
+ 111 006a 03FB00F0 		mul	r0, r3, r0
+ 112 006e 06EBE036 		add	r6, r6, r0, asr #15
+ 113 0072 ADF80460 		strh	r6, [sp, #4]	@ movhi
+ 240:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x1 = q->center->x + ((lv_trigo_sin(q->end_angle + 90) * (q->radius - q->width)
+ 114              		.loc 1 240 0
+ 115 0076 2368     		ldr	r3, [r4]
+ 116 0078 5E88     		ldrh	r6, [r3, #2]
+ 117 007a B4F90800 		ldrsh	r0, [r4, #8]
+ 118 007e FFF7FEFF 		bl	lv_trigo_sin
+ 119              	.LVL6:
+ 120 0082 B4F90430 		ldrsh	r3, [r4, #4]
+ 121 0086 03FB00F0 		mul	r0, r3, r0
+ 122 008a 06EBE036 		add	r6, r6, r0, asr #15
+ 123 008e ADF80660 		strh	r6, [sp, #6]	@ movhi
+ 241:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 124              		.loc 1 241 0
+ 125 0092 2368     		ldr	r3, [r4]
+ 126 0094 1E88     		ldrh	r6, [r3]
+ 127 0096 2089     		ldrh	r0, [r4, #8]
+ 128 0098 5A30     		adds	r0, r0, #90
+ 129 009a 00B2     		sxth	r0, r0
+ 130 009c FFF7FEFF 		bl	lv_trigo_sin
+ 131              	.LVL7:
+ 132 00a0 B4F90430 		ldrsh	r3, [r4, #4]
+ 133 00a4 B4F90E20 		ldrsh	r2, [r4, #14]
+ 134 00a8 9B1A     		subs	r3, r3, r2
+ 135 00aa 03FB00F3 		mul	r3, r3, r0
+ 136 00ae 06EBE333 		add	r3, r6, r3, asr #15
+ 137 00b2 02A8     		add	r0, sp, #8
+ 138 00b4 20F8083D 		strh	r3, [r0, #-8]!	@ movhi
+ 243:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 139              		.loc 1 243 0
+ 140 00b8 2A46     		mov	r2, r5
+ 141 00ba 0146     		mov	r1, r0
+ 142 00bc FFF7FEFF 		bl	_lv_area_intersect
+ 143              	.LVL8:
+ 244:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 144              		.loc 1 244 0
+ 145 00c0 0028     		cmp	r0, #0
+ 146 00c2 B5D0     		beq	.L3
+ 245:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 147              		.loc 1 245 0
+ 148 00c4 A369     		ldr	r3, [r4, #24]
+ 149 00c6 C3F808D0 		str	sp, [r3, #8]
+ 246:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 150              		.loc 1 246 0
+ 151 00ca 6269     		ldr	r2, [r4, #20]
+ 152 00cc 2169     		ldr	r1, [r4, #16]
+ 153 00ce A069     		ldr	r0, [r4, #24]
+ 154              	.LVL9:
+ARM GAS  /tmp/ccowqxLj.s 			page 9
+
+
+ 155 00d0 FFF7FEFF 		bl	lv_draw_rect
+ 156              	.LVL10:
+ 157 00d4 ACE7     		b	.L3
+ 158              	.L13:
+ 159              	.LBE12:
+ 160              	.LBB13:
+ 252:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y + q->radius;
+ 161              		.loc 1 252 0
+ 162 00d6 2368     		ldr	r3, [r4]
+ 163 00d8 B3F90020 		ldrsh	r2, [r3]
+ 164 00dc ADF80020 		strh	r2, [sp]	@ movhi
+ 253:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 165              		.loc 1 253 0
+ 166 00e0 5A88     		ldrh	r2, [r3, #2]
+ 167 00e2 A188     		ldrh	r1, [r4, #4]
+ 168 00e4 0A44     		add	r2, r2, r1
+ 169 00e6 ADF80620 		strh	r2, [sp, #6]	@ movhi
+ 255:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x2 = q->center->x + ((lv_trigo_sin(q->start_angle + 90) * (q->radius)) >> 
+ 170              		.loc 1 255 0
+ 171 00ea 5E88     		ldrh	r6, [r3, #2]
+ 172 00ec B4F90600 		ldrsh	r0, [r4, #6]
+ 173 00f0 FFF7FEFF 		bl	lv_trigo_sin
+ 174              	.LVL11:
+ 175 00f4 B4F90430 		ldrsh	r3, [r4, #4]
+ 176 00f8 B4F90E20 		ldrsh	r2, [r4, #14]
+ 177 00fc 9B1A     		subs	r3, r3, r2
+ 178 00fe 03FB00F0 		mul	r0, r3, r0
+ 179 0102 06EBE030 		add	r0, r6, r0, asr #15
+ 180 0106 ADF80200 		strh	r0, [sp, #2]	@ movhi
+ 256:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 181              		.loc 1 256 0
+ 182 010a 2368     		ldr	r3, [r4]
+ 183 010c 1E88     		ldrh	r6, [r3]
+ 184 010e E088     		ldrh	r0, [r4, #6]
+ 185 0110 5A30     		adds	r0, r0, #90
+ 186 0112 00B2     		sxth	r0, r0
+ 187 0114 FFF7FEFF 		bl	lv_trigo_sin
+ 188              	.LVL12:
+ 189 0118 B4F90430 		ldrsh	r3, [r4, #4]
+ 190 011c 03FB00F0 		mul	r0, r3, r0
+ 191 0120 06EBE036 		add	r6, r6, r0, asr #15
+ 192 0124 ADF80460 		strh	r6, [sp, #4]	@ movhi
+ 258:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 193              		.loc 1 258 0
+ 194 0128 2A46     		mov	r2, r5
+ 195 012a 6946     		mov	r1, sp
+ 196 012c 6846     		mov	r0, sp
+ 197 012e FFF7FEFF 		bl	_lv_area_intersect
+ 198              	.LVL13:
+ 259:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 199              		.loc 1 259 0
+ 200 0132 0028     		cmp	r0, #0
+ 201 0134 3FF478AF 		beq	.L6
+ 260:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 202              		.loc 1 260 0
+ 203 0138 A369     		ldr	r3, [r4, #24]
+ 204 013a C3F808D0 		str	sp, [r3, #8]
+ARM GAS  /tmp/ccowqxLj.s 			page 10
+
+
+ 261:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 205              		.loc 1 261 0
+ 206 013e 6269     		ldr	r2, [r4, #20]
+ 207 0140 2169     		ldr	r1, [r4, #16]
+ 208 0142 A069     		ldr	r0, [r4, #24]
+ 209              	.LVL14:
+ 210 0144 FFF7FEFF 		bl	lv_draw_rect
+ 211              	.LVL15:
+ 212 0148 6EE7     		b	.L6
+ 213              	.L14:
+ 214              	.LBE13:
+ 215              	.LBB14:
+ 265:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y;
+ 216              		.loc 1 265 0
+ 217 014a 2368     		ldr	r3, [r4]
+ 218 014c 1A88     		ldrh	r2, [r3]
+ 219 014e A188     		ldrh	r1, [r4, #4]
+ 220 0150 0A44     		add	r2, r2, r1
+ 221 0152 ADF80420 		strh	r2, [sp, #4]	@ movhi
+ 266:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 222              		.loc 1 266 0
+ 223 0156 B3F90220 		ldrsh	r2, [r3, #2]
+ 224 015a ADF80220 		strh	r2, [sp, #2]	@ movhi
+ 268:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x1 = q->center->x + ((lv_trigo_sin(q->end_angle + 90) * (q->radius - q->wi
+ 225              		.loc 1 268 0
+ 226 015e 5E88     		ldrh	r6, [r3, #2]
+ 227 0160 B4F90800 		ldrsh	r0, [r4, #8]
+ 228 0164 FFF7FEFF 		bl	lv_trigo_sin
+ 229              	.LVL16:
+ 230 0168 B4F90430 		ldrsh	r3, [r4, #4]
+ 231 016c 03FB00F0 		mul	r0, r3, r0
+ 232 0170 06EBE036 		add	r6, r6, r0, asr #15
+ 233 0174 ADF80660 		strh	r6, [sp, #6]	@ movhi
+ 269:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 234              		.loc 1 269 0
+ 235 0178 2368     		ldr	r3, [r4]
+ 236 017a 1E88     		ldrh	r6, [r3]
+ 237 017c 2089     		ldrh	r0, [r4, #8]
+ 238 017e 5A30     		adds	r0, r0, #90
+ 239 0180 00B2     		sxth	r0, r0
+ 240 0182 FFF7FEFF 		bl	lv_trigo_sin
+ 241              	.LVL17:
+ 242 0186 B4F90430 		ldrsh	r3, [r4, #4]
+ 243 018a B4F90E20 		ldrsh	r2, [r4, #14]
+ 244 018e 9B1A     		subs	r3, r3, r2
+ 245 0190 03FB00F3 		mul	r3, r3, r0
+ 246 0194 06EBE333 		add	r3, r6, r3, asr #15
+ 247 0198 02A8     		add	r0, sp, #8
+ 248 019a 20F8083D 		strh	r3, [r0, #-8]!	@ movhi
+ 271:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 249              		.loc 1 271 0
+ 250 019e 2A46     		mov	r2, r5
+ 251 01a0 0146     		mov	r1, r0
+ 252 01a2 FFF7FEFF 		bl	_lv_area_intersect
+ 253              	.LVL18:
+ 272:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 254              		.loc 1 272 0
+ARM GAS  /tmp/ccowqxLj.s 			page 11
+
+
+ 255 01a6 0028     		cmp	r0, #0
+ 256 01a8 3FF442AF 		beq	.L3
+ 273:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 257              		.loc 1 273 0
+ 258 01ac A369     		ldr	r3, [r4, #24]
+ 259 01ae C3F808D0 		str	sp, [r3, #8]
+ 274:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 260              		.loc 1 274 0
+ 261 01b2 6269     		ldr	r2, [r4, #20]
+ 262 01b4 2169     		ldr	r1, [r4, #16]
+ 263 01b6 A069     		ldr	r0, [r4, #24]
+ 264              	.LVL19:
+ 265 01b8 FFF7FEFF 		bl	lv_draw_rect
+ 266              	.LVL20:
+ 267 01bc 38E7     		b	.L3
+ 268              	.L5:
+ 269              	.LBE14:
+ 278:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 2 && q->end_quarter == 1) ||
+ 270              		.loc 1 278 0
+ 271 01be 9342     		cmp	r3, r2
+ 272 01c0 0AD0     		beq	.L15
+ 273              	.L7:
+ 278:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 2 && q->end_quarter == 1) ||
+ 274              		.loc 1 278 0 is_stmt 0 discriminator 5
+ 275 01c2 022B     		cmp	r3, #2
+ 276 01c4 2FD0     		beq	.L16
+ 277              	.L9:
+ 279:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 3 && q->end_quarter == 2) ||
+ 278              		.loc 1 279 0 is_stmt 1 discriminator 1
+ 279 01c6 032B     		cmp	r3, #3
+ 280 01c8 30D0     		beq	.L17
+ 281              	.L10:
+ 280:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 3 && q->end_quarter == 1)) {
+ 282              		.loc 1 280 0 discriminator 1
+ 283 01ca 032B     		cmp	r3, #3
+ 284 01cc 7FF430AF 		bne	.L3
+ 281:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Arc crosses here*/
+ 285              		.loc 1 281 0
+ 286 01d0 012A     		cmp	r2, #1
+ 287 01d2 7FF42DAF 		bne	.L3
+ 288 01d6 03E0     		b	.L8
+ 289              	.L15:
+ 278:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 2 && q->end_quarter == 1) ||
+ 290              		.loc 1 278 0 discriminator 3
+ 291 01d8 2089     		ldrh	r0, [r4, #8]
+ 292 01da E188     		ldrh	r1, [r4, #6]
+ 293 01dc 8842     		cmp	r0, r1
+ 294 01de F0D2     		bcs	.L7
+ 295              	.L8:
+ 296              	.LBB15:
+ 283:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y1 = q->center->y;
+ 297              		.loc 1 283 0
+ 298 01e0 2368     		ldr	r3, [r4]
+ 299 01e2 B3F90020 		ldrsh	r2, [r3]
+ 300 01e6 ADF80020 		strh	r2, [sp]	@ movhi
+ 284:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x + q->radius;
+ 301              		.loc 1 284 0
+ARM GAS  /tmp/ccowqxLj.s 			page 12
+
+
+ 302 01ea B3F90220 		ldrsh	r2, [r3, #2]
+ 303 01ee ADF80220 		strh	r2, [sp, #2]	@ movhi
+ 285:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y + q->radius;
+ 304              		.loc 1 285 0
+ 305 01f2 1A88     		ldrh	r2, [r3]
+ 306 01f4 A188     		ldrh	r1, [r4, #4]
+ 307 01f6 0A44     		add	r2, r2, r1
+ 308 01f8 ADF80420 		strh	r2, [sp, #4]	@ movhi
+ 286:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 309              		.loc 1 286 0
+ 310 01fc 5B88     		ldrh	r3, [r3, #2]
+ 311 01fe 0B44     		add	r3, r3, r1
+ 312 0200 ADF80630 		strh	r3, [sp, #6]	@ movhi
+ 288:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 313              		.loc 1 288 0
+ 314 0204 2A46     		mov	r2, r5
+ 315 0206 6946     		mov	r1, sp
+ 316 0208 6846     		mov	r0, sp
+ 317 020a FFF7FEFF 		bl	_lv_area_intersect
+ 318              	.LVL21:
+ 289:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 319              		.loc 1 289 0
+ 320 020e 0028     		cmp	r0, #0
+ 321 0210 3FF40EAF 		beq	.L3
+ 290:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 322              		.loc 1 290 0
+ 323 0214 A369     		ldr	r3, [r4, #24]
+ 324 0216 C3F808D0 		str	sp, [r3, #8]
+ 291:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 325              		.loc 1 291 0
+ 326 021a 6269     		ldr	r2, [r4, #20]
+ 327 021c 2169     		ldr	r1, [r4, #16]
+ 328 021e A069     		ldr	r0, [r4, #24]
+ 329              	.LVL22:
+ 330 0220 FFF7FEFF 		bl	lv_draw_rect
+ 331              	.LVL23:
+ 332 0224 04E7     		b	.L3
+ 333              	.L16:
+ 334              	.LBE15:
+ 279:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 3 && q->end_quarter == 2) ||
+ 335              		.loc 1 279 0
+ 336 0226 012A     		cmp	r2, #1
+ 337 0228 CDD1     		bne	.L9
+ 338 022a D9E7     		b	.L8
+ 339              	.L17:
+ 280:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 3 && q->end_quarter == 1)) {
+ 340              		.loc 1 280 0
+ 341 022c 022A     		cmp	r2, #2
+ 342 022e CCD1     		bne	.L10
+ 343 0230 D6E7     		b	.L8
+ 344              		.cfi_endproc
+ 345              	.LFE57:
+ 347              		.section	.text.draw_quarter_1,"ax",%progbits
+ 348              		.align	1
+ 349              		.syntax unified
+ 350              		.thumb
+ 351              		.thumb_func
+ARM GAS  /tmp/ccowqxLj.s 			page 13
+
+
+ 352              		.fpu fpv5-d16
+ 354              	draw_quarter_1:
+ 355              	.LFB58:
+ 296:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 297:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** static void draw_quarter_1(quarter_draw_dsc_t * q)
+ 298:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** {
+ 356              		.loc 1 298 0
+ 357              		.cfi_startproc
+ 358              		@ args = 0, pretend = 0, frame = 8
+ 359              		@ frame_needed = 0, uses_anonymous_args = 0
+ 360              	.LVL24:
+ 361 0000 70B5     		push	{r4, r5, r6, lr}
+ 362              	.LCFI4:
+ 363              		.cfi_def_cfa_offset 16
+ 364              		.cfi_offset 4, -16
+ 365              		.cfi_offset 5, -12
+ 366              		.cfi_offset 6, -8
+ 367              		.cfi_offset 14, -4
+ 368 0002 82B0     		sub	sp, sp, #8
+ 369              	.LCFI5:
+ 370              		.cfi_def_cfa_offset 24
+ 371 0004 0446     		mov	r4, r0
+ 299:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     const lv_area_t * clip_area_ori = q->draw_ctx->clip_area;
+ 372              		.loc 1 299 0
+ 373 0006 8369     		ldr	r3, [r0, #24]
+ 374 0008 9D68     		ldr	r5, [r3, #8]
+ 375              	.LVL25:
+ 300:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_area_t quarter_area;
+ 301:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 302:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(q->start_quarter == 1 && q->end_quarter == 1 && q->start_angle < q->end_angle) {
+ 376              		.loc 1 302 0
+ 377 000a 4389     		ldrh	r3, [r0, #10]
+ 378 000c 012B     		cmp	r3, #1
+ 379 000e 14D0     		beq	.L29
+ 380              	.LVL26:
+ 381              	.L19:
+ 303:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Small arc here*/
+ 304:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y + ((lv_trigo_sin(q->start_angle) * (q->radius)) >> LV_TRIGO_
+ 305:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x + ((lv_trigo_sin(q->start_angle + 90) * (q->radius - q->widt
+ 306:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 307:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y1 = q->center->y + ((lv_trigo_sin(q->end_angle) * (q->radius - q->width)) >> 
+ 308:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x1 = q->center->x + ((lv_trigo_sin(q->end_angle + 90) * (q->radius)) >> LV_TRI
+ 309:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 310:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 311:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 312:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 313:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 314:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 315:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 316:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     else if(q->start_quarter == 1 || q->end_quarter == 1) {
+ 382              		.loc 1 316 0
+ 383 0010 012B     		cmp	r3, #1
+ 384 0012 67D0     		beq	.L21
+ 385              		.loc 1 316 0 is_stmt 0 discriminator 1
+ 386 0014 A289     		ldrh	r2, [r4, #12]
+ 387 0016 012A     		cmp	r2, #1
+ 388 0018 64D0     		beq	.L21
+ARM GAS  /tmp/ccowqxLj.s 			page 14
+
+
+ 317:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Start and/or end arcs here*/
+ 318:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(q->start_quarter == 1) {
+ 319:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x1 = q->center->x - q->radius;
+ 320:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y;
+ 321:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 322:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y + ((lv_trigo_sin(q->start_angle) * (q->radius)) >> LV_TR
+ 323:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x2 = q->center->x + ((lv_trigo_sin(q->start_angle + 90) * (q->radius - q->
+ 324:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 325:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 326:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 327:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 328:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 329:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 330:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 331:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(q->end_quarter == 1) {
+ 332:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x2 = q->center->x - 1;
+ 333:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y + q->radius;
+ 334:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 335:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y + ((lv_trigo_sin(q->end_angle) * (q->radius - q->width))
+ 336:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x1 = q->center->x + ((lv_trigo_sin(q->end_angle + 90) * (q->radius)) >> LV
+ 337:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 338:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 339:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 340:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 341:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 342:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 343:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 344:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 345:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     else if((q->start_quarter == q->end_quarter && q->start_quarter != 1 && q->end_angle < q->start
+ 389              		.loc 1 345 0 is_stmt 1
+ 390 001a 9342     		cmp	r3, r2
+ 391 001c 00F0DD80 		beq	.L30
+ 392              	.L24:
+ 393              		.loc 1 345 0 is_stmt 0 discriminator 5
+ 394 0020 13B9     		cbnz	r3, .L26
+ 346:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 0 && q->end_quarter == 2) ||
+ 395              		.loc 1 346 0 is_stmt 1
+ 396 0022 022A     		cmp	r2, #2
+ 397 0024 00F0DE80 		beq	.L25
+ 398              	.L26:
+ 399              		.loc 1 346 0 is_stmt 0 discriminator 1
+ 400 0028 13B9     		cbnz	r3, .L27
+ 347:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 0 && q->end_quarter == 3) ||
+ 401              		.loc 1 347 0 is_stmt 1
+ 402 002a 032A     		cmp	r2, #3
+ 403 002c 00F0DA80 		beq	.L25
+ 404              	.L27:
+ 405              		.loc 1 347 0 is_stmt 0 discriminator 1
+ 406 0030 032B     		cmp	r3, #3
+ 407 0032 5CD1     		bne	.L20
+ 348:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 3 && q->end_quarter == 2)) {
+ 408              		.loc 1 348 0 is_stmt 1
+ 409 0034 022A     		cmp	r2, #2
+ 410 0036 5AD1     		bne	.L20
+ 411 0038 D4E0     		b	.L25
+ 412              	.LVL27:
+ 413              	.L29:
+ARM GAS  /tmp/ccowqxLj.s 			page 15
+
+
+ 302:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Small arc here*/
+ 414              		.loc 1 302 0 discriminator 1
+ 415 003a 8289     		ldrh	r2, [r0, #12]
+ 416 003c 012A     		cmp	r2, #1
+ 417 003e E7D1     		bne	.L19
+ 302:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Small arc here*/
+ 418              		.loc 1 302 0 is_stmt 0 discriminator 2
+ 419 0040 C088     		ldrh	r0, [r0, #6]
+ 420              	.LVL28:
+ 421 0042 2289     		ldrh	r2, [r4, #8]
+ 422 0044 9042     		cmp	r0, r2
+ 423 0046 E3D2     		bcs	.L19
+ 424              	.LBB16:
+ 304:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x + ((lv_trigo_sin(q->start_angle + 90) * (q->radius - q->widt
+ 425              		.loc 1 304 0 is_stmt 1
+ 426 0048 2368     		ldr	r3, [r4]
+ 427 004a 5E88     		ldrh	r6, [r3, #2]
+ 428 004c 00B2     		sxth	r0, r0
+ 429 004e FFF7FEFF 		bl	lv_trigo_sin
+ 430              	.LVL29:
+ 431 0052 B4F90430 		ldrsh	r3, [r4, #4]
+ 432 0056 03FB00F0 		mul	r0, r3, r0
+ 433 005a 06EBE036 		add	r6, r6, r0, asr #15
+ 434 005e ADF80660 		strh	r6, [sp, #6]	@ movhi
+ 305:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 435              		.loc 1 305 0
+ 436 0062 2368     		ldr	r3, [r4]
+ 437 0064 1E88     		ldrh	r6, [r3]
+ 438 0066 E088     		ldrh	r0, [r4, #6]
+ 439 0068 5A30     		adds	r0, r0, #90
+ 440 006a 00B2     		sxth	r0, r0
+ 441 006c FFF7FEFF 		bl	lv_trigo_sin
+ 442              	.LVL30:
+ 443 0070 B4F90430 		ldrsh	r3, [r4, #4]
+ 444 0074 B4F90E20 		ldrsh	r2, [r4, #14]
+ 445 0078 9B1A     		subs	r3, r3, r2
+ 446 007a 03FB00F0 		mul	r0, r3, r0
+ 447 007e 06EBE030 		add	r0, r6, r0, asr #15
+ 448 0082 ADF80400 		strh	r0, [sp, #4]	@ movhi
+ 307:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x1 = q->center->x + ((lv_trigo_sin(q->end_angle + 90) * (q->radius)) >> LV_TRI
+ 449              		.loc 1 307 0
+ 450 0086 2368     		ldr	r3, [r4]
+ 451 0088 5E88     		ldrh	r6, [r3, #2]
+ 452 008a B4F90800 		ldrsh	r0, [r4, #8]
+ 453 008e FFF7FEFF 		bl	lv_trigo_sin
+ 454              	.LVL31:
+ 455 0092 B4F90430 		ldrsh	r3, [r4, #4]
+ 456 0096 B4F90E20 		ldrsh	r2, [r4, #14]
+ 457 009a 9B1A     		subs	r3, r3, r2
+ 458 009c 03FB00F0 		mul	r0, r3, r0
+ 459 00a0 06EBE030 		add	r0, r6, r0, asr #15
+ 460 00a4 ADF80200 		strh	r0, [sp, #2]	@ movhi
+ 308:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 461              		.loc 1 308 0
+ 462 00a8 2368     		ldr	r3, [r4]
+ 463 00aa 1E88     		ldrh	r6, [r3]
+ 464 00ac 2089     		ldrh	r0, [r4, #8]
+ARM GAS  /tmp/ccowqxLj.s 			page 16
+
+
+ 465 00ae 5A30     		adds	r0, r0, #90
+ 466 00b0 00B2     		sxth	r0, r0
+ 467 00b2 FFF7FEFF 		bl	lv_trigo_sin
+ 468              	.LVL32:
+ 469 00b6 B4F90430 		ldrsh	r3, [r4, #4]
+ 470 00ba 03FB00F0 		mul	r0, r3, r0
+ 471 00be 06EBE036 		add	r6, r6, r0, asr #15
+ 472 00c2 02A8     		add	r0, sp, #8
+ 473 00c4 20F8086D 		strh	r6, [r0, #-8]!	@ movhi
+ 310:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 474              		.loc 1 310 0
+ 475 00c8 2A46     		mov	r2, r5
+ 476 00ca 0146     		mov	r1, r0
+ 477 00cc FFF7FEFF 		bl	_lv_area_intersect
+ 478              	.LVL33:
+ 311:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 479              		.loc 1 311 0
+ 480 00d0 68B1     		cbz	r0, .L20
+ 312:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 481              		.loc 1 312 0
+ 482 00d2 A369     		ldr	r3, [r4, #24]
+ 483 00d4 C3F808D0 		str	sp, [r3, #8]
+ 313:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 484              		.loc 1 313 0
+ 485 00d8 6269     		ldr	r2, [r4, #20]
+ 486 00da 2169     		ldr	r1, [r4, #16]
+ 487 00dc A069     		ldr	r0, [r4, #24]
+ 488              	.LVL34:
+ 489 00de FFF7FEFF 		bl	lv_draw_rect
+ 490              	.LVL35:
+ 491 00e2 04E0     		b	.L20
+ 492              	.L21:
+ 493              	.LBE16:
+ 318:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x1 = q->center->x - q->radius;
+ 494              		.loc 1 318 0
+ 495 00e4 012B     		cmp	r3, #1
+ 496 00e6 06D0     		beq	.L31
+ 497              	.L23:
+ 331:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x2 = q->center->x - 1;
+ 498              		.loc 1 331 0
+ 499 00e8 A389     		ldrh	r3, [r4, #12]
+ 500 00ea 012B     		cmp	r3, #1
+ 501 00ec 3CD0     		beq	.L32
+ 502              	.L20:
+ 349:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Arc crosses here*/
+ 350:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x1 = q->center->x - q->radius;
+ 351:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y1 = q->center->y;
+ 352:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x - 1;
+ 353:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y + q->radius;
+ 354:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 355:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 356:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 357:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 358:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 359:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 360:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 361:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     q->draw_ctx->clip_area = clip_area_ori;
+ARM GAS  /tmp/ccowqxLj.s 			page 17
+
+
+ 503              		.loc 1 361 0
+ 504 00ee A369     		ldr	r3, [r4, #24]
+ 505 00f0 9D60     		str	r5, [r3, #8]
+ 362:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** }
+ 506              		.loc 1 362 0
+ 507 00f2 02B0     		add	sp, sp, #8
+ 508              	.LCFI6:
+ 509              		.cfi_remember_state
+ 510              		.cfi_def_cfa_offset 16
+ 511              		@ sp needed
+ 512 00f4 70BD     		pop	{r4, r5, r6, pc}
+ 513              	.LVL36:
+ 514              	.L31:
+ 515              	.LCFI7:
+ 516              		.cfi_restore_state
+ 517              	.LBB17:
+ 319:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y;
+ 518              		.loc 1 319 0
+ 519 00f6 2368     		ldr	r3, [r4]
+ 520 00f8 1A88     		ldrh	r2, [r3]
+ 521 00fa A188     		ldrh	r1, [r4, #4]
+ 522 00fc 521A     		subs	r2, r2, r1
+ 523 00fe ADF80020 		strh	r2, [sp]	@ movhi
+ 320:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 524              		.loc 1 320 0
+ 525 0102 B3F90220 		ldrsh	r2, [r3, #2]
+ 526 0106 ADF80220 		strh	r2, [sp, #2]	@ movhi
+ 322:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x2 = q->center->x + ((lv_trigo_sin(q->start_angle + 90) * (q->radius - q->
+ 527              		.loc 1 322 0
+ 528 010a 5E88     		ldrh	r6, [r3, #2]
+ 529 010c B4F90600 		ldrsh	r0, [r4, #6]
+ 530 0110 FFF7FEFF 		bl	lv_trigo_sin
+ 531              	.LVL37:
+ 532 0114 B4F90430 		ldrsh	r3, [r4, #4]
+ 533 0118 03FB00F0 		mul	r0, r3, r0
+ 534 011c 06EBE036 		add	r6, r6, r0, asr #15
+ 535 0120 ADF80660 		strh	r6, [sp, #6]	@ movhi
+ 323:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 536              		.loc 1 323 0
+ 537 0124 2368     		ldr	r3, [r4]
+ 538 0126 1E88     		ldrh	r6, [r3]
+ 539 0128 E088     		ldrh	r0, [r4, #6]
+ 540 012a 5A30     		adds	r0, r0, #90
+ 541 012c 00B2     		sxth	r0, r0
+ 542 012e FFF7FEFF 		bl	lv_trigo_sin
+ 543              	.LVL38:
+ 544 0132 B4F90430 		ldrsh	r3, [r4, #4]
+ 545 0136 B4F90E20 		ldrsh	r2, [r4, #14]
+ 546 013a 9B1A     		subs	r3, r3, r2
+ 547 013c 03FB00F0 		mul	r0, r3, r0
+ 548 0140 06EBE030 		add	r0, r6, r0, asr #15
+ 549 0144 ADF80400 		strh	r0, [sp, #4]	@ movhi
+ 325:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 550              		.loc 1 325 0
+ 551 0148 2A46     		mov	r2, r5
+ 552 014a 6946     		mov	r1, sp
+ 553 014c 6846     		mov	r0, sp
+ARM GAS  /tmp/ccowqxLj.s 			page 18
+
+
+ 554 014e FFF7FEFF 		bl	_lv_area_intersect
+ 555              	.LVL39:
+ 326:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 556              		.loc 1 326 0
+ 557 0152 0028     		cmp	r0, #0
+ 558 0154 C8D0     		beq	.L23
+ 327:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 559              		.loc 1 327 0
+ 560 0156 A369     		ldr	r3, [r4, #24]
+ 561 0158 C3F808D0 		str	sp, [r3, #8]
+ 328:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 562              		.loc 1 328 0
+ 563 015c 6269     		ldr	r2, [r4, #20]
+ 564 015e 2169     		ldr	r1, [r4, #16]
+ 565 0160 A069     		ldr	r0, [r4, #24]
+ 566              	.LVL40:
+ 567 0162 FFF7FEFF 		bl	lv_draw_rect
+ 568              	.LVL41:
+ 569 0166 BFE7     		b	.L23
+ 570              	.L32:
+ 571              	.LBE17:
+ 572              	.LBB18:
+ 332:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y + q->radius;
+ 573              		.loc 1 332 0
+ 574 0168 2368     		ldr	r3, [r4]
+ 575 016a 1A88     		ldrh	r2, [r3]
+ 576 016c 013A     		subs	r2, r2, #1
+ 577 016e ADF80420 		strh	r2, [sp, #4]	@ movhi
+ 333:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 578              		.loc 1 333 0
+ 579 0172 5A88     		ldrh	r2, [r3, #2]
+ 580 0174 A188     		ldrh	r1, [r4, #4]
+ 581 0176 0A44     		add	r2, r2, r1
+ 582 0178 ADF80620 		strh	r2, [sp, #6]	@ movhi
+ 335:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x1 = q->center->x + ((lv_trigo_sin(q->end_angle + 90) * (q->radius)) >> LV
+ 583              		.loc 1 335 0
+ 584 017c 5E88     		ldrh	r6, [r3, #2]
+ 585 017e B4F90800 		ldrsh	r0, [r4, #8]
+ 586 0182 FFF7FEFF 		bl	lv_trigo_sin
+ 587              	.LVL42:
+ 588 0186 B4F90430 		ldrsh	r3, [r4, #4]
+ 589 018a B4F90E20 		ldrsh	r2, [r4, #14]
+ 590 018e 9B1A     		subs	r3, r3, r2
+ 591 0190 03FB00F0 		mul	r0, r3, r0
+ 592 0194 06EBE030 		add	r0, r6, r0, asr #15
+ 593 0198 ADF80200 		strh	r0, [sp, #2]	@ movhi
+ 336:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 594              		.loc 1 336 0
+ 595 019c 2368     		ldr	r3, [r4]
+ 596 019e 1E88     		ldrh	r6, [r3]
+ 597 01a0 2089     		ldrh	r0, [r4, #8]
+ 598 01a2 5A30     		adds	r0, r0, #90
+ 599 01a4 00B2     		sxth	r0, r0
+ 600 01a6 FFF7FEFF 		bl	lv_trigo_sin
+ 601              	.LVL43:
+ 602 01aa B4F90430 		ldrsh	r3, [r4, #4]
+ 603 01ae 03FB00F0 		mul	r0, r3, r0
+ARM GAS  /tmp/ccowqxLj.s 			page 19
+
+
+ 604 01b2 06EBE036 		add	r6, r6, r0, asr #15
+ 605 01b6 02A8     		add	r0, sp, #8
+ 606 01b8 20F8086D 		strh	r6, [r0, #-8]!	@ movhi
+ 338:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 607              		.loc 1 338 0
+ 608 01bc 2A46     		mov	r2, r5
+ 609 01be 0146     		mov	r1, r0
+ 610 01c0 FFF7FEFF 		bl	_lv_area_intersect
+ 611              	.LVL44:
+ 339:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 612              		.loc 1 339 0
+ 613 01c4 0028     		cmp	r0, #0
+ 614 01c6 92D0     		beq	.L20
+ 340:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 615              		.loc 1 340 0
+ 616 01c8 A369     		ldr	r3, [r4, #24]
+ 617 01ca C3F808D0 		str	sp, [r3, #8]
+ 341:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 618              		.loc 1 341 0
+ 619 01ce 6269     		ldr	r2, [r4, #20]
+ 620 01d0 2169     		ldr	r1, [r4, #16]
+ 621 01d2 A069     		ldr	r0, [r4, #24]
+ 622              	.LVL45:
+ 623 01d4 FFF7FEFF 		bl	lv_draw_rect
+ 624              	.LVL46:
+ 625 01d8 89E7     		b	.L20
+ 626              	.L30:
+ 627              	.LBE18:
+ 345:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 0 && q->end_quarter == 2) ||
+ 628              		.loc 1 345 0 discriminator 3
+ 629 01da 2089     		ldrh	r0, [r4, #8]
+ 630 01dc E188     		ldrh	r1, [r4, #6]
+ 631 01de 8842     		cmp	r0, r1
+ 632 01e0 BFF41EAF 		bcs	.L24
+ 633              	.L25:
+ 634              	.LBB19:
+ 350:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y1 = q->center->y;
+ 635              		.loc 1 350 0
+ 636 01e4 2368     		ldr	r3, [r4]
+ 637 01e6 1A88     		ldrh	r2, [r3]
+ 638 01e8 A188     		ldrh	r1, [r4, #4]
+ 639 01ea 521A     		subs	r2, r2, r1
+ 640 01ec ADF80020 		strh	r2, [sp]	@ movhi
+ 351:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x - 1;
+ 641              		.loc 1 351 0
+ 642 01f0 B3F90220 		ldrsh	r2, [r3, #2]
+ 643 01f4 ADF80220 		strh	r2, [sp, #2]	@ movhi
+ 352:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y + q->radius;
+ 644              		.loc 1 352 0
+ 645 01f8 1A88     		ldrh	r2, [r3]
+ 646 01fa 013A     		subs	r2, r2, #1
+ 647 01fc ADF80420 		strh	r2, [sp, #4]	@ movhi
+ 353:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 648              		.loc 1 353 0
+ 649 0200 5B88     		ldrh	r3, [r3, #2]
+ 650 0202 0B44     		add	r3, r3, r1
+ 651 0204 ADF80630 		strh	r3, [sp, #6]	@ movhi
+ARM GAS  /tmp/ccowqxLj.s 			page 20
+
+
+ 355:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 652              		.loc 1 355 0
+ 653 0208 2A46     		mov	r2, r5
+ 654 020a 6946     		mov	r1, sp
+ 655 020c 6846     		mov	r0, sp
+ 656 020e FFF7FEFF 		bl	_lv_area_intersect
+ 657              	.LVL47:
+ 356:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 658              		.loc 1 356 0
+ 659 0212 0028     		cmp	r0, #0
+ 660 0214 3FF46BAF 		beq	.L20
+ 357:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 661              		.loc 1 357 0
+ 662 0218 A369     		ldr	r3, [r4, #24]
+ 663 021a C3F808D0 		str	sp, [r3, #8]
+ 358:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 664              		.loc 1 358 0
+ 665 021e 6269     		ldr	r2, [r4, #20]
+ 666 0220 2169     		ldr	r1, [r4, #16]
+ 667 0222 A069     		ldr	r0, [r4, #24]
+ 668              	.LVL48:
+ 669 0224 FFF7FEFF 		bl	lv_draw_rect
+ 670              	.LVL49:
+ 671 0228 61E7     		b	.L20
+ 672              	.LBE19:
+ 673              		.cfi_endproc
+ 674              	.LFE58:
+ 676              		.section	.text.draw_quarter_2,"ax",%progbits
+ 677              		.align	1
+ 678              		.syntax unified
+ 679              		.thumb
+ 680              		.thumb_func
+ 681              		.fpu fpv5-d16
+ 683              	draw_quarter_2:
+ 684              	.LFB59:
+ 363:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 364:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** static void draw_quarter_2(quarter_draw_dsc_t * q)
+ 365:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** {
+ 685              		.loc 1 365 0
+ 686              		.cfi_startproc
+ 687              		@ args = 0, pretend = 0, frame = 8
+ 688              		@ frame_needed = 0, uses_anonymous_args = 0
+ 689              	.LVL50:
+ 690 0000 70B5     		push	{r4, r5, r6, lr}
+ 691              	.LCFI8:
+ 692              		.cfi_def_cfa_offset 16
+ 693              		.cfi_offset 4, -16
+ 694              		.cfi_offset 5, -12
+ 695              		.cfi_offset 6, -8
+ 696              		.cfi_offset 14, -4
+ 697 0002 82B0     		sub	sp, sp, #8
+ 698              	.LCFI9:
+ 699              		.cfi_def_cfa_offset 24
+ 700 0004 0446     		mov	r4, r0
+ 366:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     const lv_area_t * clip_area_ori = q->draw_ctx->clip_area;
+ 701              		.loc 1 366 0
+ 702 0006 8369     		ldr	r3, [r0, #24]
+ARM GAS  /tmp/ccowqxLj.s 			page 21
+
+
+ 703 0008 9D68     		ldr	r5, [r3, #8]
+ 704              	.LVL51:
+ 367:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_area_t quarter_area;
+ 368:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 369:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(q->start_quarter == 2 && q->end_quarter == 2 && q->start_angle < q->end_angle) {
+ 705              		.loc 1 369 0
+ 706 000a 4389     		ldrh	r3, [r0, #10]
+ 707 000c 022B     		cmp	r3, #2
+ 708 000e 14D0     		beq	.L44
+ 709              	.LVL52:
+ 710              	.L34:
+ 370:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Small arc here*/
+ 371:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x1 = q->center->x + ((lv_trigo_sin(q->start_angle + 90) * (q->radius)) >> LV_T
+ 372:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y + ((lv_trigo_sin(q->start_angle) * (q->radius - q->width)) >
+ 373:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 374:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y1 = q->center->y + ((lv_trigo_sin(q->end_angle) * q->radius) >> LV_TRIGO_SHIF
+ 375:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x + ((lv_trigo_sin(q->end_angle + 90) * (q->radius - q->width)
+ 376:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 377:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 378:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 379:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 380:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 381:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 382:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 383:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     else if(q->start_quarter == 2 || q->end_quarter == 2) {
+ 711              		.loc 1 383 0
+ 712 0010 022B     		cmp	r3, #2
+ 713 0012 67D0     		beq	.L36
+ 714              		.loc 1 383 0 is_stmt 0 discriminator 1
+ 715 0014 A289     		ldrh	r2, [r4, #12]
+ 716 0016 022A     		cmp	r2, #2
+ 717 0018 64D0     		beq	.L36
+ 384:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Start and/or end arcs here*/
+ 385:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(q->start_quarter == 2) {
+ 386:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x2 = q->center->x - 1;
+ 387:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y - q->radius;
+ 388:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 389:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x1 = q->center->x + ((lv_trigo_sin(q->start_angle + 90) * (q->radius)) >> 
+ 390:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y + ((lv_trigo_sin(q->start_angle) * (q->radius - q->width
+ 391:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 392:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 393:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 394:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 395:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 396:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 397:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 398:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(q->end_quarter == 2) {
+ 399:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x1 = q->center->x - q->radius;
+ 400:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y - 1;
+ 401:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 402:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x2 = q->center->x + ((lv_trigo_sin(q->end_angle + 90) * (q->radius - q->wi
+ 403:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y + ((lv_trigo_sin(q->end_angle) * (q->radius)) >> LV_TRIG
+ 404:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 405:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 406:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 407:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 408:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ARM GAS  /tmp/ccowqxLj.s 			page 22
+
+
+ 409:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 410:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 411:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 412:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     else if((q->start_quarter == q->end_quarter && q->start_quarter != 2 && q->end_angle < q->start
+ 718              		.loc 1 412 0 is_stmt 1
+ 719 001a 9342     		cmp	r3, r2
+ 720 001c 00F0DD80 		beq	.L45
+ 721              	.L39:
+ 722              		.loc 1 412 0 is_stmt 0 discriminator 5
+ 723 0020 13B9     		cbnz	r3, .L41
+ 413:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 0 && q->end_quarter == 3) ||
+ 724              		.loc 1 413 0 is_stmt 1
+ 725 0022 032A     		cmp	r2, #3
+ 726 0024 00F0DE80 		beq	.L40
+ 727              	.L41:
+ 728              		.loc 1 413 0 is_stmt 0 discriminator 1
+ 729 0028 012B     		cmp	r3, #1
+ 730 002a 00F0FE80 		beq	.L46
+ 731              	.L42:
+ 414:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 1 && q->end_quarter == 3) ||
+ 732              		.loc 1 414 0 is_stmt 1 discriminator 1
+ 733 002e 012B     		cmp	r3, #1
+ 734 0030 5DD1     		bne	.L35
+ 415:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 1 && q->end_quarter == 0)) {
+ 735              		.loc 1 415 0
+ 736 0032 002A     		cmp	r2, #0
+ 737 0034 00F0D680 		beq	.L40
+ 738              	.LBB20:
+ 739 0038 59E0     		b	.L35
+ 740              	.LVL53:
+ 741              	.L44:
+ 742              	.LBE20:
+ 369:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Small arc here*/
+ 743              		.loc 1 369 0 discriminator 1
+ 744 003a 8289     		ldrh	r2, [r0, #12]
+ 745 003c 022A     		cmp	r2, #2
+ 746 003e E7D1     		bne	.L34
+ 369:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Small arc here*/
+ 747              		.loc 1 369 0 is_stmt 0 discriminator 2
+ 748 0040 C088     		ldrh	r0, [r0, #6]
+ 749              	.LVL54:
+ 750 0042 2289     		ldrh	r2, [r4, #8]
+ 751 0044 9042     		cmp	r0, r2
+ 752 0046 E3D2     		bcs	.L34
+ 753              	.LBB21:
+ 371:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y + ((lv_trigo_sin(q->start_angle) * (q->radius - q->width)) >
+ 754              		.loc 1 371 0 is_stmt 1
+ 755 0048 2368     		ldr	r3, [r4]
+ 756 004a 1E88     		ldrh	r6, [r3]
+ 757 004c 5A30     		adds	r0, r0, #90
+ 758 004e 00B2     		sxth	r0, r0
+ 759 0050 FFF7FEFF 		bl	lv_trigo_sin
+ 760              	.LVL55:
+ 761 0054 B4F90430 		ldrsh	r3, [r4, #4]
+ 762 0058 03FB00F0 		mul	r0, r3, r0
+ 763 005c 06EBE036 		add	r6, r6, r0, asr #15
+ 764 0060 ADF80060 		strh	r6, [sp]	@ movhi
+ARM GAS  /tmp/ccowqxLj.s 			page 23
+
+
+ 372:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 765              		.loc 1 372 0
+ 766 0064 2368     		ldr	r3, [r4]
+ 767 0066 5E88     		ldrh	r6, [r3, #2]
+ 768 0068 B4F90600 		ldrsh	r0, [r4, #6]
+ 769 006c FFF7FEFF 		bl	lv_trigo_sin
+ 770              	.LVL56:
+ 771 0070 B4F90430 		ldrsh	r3, [r4, #4]
+ 772 0074 B4F90E20 		ldrsh	r2, [r4, #14]
+ 773 0078 9B1A     		subs	r3, r3, r2
+ 774 007a 03FB00F0 		mul	r0, r3, r0
+ 775 007e 06EBE030 		add	r0, r6, r0, asr #15
+ 776 0082 ADF80600 		strh	r0, [sp, #6]	@ movhi
+ 374:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x + ((lv_trigo_sin(q->end_angle + 90) * (q->radius - q->width)
+ 777              		.loc 1 374 0
+ 778 0086 2368     		ldr	r3, [r4]
+ 779 0088 5E88     		ldrh	r6, [r3, #2]
+ 780 008a B4F90800 		ldrsh	r0, [r4, #8]
+ 781 008e FFF7FEFF 		bl	lv_trigo_sin
+ 782              	.LVL57:
+ 783 0092 B4F90430 		ldrsh	r3, [r4, #4]
+ 784 0096 03FB00F0 		mul	r0, r3, r0
+ 785 009a 06EBE036 		add	r6, r6, r0, asr #15
+ 786 009e ADF80260 		strh	r6, [sp, #2]	@ movhi
+ 375:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 787              		.loc 1 375 0
+ 788 00a2 2368     		ldr	r3, [r4]
+ 789 00a4 1E88     		ldrh	r6, [r3]
+ 790 00a6 2089     		ldrh	r0, [r4, #8]
+ 791 00a8 5A30     		adds	r0, r0, #90
+ 792 00aa 00B2     		sxth	r0, r0
+ 793 00ac FFF7FEFF 		bl	lv_trigo_sin
+ 794              	.LVL58:
+ 795 00b0 B4F90430 		ldrsh	r3, [r4, #4]
+ 796 00b4 B4F90E20 		ldrsh	r2, [r4, #14]
+ 797 00b8 9B1A     		subs	r3, r3, r2
+ 798 00ba 03FB00F0 		mul	r0, r3, r0
+ 799 00be 06EBE030 		add	r0, r6, r0, asr #15
+ 800 00c2 ADF80400 		strh	r0, [sp, #4]	@ movhi
+ 377:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 801              		.loc 1 377 0
+ 802 00c6 2A46     		mov	r2, r5
+ 803 00c8 6946     		mov	r1, sp
+ 804 00ca 6846     		mov	r0, sp
+ 805 00cc FFF7FEFF 		bl	_lv_area_intersect
+ 806              	.LVL59:
+ 378:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 807              		.loc 1 378 0
+ 808 00d0 68B1     		cbz	r0, .L35
+ 379:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 809              		.loc 1 379 0
+ 810 00d2 A369     		ldr	r3, [r4, #24]
+ 811 00d4 C3F808D0 		str	sp, [r3, #8]
+ 380:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 812              		.loc 1 380 0
+ 813 00d8 6269     		ldr	r2, [r4, #20]
+ 814 00da 2169     		ldr	r1, [r4, #16]
+ARM GAS  /tmp/ccowqxLj.s 			page 24
+
+
+ 815 00dc A069     		ldr	r0, [r4, #24]
+ 816              	.LVL60:
+ 817 00de FFF7FEFF 		bl	lv_draw_rect
+ 818              	.LVL61:
+ 819 00e2 04E0     		b	.L35
+ 820              	.L36:
+ 821              	.LBE21:
+ 385:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x2 = q->center->x - 1;
+ 822              		.loc 1 385 0
+ 823 00e4 022B     		cmp	r3, #2
+ 824 00e6 06D0     		beq	.L47
+ 825              	.L38:
+ 398:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x1 = q->center->x - q->radius;
+ 826              		.loc 1 398 0
+ 827 00e8 A389     		ldrh	r3, [r4, #12]
+ 828 00ea 022B     		cmp	r3, #2
+ 829 00ec 3CD0     		beq	.L48
+ 830              	.L35:
+ 416:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Arc crosses here*/
+ 417:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x1 = q->center->x - q->radius;
+ 418:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y1 = q->center->y - q->radius;
+ 419:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x - 1;
+ 420:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y - 1;
+ 421:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 422:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 423:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 424:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 425:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 426:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 427:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 428:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     q->draw_ctx->clip_area = clip_area_ori;
+ 831              		.loc 1 428 0
+ 832 00ee A369     		ldr	r3, [r4, #24]
+ 833 00f0 9D60     		str	r5, [r3, #8]
+ 429:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** }
+ 834              		.loc 1 429 0
+ 835 00f2 02B0     		add	sp, sp, #8
+ 836              	.LCFI10:
+ 837              		.cfi_remember_state
+ 838              		.cfi_def_cfa_offset 16
+ 839              		@ sp needed
+ 840 00f4 70BD     		pop	{r4, r5, r6, pc}
+ 841              	.LVL62:
+ 842              	.L47:
+ 843              	.LCFI11:
+ 844              		.cfi_restore_state
+ 845              	.LBB22:
+ 386:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y - q->radius;
+ 846              		.loc 1 386 0
+ 847 00f6 2368     		ldr	r3, [r4]
+ 848 00f8 1A88     		ldrh	r2, [r3]
+ 849 00fa 013A     		subs	r2, r2, #1
+ 850 00fc ADF80420 		strh	r2, [sp, #4]	@ movhi
+ 387:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 851              		.loc 1 387 0
+ 852 0100 5A88     		ldrh	r2, [r3, #2]
+ 853 0102 A188     		ldrh	r1, [r4, #4]
+ARM GAS  /tmp/ccowqxLj.s 			page 25
+
+
+ 854 0104 521A     		subs	r2, r2, r1
+ 855 0106 ADF80220 		strh	r2, [sp, #2]	@ movhi
+ 389:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y + ((lv_trigo_sin(q->start_angle) * (q->radius - q->width
+ 856              		.loc 1 389 0
+ 857 010a 1E88     		ldrh	r6, [r3]
+ 858 010c E088     		ldrh	r0, [r4, #6]
+ 859 010e 5A30     		adds	r0, r0, #90
+ 860 0110 00B2     		sxth	r0, r0
+ 861 0112 FFF7FEFF 		bl	lv_trigo_sin
+ 862              	.LVL63:
+ 863 0116 B4F90430 		ldrsh	r3, [r4, #4]
+ 864 011a 03FB00F0 		mul	r0, r3, r0
+ 865 011e 06EBE036 		add	r6, r6, r0, asr #15
+ 866 0122 ADF80060 		strh	r6, [sp]	@ movhi
+ 390:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 867              		.loc 1 390 0
+ 868 0126 2368     		ldr	r3, [r4]
+ 869 0128 5E88     		ldrh	r6, [r3, #2]
+ 870 012a B4F90600 		ldrsh	r0, [r4, #6]
+ 871 012e FFF7FEFF 		bl	lv_trigo_sin
+ 872              	.LVL64:
+ 873 0132 B4F90430 		ldrsh	r3, [r4, #4]
+ 874 0136 B4F90E20 		ldrsh	r2, [r4, #14]
+ 875 013a 9B1A     		subs	r3, r3, r2
+ 876 013c 03FB00F0 		mul	r0, r3, r0
+ 877 0140 06EBE030 		add	r0, r6, r0, asr #15
+ 878 0144 ADF80600 		strh	r0, [sp, #6]	@ movhi
+ 392:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 879              		.loc 1 392 0
+ 880 0148 2A46     		mov	r2, r5
+ 881 014a 6946     		mov	r1, sp
+ 882 014c 6846     		mov	r0, sp
+ 883 014e FFF7FEFF 		bl	_lv_area_intersect
+ 884              	.LVL65:
+ 393:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 885              		.loc 1 393 0
+ 886 0152 0028     		cmp	r0, #0
+ 887 0154 C8D0     		beq	.L38
+ 394:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 888              		.loc 1 394 0
+ 889 0156 A369     		ldr	r3, [r4, #24]
+ 890 0158 C3F808D0 		str	sp, [r3, #8]
+ 395:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 891              		.loc 1 395 0
+ 892 015c 6269     		ldr	r2, [r4, #20]
+ 893 015e 2169     		ldr	r1, [r4, #16]
+ 894 0160 A069     		ldr	r0, [r4, #24]
+ 895              	.LVL66:
+ 896 0162 FFF7FEFF 		bl	lv_draw_rect
+ 897              	.LVL67:
+ 898 0166 BFE7     		b	.L38
+ 899              	.L48:
+ 900              	.LBE22:
+ 901              	.LBB23:
+ 399:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y - 1;
+ 902              		.loc 1 399 0
+ 903 0168 2368     		ldr	r3, [r4]
+ARM GAS  /tmp/ccowqxLj.s 			page 26
+
+
+ 904 016a 1A88     		ldrh	r2, [r3]
+ 905 016c A188     		ldrh	r1, [r4, #4]
+ 906 016e 521A     		subs	r2, r2, r1
+ 907 0170 ADF80020 		strh	r2, [sp]	@ movhi
+ 400:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 908              		.loc 1 400 0
+ 909 0174 5A88     		ldrh	r2, [r3, #2]
+ 910 0176 013A     		subs	r2, r2, #1
+ 911 0178 ADF80620 		strh	r2, [sp, #6]	@ movhi
+ 402:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y + ((lv_trigo_sin(q->end_angle) * (q->radius)) >> LV_TRIG
+ 912              		.loc 1 402 0
+ 913 017c 1E88     		ldrh	r6, [r3]
+ 914 017e 2089     		ldrh	r0, [r4, #8]
+ 915 0180 5A30     		adds	r0, r0, #90
+ 916 0182 00B2     		sxth	r0, r0
+ 917 0184 FFF7FEFF 		bl	lv_trigo_sin
+ 918              	.LVL68:
+ 919 0188 B4F90430 		ldrsh	r3, [r4, #4]
+ 920 018c B4F90E20 		ldrsh	r2, [r4, #14]
+ 921 0190 9B1A     		subs	r3, r3, r2
+ 922 0192 03FB00F0 		mul	r0, r3, r0
+ 923 0196 06EBE030 		add	r0, r6, r0, asr #15
+ 924 019a ADF80400 		strh	r0, [sp, #4]	@ movhi
+ 403:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 925              		.loc 1 403 0
+ 926 019e 2368     		ldr	r3, [r4]
+ 927 01a0 5E88     		ldrh	r6, [r3, #2]
+ 928 01a2 B4F90800 		ldrsh	r0, [r4, #8]
+ 929 01a6 FFF7FEFF 		bl	lv_trigo_sin
+ 930              	.LVL69:
+ 931 01aa B4F90430 		ldrsh	r3, [r4, #4]
+ 932 01ae 03FB00F0 		mul	r0, r3, r0
+ 933 01b2 06EBE036 		add	r6, r6, r0, asr #15
+ 934 01b6 ADF80260 		strh	r6, [sp, #2]	@ movhi
+ 405:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 935              		.loc 1 405 0
+ 936 01ba 2A46     		mov	r2, r5
+ 937 01bc 6946     		mov	r1, sp
+ 938 01be 6846     		mov	r0, sp
+ 939 01c0 FFF7FEFF 		bl	_lv_area_intersect
+ 940              	.LVL70:
+ 406:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 941              		.loc 1 406 0
+ 942 01c4 0028     		cmp	r0, #0
+ 943 01c6 92D0     		beq	.L35
+ 407:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 944              		.loc 1 407 0
+ 945 01c8 A369     		ldr	r3, [r4, #24]
+ 946 01ca C3F808D0 		str	sp, [r3, #8]
+ 408:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 947              		.loc 1 408 0
+ 948 01ce 6269     		ldr	r2, [r4, #20]
+ 949 01d0 2169     		ldr	r1, [r4, #16]
+ 950 01d2 A069     		ldr	r0, [r4, #24]
+ 951              	.LVL71:
+ 952 01d4 FFF7FEFF 		bl	lv_draw_rect
+ 953              	.LVL72:
+ARM GAS  /tmp/ccowqxLj.s 			page 27
+
+
+ 954 01d8 89E7     		b	.L35
+ 955              	.L45:
+ 956              	.LBE23:
+ 412:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 0 && q->end_quarter == 3) ||
+ 957              		.loc 1 412 0 discriminator 3
+ 958 01da 2089     		ldrh	r0, [r4, #8]
+ 959 01dc E188     		ldrh	r1, [r4, #6]
+ 960 01de 8842     		cmp	r0, r1
+ 961 01e0 BFF41EAF 		bcs	.L39
+ 962              	.L40:
+ 963              	.LBB24:
+ 417:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y1 = q->center->y - q->radius;
+ 964              		.loc 1 417 0
+ 965 01e4 2368     		ldr	r3, [r4]
+ 966 01e6 1988     		ldrh	r1, [r3]
+ 967 01e8 A088     		ldrh	r0, [r4, #4]
+ 968 01ea 091A     		subs	r1, r1, r0
+ 969 01ec ADF80010 		strh	r1, [sp]	@ movhi
+ 418:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x - 1;
+ 970              		.loc 1 418 0
+ 971 01f0 5A88     		ldrh	r2, [r3, #2]
+ 972 01f2 121A     		subs	r2, r2, r0
+ 973 01f4 ADF80220 		strh	r2, [sp, #2]	@ movhi
+ 419:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y - 1;
+ 974              		.loc 1 419 0
+ 975 01f8 1A88     		ldrh	r2, [r3]
+ 976 01fa 013A     		subs	r2, r2, #1
+ 977 01fc ADF80420 		strh	r2, [sp, #4]	@ movhi
+ 420:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 978              		.loc 1 420 0
+ 979 0200 5B88     		ldrh	r3, [r3, #2]
+ 980 0202 013B     		subs	r3, r3, #1
+ 981 0204 ADF80630 		strh	r3, [sp, #6]	@ movhi
+ 422:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 982              		.loc 1 422 0
+ 983 0208 2A46     		mov	r2, r5
+ 984 020a 6946     		mov	r1, sp
+ 985 020c 6846     		mov	r0, sp
+ 986 020e FFF7FEFF 		bl	_lv_area_intersect
+ 987              	.LVL73:
+ 423:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 988              		.loc 1 423 0
+ 989 0212 0028     		cmp	r0, #0
+ 990 0214 3FF46BAF 		beq	.L35
+ 424:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 991              		.loc 1 424 0
+ 992 0218 A369     		ldr	r3, [r4, #24]
+ 993 021a C3F808D0 		str	sp, [r3, #8]
+ 425:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 994              		.loc 1 425 0
+ 995 021e 6269     		ldr	r2, [r4, #20]
+ 996 0220 2169     		ldr	r1, [r4, #16]
+ 997 0222 A069     		ldr	r0, [r4, #24]
+ 998              	.LVL74:
+ 999 0224 FFF7FEFF 		bl	lv_draw_rect
+ 1000              	.LVL75:
+ 1001 0228 61E7     		b	.L35
+ARM GAS  /tmp/ccowqxLj.s 			page 28
+
+
+ 1002              	.L46:
+ 1003              	.LBE24:
+ 414:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 1 && q->end_quarter == 0)) {
+ 1004              		.loc 1 414 0
+ 1005 022a 032A     		cmp	r2, #3
+ 1006 022c 7FF4FFAE 		bne	.L42
+ 1007 0230 D8E7     		b	.L40
+ 1008              		.cfi_endproc
+ 1009              	.LFE59:
+ 1011              		.section	.text.draw_quarter_3,"ax",%progbits
+ 1012              		.align	1
+ 1013              		.syntax unified
+ 1014              		.thumb
+ 1015              		.thumb_func
+ 1016              		.fpu fpv5-d16
+ 1018              	draw_quarter_3:
+ 1019              	.LFB60:
+ 430:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 431:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** static void draw_quarter_3(quarter_draw_dsc_t * q)
+ 432:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** {
+ 1020              		.loc 1 432 0
+ 1021              		.cfi_startproc
+ 1022              		@ args = 0, pretend = 0, frame = 8
+ 1023              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1024              	.LVL76:
+ 1025 0000 70B5     		push	{r4, r5, r6, lr}
+ 1026              	.LCFI12:
+ 1027              		.cfi_def_cfa_offset 16
+ 1028              		.cfi_offset 4, -16
+ 1029              		.cfi_offset 5, -12
+ 1030              		.cfi_offset 6, -8
+ 1031              		.cfi_offset 14, -4
+ 1032 0002 82B0     		sub	sp, sp, #8
+ 1033              	.LCFI13:
+ 1034              		.cfi_def_cfa_offset 24
+ 1035 0004 0446     		mov	r4, r0
+ 433:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     const lv_area_t * clip_area_ori = q->draw_ctx->clip_area;
+ 1036              		.loc 1 433 0
+ 1037 0006 8369     		ldr	r3, [r0, #24]
+ 1038 0008 9D68     		ldr	r5, [r3, #8]
+ 1039              	.LVL77:
+ 434:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_area_t quarter_area;
+ 435:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 436:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(q->start_quarter == 3 && q->end_quarter == 3 && q->start_angle < q->end_angle) {
+ 1040              		.loc 1 436 0
+ 1041 000a 4389     		ldrh	r3, [r0, #10]
+ 1042 000c 032B     		cmp	r3, #3
+ 1043 000e 12D0     		beq	.L60
+ 1044              	.LVL78:
+ 1045              	.L50:
+ 437:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Small arc here*/
+ 438:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x1 = q->center->x + ((lv_trigo_sin(q->start_angle + 90) * (q->radius - q->widt
+ 439:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y1 = q->center->y + ((lv_trigo_sin(q->start_angle) * (q->radius)) >> LV_TRIGO_
+ 440:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 441:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x + ((lv_trigo_sin(q->end_angle + 90) * (q->radius)) >> LV_TRI
+ 442:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y + ((lv_trigo_sin(q->end_angle) * (q->radius - q->width)) >> 
+ 443:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ARM GAS  /tmp/ccowqxLj.s 			page 29
+
+
+ 444:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 445:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 446:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 447:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 448:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 449:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 450:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     else if(q->start_quarter == 3 || q->end_quarter == 3) {
+ 1046              		.loc 1 450 0
+ 1047 0010 032B     		cmp	r3, #3
+ 1048 0012 65D0     		beq	.L52
+ 1049              		.loc 1 450 0 is_stmt 0 discriminator 1
+ 1050 0014 A289     		ldrh	r2, [r4, #12]
+ 1051 0016 032A     		cmp	r2, #3
+ 1052 0018 62D0     		beq	.L52
+ 451:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Start and/or end arcs here*/
+ 452:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(q->start_quarter == 3) {
+ 453:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x2 = q->center->x + q->radius;
+ 454:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y - 1;
+ 455:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 456:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x1 = q->center->x + ((lv_trigo_sin(q->start_angle + 90) * (q->radius - q->
+ 457:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y + ((lv_trigo_sin(q->start_angle) * (q->radius)) >> LV_TR
+ 458:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 459:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 460:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 461:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 462:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 463:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 464:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 465:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(q->end_quarter == 3) {
+ 466:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x1 = q->center->x;
+ 467:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y - q->radius;
+ 468:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 469:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x2 = q->center->x + ((lv_trigo_sin(q->end_angle + 90) * (q->radius)) >> LV
+ 470:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y + ((lv_trigo_sin(q->end_angle) * (q->radius - q->width))
+ 471:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 472:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 473:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 474:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 475:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 476:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 477:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 478:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 479:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     else if((q->start_quarter == q->end_quarter && q->start_quarter != 3 && q->end_angle < q->start
+ 1053              		.loc 1 479 0 is_stmt 1
+ 1054 001a 9342     		cmp	r3, r2
+ 1055 001c 00F0DB80 		beq	.L61
+ 1056              	.L55:
+ 1057              		.loc 1 479 0 is_stmt 0 discriminator 5
+ 1058 0020 022B     		cmp	r3, #2
+ 1059 0022 00F00081 		beq	.L62
+ 1060              	.L57:
+ 480:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 2 && q->end_quarter == 0) ||
+ 1061              		.loc 1 480 0 is_stmt 1 discriminator 1
+ 1062 0026 012B     		cmp	r3, #1
+ 1063 0028 00F00081 		beq	.L63
+ 1064              	.L58:
+ 481:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 1 && q->end_quarter == 0) ||
+ARM GAS  /tmp/ccowqxLj.s 			page 30
+
+
+ 1065              		.loc 1 481 0 discriminator 1
+ 1066 002c 022B     		cmp	r3, #2
+ 1067 002e 5CD1     		bne	.L51
+ 482:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 2 && q->end_quarter == 1)) {
+ 1068              		.loc 1 482 0
+ 1069 0030 012A     		cmp	r2, #1
+ 1070 0032 5AD1     		bne	.L51
+ 1071 0034 D4E0     		b	.L56
+ 1072              	.LVL79:
+ 1073              	.L60:
+ 436:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Small arc here*/
+ 1074              		.loc 1 436 0 discriminator 1
+ 1075 0036 8289     		ldrh	r2, [r0, #12]
+ 1076 0038 032A     		cmp	r2, #3
+ 1077 003a E9D1     		bne	.L50
+ 436:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Small arc here*/
+ 1078              		.loc 1 436 0 is_stmt 0 discriminator 2
+ 1079 003c C088     		ldrh	r0, [r0, #6]
+ 1080              	.LVL80:
+ 1081 003e 2289     		ldrh	r2, [r4, #8]
+ 1082 0040 9042     		cmp	r0, r2
+ 1083 0042 E5D2     		bcs	.L50
+ 1084              	.LBB25:
+ 438:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y1 = q->center->y + ((lv_trigo_sin(q->start_angle) * (q->radius)) >> LV_TRIGO_
+ 1085              		.loc 1 438 0 is_stmt 1
+ 1086 0044 2368     		ldr	r3, [r4]
+ 1087 0046 1E88     		ldrh	r6, [r3]
+ 1088 0048 5A30     		adds	r0, r0, #90
+ 1089 004a 00B2     		sxth	r0, r0
+ 1090 004c FFF7FEFF 		bl	lv_trigo_sin
+ 1091              	.LVL81:
+ 1092 0050 B4F90430 		ldrsh	r3, [r4, #4]
+ 1093 0054 B4F90E20 		ldrsh	r2, [r4, #14]
+ 1094 0058 9B1A     		subs	r3, r3, r2
+ 1095 005a 03FB00F0 		mul	r0, r3, r0
+ 1096 005e 06EBE030 		add	r0, r6, r0, asr #15
+ 1097 0062 ADF80000 		strh	r0, [sp]	@ movhi
+ 439:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1098              		.loc 1 439 0
+ 1099 0066 2368     		ldr	r3, [r4]
+ 1100 0068 5E88     		ldrh	r6, [r3, #2]
+ 1101 006a B4F90600 		ldrsh	r0, [r4, #6]
+ 1102 006e FFF7FEFF 		bl	lv_trigo_sin
+ 1103              	.LVL82:
+ 1104 0072 B4F90430 		ldrsh	r3, [r4, #4]
+ 1105 0076 03FB00F0 		mul	r0, r3, r0
+ 1106 007a 06EBE036 		add	r6, r6, r0, asr #15
+ 1107 007e ADF80260 		strh	r6, [sp, #2]	@ movhi
+ 441:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y + ((lv_trigo_sin(q->end_angle) * (q->radius - q->width)) >> 
+ 1108              		.loc 1 441 0
+ 1109 0082 2368     		ldr	r3, [r4]
+ 1110 0084 1E88     		ldrh	r6, [r3]
+ 1111 0086 2089     		ldrh	r0, [r4, #8]
+ 1112 0088 5A30     		adds	r0, r0, #90
+ 1113 008a 00B2     		sxth	r0, r0
+ 1114 008c FFF7FEFF 		bl	lv_trigo_sin
+ 1115              	.LVL83:
+ARM GAS  /tmp/ccowqxLj.s 			page 31
+
+
+ 1116 0090 B4F90430 		ldrsh	r3, [r4, #4]
+ 1117 0094 03FB00F0 		mul	r0, r3, r0
+ 1118 0098 06EBE036 		add	r6, r6, r0, asr #15
+ 1119 009c ADF80460 		strh	r6, [sp, #4]	@ movhi
+ 442:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1120              		.loc 1 442 0
+ 1121 00a0 2368     		ldr	r3, [r4]
+ 1122 00a2 5E88     		ldrh	r6, [r3, #2]
+ 1123 00a4 B4F90800 		ldrsh	r0, [r4, #8]
+ 1124 00a8 FFF7FEFF 		bl	lv_trigo_sin
+ 1125              	.LVL84:
+ 1126 00ac B4F90430 		ldrsh	r3, [r4, #4]
+ 1127 00b0 B4F90E20 		ldrsh	r2, [r4, #14]
+ 1128 00b4 9B1A     		subs	r3, r3, r2
+ 1129 00b6 03FB00F0 		mul	r0, r3, r0
+ 1130 00ba 06EBE030 		add	r0, r6, r0, asr #15
+ 1131 00be ADF80600 		strh	r0, [sp, #6]	@ movhi
+ 444:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 1132              		.loc 1 444 0
+ 1133 00c2 2A46     		mov	r2, r5
+ 1134 00c4 6946     		mov	r1, sp
+ 1135 00c6 6846     		mov	r0, sp
+ 1136 00c8 FFF7FEFF 		bl	_lv_area_intersect
+ 1137              	.LVL85:
+ 445:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 1138              		.loc 1 445 0
+ 1139 00cc 68B1     		cbz	r0, .L51
+ 446:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 1140              		.loc 1 446 0
+ 1141 00ce A369     		ldr	r3, [r4, #24]
+ 1142 00d0 C3F808D0 		str	sp, [r3, #8]
+ 447:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 1143              		.loc 1 447 0
+ 1144 00d4 6269     		ldr	r2, [r4, #20]
+ 1145 00d6 2169     		ldr	r1, [r4, #16]
+ 1146 00d8 A069     		ldr	r0, [r4, #24]
+ 1147              	.LVL86:
+ 1148 00da FFF7FEFF 		bl	lv_draw_rect
+ 1149              	.LVL87:
+ 1150 00de 04E0     		b	.L51
+ 1151              	.L52:
+ 1152              	.LBE25:
+ 452:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x2 = q->center->x + q->radius;
+ 1153              		.loc 1 452 0
+ 1154 00e0 032B     		cmp	r3, #3
+ 1155 00e2 06D0     		beq	.L64
+ 1156              	.L54:
+ 465:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.x1 = q->center->x;
+ 1157              		.loc 1 465 0
+ 1158 00e4 A389     		ldrh	r3, [r4, #12]
+ 1159 00e6 032B     		cmp	r3, #3
+ 1160 00e8 3CD0     		beq	.L65
+ 1161              	.L51:
+ 483:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Arc crosses here*/
+ 484:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x1 = q->center->x;
+ 485:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y1 = q->center->y - q->radius;
+ 486:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x + q->radius;
+ARM GAS  /tmp/ccowqxLj.s 			page 32
+
+
+ 487:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y - 1;
+ 488:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 489:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         bool ok = _lv_area_intersect(&quarter_area, &quarter_area, clip_area_ori);
+ 490:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 491:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 492:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 493:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 494:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 495:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 496:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     q->draw_ctx->clip_area = clip_area_ori;
+ 1162              		.loc 1 496 0
+ 1163 00ea A369     		ldr	r3, [r4, #24]
+ 1164 00ec 9D60     		str	r5, [r3, #8]
+ 497:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** }
+ 1165              		.loc 1 497 0
+ 1166 00ee 02B0     		add	sp, sp, #8
+ 1167              	.LCFI14:
+ 1168              		.cfi_remember_state
+ 1169              		.cfi_def_cfa_offset 16
+ 1170              		@ sp needed
+ 1171 00f0 70BD     		pop	{r4, r5, r6, pc}
+ 1172              	.LVL88:
+ 1173              	.L64:
+ 1174              	.LCFI15:
+ 1175              		.cfi_restore_state
+ 1176              	.LBB26:
+ 453:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y - 1;
+ 1177              		.loc 1 453 0
+ 1178 00f2 2368     		ldr	r3, [r4]
+ 1179 00f4 1A88     		ldrh	r2, [r3]
+ 1180 00f6 A188     		ldrh	r1, [r4, #4]
+ 1181 00f8 0A44     		add	r2, r2, r1
+ 1182 00fa ADF80420 		strh	r2, [sp, #4]	@ movhi
+ 454:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1183              		.loc 1 454 0
+ 1184 00fe 5A88     		ldrh	r2, [r3, #2]
+ 1185 0100 013A     		subs	r2, r2, #1
+ 1186 0102 ADF80620 		strh	r2, [sp, #6]	@ movhi
+ 456:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y + ((lv_trigo_sin(q->start_angle) * (q->radius)) >> LV_TR
+ 1187              		.loc 1 456 0
+ 1188 0106 1E88     		ldrh	r6, [r3]
+ 1189 0108 E088     		ldrh	r0, [r4, #6]
+ 1190 010a 5A30     		adds	r0, r0, #90
+ 1191 010c 00B2     		sxth	r0, r0
+ 1192 010e FFF7FEFF 		bl	lv_trigo_sin
+ 1193              	.LVL89:
+ 1194 0112 B4F90430 		ldrsh	r3, [r4, #4]
+ 1195 0116 B4F90E20 		ldrsh	r2, [r4, #14]
+ 1196 011a 9B1A     		subs	r3, r3, r2
+ 1197 011c 03FB00F0 		mul	r0, r3, r0
+ 1198 0120 06EBE030 		add	r0, r6, r0, asr #15
+ 1199 0124 ADF80000 		strh	r0, [sp]	@ movhi
+ 457:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1200              		.loc 1 457 0
+ 1201 0128 2368     		ldr	r3, [r4]
+ 1202 012a 5E88     		ldrh	r6, [r3, #2]
+ 1203 012c B4F90600 		ldrsh	r0, [r4, #6]
+ARM GAS  /tmp/ccowqxLj.s 			page 33
+
+
+ 1204 0130 FFF7FEFF 		bl	lv_trigo_sin
+ 1205              	.LVL90:
+ 1206 0134 B4F90430 		ldrsh	r3, [r4, #4]
+ 1207 0138 03FB00F0 		mul	r0, r3, r0
+ 1208 013c 06EBE036 		add	r6, r6, r0, asr #15
+ 1209 0140 ADF80260 		strh	r6, [sp, #2]	@ movhi
+ 459:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 1210              		.loc 1 459 0
+ 1211 0144 2A46     		mov	r2, r5
+ 1212 0146 6946     		mov	r1, sp
+ 1213 0148 6846     		mov	r0, sp
+ 1214 014a FFF7FEFF 		bl	_lv_area_intersect
+ 1215              	.LVL91:
+ 460:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 1216              		.loc 1 460 0
+ 1217 014e 0028     		cmp	r0, #0
+ 1218 0150 C8D0     		beq	.L54
+ 461:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 1219              		.loc 1 461 0
+ 1220 0152 A369     		ldr	r3, [r4, #24]
+ 1221 0154 C3F808D0 		str	sp, [r3, #8]
+ 462:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 1222              		.loc 1 462 0
+ 1223 0158 6269     		ldr	r2, [r4, #20]
+ 1224 015a 2169     		ldr	r1, [r4, #16]
+ 1225 015c A069     		ldr	r0, [r4, #24]
+ 1226              	.LVL92:
+ 1227 015e FFF7FEFF 		bl	lv_draw_rect
+ 1228              	.LVL93:
+ 1229 0162 BFE7     		b	.L54
+ 1230              	.L65:
+ 1231              	.LBE26:
+ 1232              	.LBB27:
+ 466:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y1 = q->center->y - q->radius;
+ 1233              		.loc 1 466 0
+ 1234 0164 2368     		ldr	r3, [r4]
+ 1235 0166 B3F90020 		ldrsh	r2, [r3]
+ 1236 016a ADF80020 		strh	r2, [sp]	@ movhi
+ 467:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1237              		.loc 1 467 0
+ 1238 016e 5A88     		ldrh	r2, [r3, #2]
+ 1239 0170 A188     		ldrh	r1, [r4, #4]
+ 1240 0172 521A     		subs	r2, r2, r1
+ 1241 0174 ADF80220 		strh	r2, [sp, #2]	@ movhi
+ 469:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             quarter_area.y2 = q->center->y + ((lv_trigo_sin(q->end_angle) * (q->radius - q->width))
+ 1242              		.loc 1 469 0
+ 1243 0178 1E88     		ldrh	r6, [r3]
+ 1244 017a 2089     		ldrh	r0, [r4, #8]
+ 1245 017c 5A30     		adds	r0, r0, #90
+ 1246 017e 00B2     		sxth	r0, r0
+ 1247 0180 FFF7FEFF 		bl	lv_trigo_sin
+ 1248              	.LVL94:
+ 1249 0184 B4F90430 		ldrsh	r3, [r4, #4]
+ 1250 0188 03FB00F0 		mul	r0, r3, r0
+ 1251 018c 06EBE036 		add	r6, r6, r0, asr #15
+ 1252 0190 ADF80460 		strh	r6, [sp, #4]	@ movhi
+ 470:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ARM GAS  /tmp/ccowqxLj.s 			page 34
+
+
+ 1253              		.loc 1 470 0
+ 1254 0194 2368     		ldr	r3, [r4]
+ 1255 0196 5E88     		ldrh	r6, [r3, #2]
+ 1256 0198 B4F90800 		ldrsh	r0, [r4, #8]
+ 1257 019c FFF7FEFF 		bl	lv_trigo_sin
+ 1258              	.LVL95:
+ 1259 01a0 B4F90430 		ldrsh	r3, [r4, #4]
+ 1260 01a4 B4F90E20 		ldrsh	r2, [r4, #14]
+ 1261 01a8 9B1A     		subs	r3, r3, r2
+ 1262 01aa 03FB00F0 		mul	r0, r3, r0
+ 1263 01ae 06EBE030 		add	r0, r6, r0, asr #15
+ 1264 01b2 ADF80600 		strh	r0, [sp, #6]	@ movhi
+ 472:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             if(ok) {
+ 1265              		.loc 1 472 0
+ 1266 01b6 2A46     		mov	r2, r5
+ 1267 01b8 6946     		mov	r1, sp
+ 1268 01ba 6846     		mov	r0, sp
+ 1269 01bc FFF7FEFF 		bl	_lv_area_intersect
+ 1270              	.LVL96:
+ 473:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 q->draw_ctx->clip_area = &quarter_area;
+ 1271              		.loc 1 473 0
+ 1272 01c0 0028     		cmp	r0, #0
+ 1273 01c2 92D0     		beq	.L51
+ 474:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****                 lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 1274              		.loc 1 474 0
+ 1275 01c4 A369     		ldr	r3, [r4, #24]
+ 1276 01c6 C3F808D0 		str	sp, [r3, #8]
+ 475:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             }
+ 1277              		.loc 1 475 0
+ 1278 01ca 6269     		ldr	r2, [r4, #20]
+ 1279 01cc 2169     		ldr	r1, [r4, #16]
+ 1280 01ce A069     		ldr	r0, [r4, #24]
+ 1281              	.LVL97:
+ 1282 01d0 FFF7FEFF 		bl	lv_draw_rect
+ 1283              	.LVL98:
+ 1284 01d4 89E7     		b	.L51
+ 1285              	.L61:
+ 1286              	.LBE27:
+ 479:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 2 && q->end_quarter == 0) ||
+ 1287              		.loc 1 479 0 discriminator 3
+ 1288 01d6 2089     		ldrh	r0, [r4, #8]
+ 1289 01d8 E188     		ldrh	r1, [r4, #6]
+ 1290 01da 8842     		cmp	r0, r1
+ 1291 01dc BFF420AF 		bcs	.L55
+ 1292              	.L56:
+ 1293              	.LBB28:
+ 484:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y1 = q->center->y - q->radius;
+ 1294              		.loc 1 484 0
+ 1295 01e0 2368     		ldr	r3, [r4]
+ 1296 01e2 B3F90020 		ldrsh	r2, [r3]
+ 1297 01e6 ADF80020 		strh	r2, [sp]	@ movhi
+ 485:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.x2 = q->center->x + q->radius;
+ 1298              		.loc 1 485 0
+ 1299 01ea 5988     		ldrh	r1, [r3, #2]
+ 1300 01ec A288     		ldrh	r2, [r4, #4]
+ 1301 01ee 891A     		subs	r1, r1, r2
+ 1302 01f0 ADF80210 		strh	r1, [sp, #2]	@ movhi
+ARM GAS  /tmp/ccowqxLj.s 			page 35
+
+
+ 486:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         quarter_area.y2 = q->center->y - 1;
+ 1303              		.loc 1 486 0
+ 1304 01f4 1988     		ldrh	r1, [r3]
+ 1305 01f6 0A44     		add	r2, r2, r1
+ 1306 01f8 ADF80420 		strh	r2, [sp, #4]	@ movhi
+ 487:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1307              		.loc 1 487 0
+ 1308 01fc 5B88     		ldrh	r3, [r3, #2]
+ 1309 01fe 013B     		subs	r3, r3, #1
+ 1310 0200 ADF80630 		strh	r3, [sp, #6]	@ movhi
+ 489:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(ok) {
+ 1311              		.loc 1 489 0
+ 1312 0204 2A46     		mov	r2, r5
+ 1313 0206 6946     		mov	r1, sp
+ 1314 0208 6846     		mov	r0, sp
+ 1315 020a FFF7FEFF 		bl	_lv_area_intersect
+ 1316              	.LVL99:
+ 490:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             q->draw_ctx->clip_area = &quarter_area;
+ 1317              		.loc 1 490 0
+ 1318 020e 0028     		cmp	r0, #0
+ 1319 0210 3FF46BAF 		beq	.L51
+ 491:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(q->draw_ctx, q->draw_dsc, q->draw_area);
+ 1320              		.loc 1 491 0
+ 1321 0214 A369     		ldr	r3, [r4, #24]
+ 1322 0216 C3F808D0 		str	sp, [r3, #8]
+ 492:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 1323              		.loc 1 492 0
+ 1324 021a 6269     		ldr	r2, [r4, #20]
+ 1325 021c 2169     		ldr	r1, [r4, #16]
+ 1326 021e A069     		ldr	r0, [r4, #24]
+ 1327              	.LVL100:
+ 1328 0220 FFF7FEFF 		bl	lv_draw_rect
+ 1329              	.LVL101:
+ 1330 0224 61E7     		b	.L51
+ 1331              	.L62:
+ 1332              	.LBE28:
+ 480:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 1 && q->end_quarter == 0) ||
+ 1333              		.loc 1 480 0
+ 1334 0226 002A     		cmp	r2, #0
+ 1335 0228 DAD0     		beq	.L56
+ 1336 022a FCE6     		b	.L57
+ 1337              	.L63:
+ 481:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             (q->start_quarter == 2 && q->end_quarter == 1)) {
+ 1338              		.loc 1 481 0
+ 1339 022c 002A     		cmp	r2, #0
+ 1340 022e D7D0     		beq	.L56
+ 1341 0230 FCE6     		b	.L58
+ 1342              		.cfi_endproc
+ 1343              	.LFE60:
+ 1345              		.section	.text.get_rounded_area,"ax",%progbits
+ 1346              		.align	1
+ 1347              		.syntax unified
+ 1348              		.thumb
+ 1349              		.thumb_func
+ 1350              		.fpu fpv5-d16
+ 1352              	get_rounded_area:
+ 1353              	.LFB61:
+ARM GAS  /tmp/ccowqxLj.s 			page 36
+
+
+ 498:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 499:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** static void get_rounded_area(int16_t angle, lv_coord_t radius, uint8_t thickness, lv_area_t * res_a
+ 500:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** {
+ 1354              		.loc 1 500 0
+ 1355              		.cfi_startproc
+ 1356              		@ args = 0, pretend = 0, frame = 0
+ 1357              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1358              	.LVL102:
+ 1359 0000 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+ 1360              	.LCFI16:
+ 1361              		.cfi_def_cfa_offset 32
+ 1362              		.cfi_offset 3, -32
+ 1363              		.cfi_offset 4, -28
+ 1364              		.cfi_offset 5, -24
+ 1365              		.cfi_offset 6, -20
+ 1366              		.cfi_offset 7, -16
+ 1367              		.cfi_offset 8, -12
+ 1368              		.cfi_offset 9, -8
+ 1369              		.cfi_offset 14, -4
+ 1370 0004 8146     		mov	r9, r0
+ 1371 0006 1F46     		mov	r7, r3
+ 1372              	.LVL103:
+ 501:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     const uint8_t ps = 8;
+ 502:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     const uint8_t pa = 127;
+ 503:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 504:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     int32_t thick_half = thickness / 2;
+ 1373              		.loc 1 504 0
+ 1374 0008 5608     		lsrs	r6, r2, #1
+ 1375              	.LVL104:
+ 505:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     uint8_t thick_corr = (thickness & 0x01) ? 0 : 1;
+ 1376              		.loc 1 505 0
+ 1377 000a 82F00102 		eor	r2, r2, #1
+ 1378              	.LVL105:
+ 1379 000e 02F00105 		and	r5, r2, #1
+ 1380              	.LVL106:
+ 506:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 507:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     int32_t cir_x;
+ 508:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     int32_t cir_y;
+ 509:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 510:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     cir_x = ((radius - thick_half) * lv_trigo_sin(90 - angle)) >> (LV_TRIGO_SHIFT - ps);
+ 1381              		.loc 1 510 0
+ 1382 0012 A1EB0608 		sub	r8, r1, r6
+ 1383 0016 C0F15A00 		rsb	r0, r0, #90
+ 1384              	.LVL107:
+ 1385 001a 00B2     		sxth	r0, r0
+ 1386 001c FFF7FEFF 		bl	lv_trigo_sin
+ 1387              	.LVL108:
+ 1388 0020 00FB08F0 		mul	r0, r0, r8
+ 1389 0024 C411     		asrs	r4, r0, #7
+ 1390              	.LVL109:
+ 511:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     cir_y = ((radius - thick_half) * lv_trigo_sin(angle)) >> (LV_TRIGO_SHIFT - ps);
+ 1391              		.loc 1 511 0
+ 1392 0026 4846     		mov	r0, r9
+ 1393 0028 FFF7FEFF 		bl	lv_trigo_sin
+ 1394              	.LVL110:
+ 1395 002c 00FB08F0 		mul	r0, r0, r8
+ 1396 0030 C011     		asrs	r0, r0, #7
+ARM GAS  /tmp/ccowqxLj.s 			page 37
+
+
+ 1397              	.LVL111:
+ 512:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 513:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     /*Actually the center of the pixel need to be calculated so apply 1/2 px offset*/
+ 514:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(cir_x > 0) {
+ 1398              		.loc 1 514 0
+ 1399 0032 002C     		cmp	r4, #0
+ 1400 0034 17DD     		ble	.L67
+ 515:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_x = (cir_x - pa) >> ps;
+ 1401              		.loc 1 515 0
+ 1402 0036 7F3C     		subs	r4, r4, #127
+ 1403              	.LVL112:
+ 516:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         res_area->x1 = cir_x - thick_half + thick_corr;
+ 1404              		.loc 1 516 0
+ 1405 0038 C4F30F24 		ubfx	r4, r4, #8, #16
+ 1406              	.LVL113:
+ 1407 003c B2B2     		uxth	r2, r6
+ 1408 003e A31A     		subs	r3, r4, r2
+ 1409 0040 15FA83F3 		uxtah	r3, r5, r3
+ 1410 0044 3B80     		strh	r3, [r7]	@ movhi
+ 517:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         res_area->x2 = cir_x + thick_half;
+ 1411              		.loc 1 517 0
+ 1412 0046 1444     		add	r4, r4, r2
+ 1413 0048 BC80     		strh	r4, [r7, #4]	@ movhi
+ 1414              	.L68:
+ 518:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 519:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     else {
+ 520:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_x = (cir_x + pa) >> ps;
+ 521:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         res_area->x1 = cir_x - thick_half;
+ 522:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         res_area->x2 = cir_x + thick_half - thick_corr;
+ 523:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 524:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 525:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(cir_y > 0) {
+ 1415              		.loc 1 525 0
+ 1416 004a 0028     		cmp	r0, #0
+ 1417 004c 16DD     		ble	.L69
+ 526:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_y = (cir_y - pa) >> ps;
+ 1418              		.loc 1 526 0
+ 1419 004e 7F38     		subs	r0, r0, #127
+ 1420              	.LVL114:
+ 527:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         res_area->y1 = cir_y - thick_half + thick_corr;
+ 1421              		.loc 1 527 0
+ 1422 0050 C0F30F20 		ubfx	r0, r0, #8, #16
+ 1423              	.LVL115:
+ 1424 0054 B6B2     		uxth	r6, r6
+ 1425              	.LVL116:
+ 1426 0056 821B     		subs	r2, r0, r6
+ 1427 0058 15FA82F5 		uxtah	r5, r5, r2
+ 1428              	.LVL117:
+ 1429 005c 7D80     		strh	r5, [r7, #2]	@ movhi
+ 528:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         res_area->y2 = cir_y + thick_half;
+ 1430              		.loc 1 528 0
+ 1431 005e 3044     		add	r0, r0, r6
+ 1432 0060 F880     		strh	r0, [r7, #6]	@ movhi
+ 1433              	.L66:
+ 529:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 530:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     else {
+ 531:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_y = (cir_y + pa) >> ps;
+ARM GAS  /tmp/ccowqxLj.s 			page 38
+
+
+ 532:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         res_area->y1 = cir_y - thick_half;
+ 533:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         res_area->y2 = cir_y + thick_half - thick_corr;
+ 534:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 535:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** }
+ 1434              		.loc 1 535 0
+ 1435 0062 BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 1436              	.LVL118:
+ 1437              	.L67:
+ 520:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         res_area->x1 = cir_x - thick_half;
+ 1438              		.loc 1 520 0
+ 1439 0066 7F34     		adds	r4, r4, #127
+ 1440              	.LVL119:
+ 521:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         res_area->x2 = cir_x + thick_half - thick_corr;
+ 1441              		.loc 1 521 0
+ 1442 0068 C4F30F24 		ubfx	r4, r4, #8, #16
+ 1443              	.LVL120:
+ 1444 006c B3B2     		uxth	r3, r6
+ 1445 006e E21A     		subs	r2, r4, r3
+ 1446 0070 3A80     		strh	r2, [r7]	@ movhi
+ 522:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 1447              		.loc 1 522 0
+ 1448 0072 1C44     		add	r4, r4, r3
+ 1449 0074 A4B2     		uxth	r4, r4
+ 1450 0076 641B     		subs	r4, r4, r5
+ 1451 0078 BC80     		strh	r4, [r7, #4]	@ movhi
+ 1452 007a E6E7     		b	.L68
+ 1453              	.L69:
+ 531:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         res_area->y1 = cir_y - thick_half;
+ 1454              		.loc 1 531 0
+ 1455 007c 7F30     		adds	r0, r0, #127
+ 1456              	.LVL121:
+ 532:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         res_area->y2 = cir_y + thick_half - thick_corr;
+ 1457              		.loc 1 532 0
+ 1458 007e C0F30F20 		ubfx	r0, r0, #8, #16
+ 1459              	.LVL122:
+ 1460 0082 B6B2     		uxth	r6, r6
+ 1461              	.LVL123:
+ 1462 0084 831B     		subs	r3, r0, r6
+ 1463 0086 7B80     		strh	r3, [r7, #2]	@ movhi
+ 533:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 1464              		.loc 1 533 0
+ 1465 0088 3044     		add	r0, r0, r6
+ 1466 008a 80B2     		uxth	r0, r0
+ 1467 008c 451B     		subs	r5, r0, r5
+ 1468              	.LVL124:
+ 1469 008e FD80     		strh	r5, [r7, #6]	@ movhi
+ 1470              		.loc 1 535 0
+ 1471 0090 E7E7     		b	.L66
+ 1472              		.cfi_endproc
+ 1473              	.LFE61:
+ 1475              		.section	.text.lv_draw_sw_arc,"ax",%progbits
+ 1476              		.align	1
+ 1477              		.global	lv_draw_sw_arc
+ 1478              		.syntax unified
+ 1479              		.thumb
+ 1480              		.thumb_func
+ 1481              		.fpu fpv5-d16
+ARM GAS  /tmp/ccowqxLj.s 			page 39
+
+
+ 1483              	lv_draw_sw_arc:
+ 1484              	.LFB56:
+  62:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** #if LV_DRAW_COMPLEX
+ 1485              		.loc 1 62 0
+ 1486              		.cfi_startproc
+ 1487              		@ args = 8, pretend = 0, frame = 296
+ 1488              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1489              	.LVL125:
+ 1490 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 1491              	.LCFI17:
+ 1492              		.cfi_def_cfa_offset 36
+ 1493              		.cfi_offset 4, -36
+ 1494              		.cfi_offset 5, -32
+ 1495              		.cfi_offset 6, -28
+ 1496              		.cfi_offset 7, -24
+ 1497              		.cfi_offset 8, -20
+ 1498              		.cfi_offset 9, -16
+ 1499              		.cfi_offset 10, -12
+ 1500              		.cfi_offset 11, -8
+ 1501              		.cfi_offset 14, -4
+ 1502 0004 CDB0     		sub	sp, sp, #308
+ 1503              	.LCFI18:
+ 1504              		.cfi_def_cfa_offset 344
+ 1505 0006 BDF85851 		ldrh	r5, [sp, #344]
+ 1506 000a BDF85C41 		ldrh	r4, [sp, #348]
+  64:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(dsc->width == 0) return;
+ 1507              		.loc 1 64 0
+ 1508 000e 0E7B     		ldrb	r6, [r1, #12]	@ zero_extendqisi2
+ 1509 0010 022E     		cmp	r6, #2
+ 1510 0012 40F21D81 		bls	.L72
+  65:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(start_angle == end_angle) return;
+ 1511              		.loc 1 65 0
+ 1512 0016 B1F902A0 		ldrsh	r10, [r1, #2]
+ 1513 001a BAF1000F 		cmp	r10, #0
+ 1514 001e 00F01781 		beq	.L72
+  66:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1515              		.loc 1 66 0
+ 1516 0022 A542     		cmp	r5, r4
+ 1517 0024 00F01481 		beq	.L72
+ 1518              	.LVL126:
+  69:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1519              		.loc 1 69 0
+ 1520 0028 9A45     		cmp	r10, r3
+ 1521 002a 01DD     		ble	.L74
+  69:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1522              		.loc 1 69 0 is_stmt 0 discriminator 1
+ 1523 002c 0FFA83FA 		sxth	r10, r3
+ 1524              	.LVL127:
+ 1525              	.L74:
+ 1526 0030 1F46     		mov	r7, r3
+ 1527 0032 9046     		mov	r8, r2
+ 1528 0034 0E46     		mov	r6, r1
+ 1529 0036 0290     		str	r0, [sp, #8]
+  72:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     cir_dsc.blend_mode = dsc->blend_mode;
+ 1530              		.loc 1 72 0 is_stmt 1
+ 1531 0038 3EA8     		add	r0, sp, #248
+ 1532              	.LVL128:
+ARM GAS  /tmp/ccowqxLj.s 			page 40
+
+
+ 1533 003a FFF7FEFF 		bl	lv_draw_rect_dsc_init
+ 1534              	.LVL129:
+  73:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(dsc->img_src) {
+ 1535              		.loc 1 73 0
+ 1536 003e 737B     		ldrb	r3, [r6, #13]	@ zero_extendqisi2
+ 1537 0040 C3F30103 		ubfx	r3, r3, #0, #2
+ 1538 0044 8DF8FA30 		strb	r3, [sp, #250]
+  74:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_dsc.bg_opa = LV_OPA_TRANSP;
+ 1539              		.loc 1 74 0
+ 1540 0048 B368     		ldr	r3, [r6, #8]
+ 1541 004a 002B     		cmp	r3, #0
+ 1542 004c 45D0     		beq	.L75
+  75:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_dsc.bg_img_src = dsc->img_src;
+ 1543              		.loc 1 75 0
+ 1544 004e 0022     		movs	r2, #0
+ 1545 0050 8DF8FB20 		strb	r2, [sp, #251]
+  76:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_dsc.bg_img_opa = dsc->opa;
+ 1546              		.loc 1 76 0
+ 1547 0054 4293     		str	r3, [sp, #264]
+  77:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 1548              		.loc 1 77 0
+ 1549 0056 337B     		ldrb	r3, [r6, #12]	@ zero_extendqisi2
+ 1550 0058 8DF81231 		strb	r3, [sp, #274]
+ 1551              	.L76:
+  85:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_out.y1 = center->y - radius;
+ 1552              		.loc 1 85 0
+ 1553 005c B8F800C0 		ldrh	ip, [r8]
+ 1554 0060 ACEB0700 		sub	r0, ip, r7
+ 1555 0064 80B2     		uxth	r0, r0
+ 1556 0066 ADF8F000 		strh	r0, [sp, #240]	@ movhi
+  86:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_out.x2 = center->x + radius - 1;  /*-1 because the center already belongs to the left/bott
+ 1557              		.loc 1 86 0
+ 1558 006a B8F80210 		ldrh	r1, [r8, #2]
+ 1559 006e CA1B     		subs	r2, r1, r7
+ 1560 0070 92B2     		uxth	r2, r2
+ 1561 0072 ADF8F220 		strh	r2, [sp, #242]	@ movhi
+  87:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_out.y2 = center->y + radius - 1;
+ 1562              		.loc 1 87 0
+ 1563 0076 0CEB0703 		add	r3, ip, r7
+ 1564 007a 9BB2     		uxth	r3, r3
+ 1565 007c 013B     		subs	r3, r3, #1
+ 1566 007e 9BB2     		uxth	r3, r3
+ 1567 0080 ADF8F430 		strh	r3, [sp, #244]	@ movhi
+  88:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1568              		.loc 1 88 0
+ 1569 0084 3944     		add	r1, r1, r7
+ 1570 0086 89B2     		uxth	r1, r1
+ 1571 0088 0139     		subs	r1, r1, #1
+ 1572 008a 89B2     		uxth	r1, r1
+ 1573 008c ADF8F610 		strh	r1, [sp, #246]	@ movhi
+  92:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_in.y1 += dsc->width;
+ 1574              		.loc 1 92 0
+ 1575 0090 B6F802C0 		ldrh	ip, [r6, #2]
+ 1576 0094 6044     		add	r0, r0, ip
+ 1577 0096 80B2     		uxth	r0, r0
+ 1578 0098 ADF8E800 		strh	r0, [sp, #232]	@ movhi
+  93:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_in.x2 -= dsc->width;
+ARM GAS  /tmp/ccowqxLj.s 			page 41
+
+
+ 1579              		.loc 1 93 0
+ 1580 009c 6244     		add	r2, r2, ip
+ 1581 009e 92B2     		uxth	r2, r2
+ 1582 00a0 ADF8EA20 		strh	r2, [sp, #234]	@ movhi
+  94:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     area_in.y2 -= dsc->width;
+ 1583              		.loc 1 94 0
+ 1584 00a4 A3EB0C03 		sub	r3, r3, ip
+ 1585 00a8 9BB2     		uxth	r3, r3
+ 1586 00aa ADF8EC30 		strh	r3, [sp, #236]	@ movhi
+  95:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1587              		.loc 1 95 0
+ 1588 00ae A1EB0C01 		sub	r1, r1, ip
+ 1589 00b2 89B2     		uxth	r1, r1
+ 1590 00b4 ADF8EE10 		strh	r1, [sp, #238]	@ movhi
+ 1591              	.LVL130:
+ 1592              	.LBB29:
+ 1593              	.LBB30:
+ 1594              		.file 2 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h"
+   1:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+   2:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @file lv_area.h
+   3:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  *
+   4:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+   5:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+   6:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #ifndef LV_AREA_H
+   7:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #define LV_AREA_H
+   8:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+   9:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #ifdef __cplusplus
+  10:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** extern "C" {
+  11:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #endif
+  12:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  13:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /*********************
+  14:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  *      INCLUDES
+  15:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  *********************/
+  16:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #include "../lv_conf_internal.h"
+  17:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #include <stdbool.h>
+  18:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #include <stdint.h>
+  19:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  20:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /*********************
+  21:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  *      DEFINES
+  22:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  *********************/
+  23:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  24:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #if LV_USE_LARGE_COORD
+  25:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef int32_t lv_coord_t;
+  26:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #else
+  27:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef int16_t lv_coord_t;
+  28:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** #endif
+  29:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  30:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**********************
+  31:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  *      TYPEDEFS
+  32:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  **********************/
+  33:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  34:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+  35:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Represents a point on the screen.
+  36:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+  37:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef struct {
+  38:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t x;
+  39:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t y;
+ARM GAS  /tmp/ccowqxLj.s 			page 42
+
+
+  40:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** } lv_point_t;
+  41:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  42:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /** Represents an area of the screen.*/
+  43:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef struct {
+  44:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t x1;
+  45:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t y1;
+  46:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t x2;
+  47:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t y2;
+  48:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** } lv_area_t;
+  49:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  50:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /** Alignments*/
+  51:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** enum {
+  52:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_DEFAULT = 0,
+  53:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_TOP_LEFT,
+  54:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_TOP_MID,
+  55:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_TOP_RIGHT,
+  56:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_BOTTOM_LEFT,
+  57:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_BOTTOM_MID,
+  58:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_BOTTOM_RIGHT,
+  59:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_LEFT_MID,
+  60:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_RIGHT_MID,
+  61:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_CENTER,
+  62:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  63:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_TOP_LEFT,
+  64:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_TOP_MID,
+  65:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_TOP_RIGHT,
+  66:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_BOTTOM_LEFT,
+  67:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_BOTTOM_MID,
+  68:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_BOTTOM_RIGHT,
+  69:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_LEFT_TOP,
+  70:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_LEFT_MID,
+  71:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_LEFT_BOTTOM,
+  72:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_RIGHT_TOP,
+  73:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_RIGHT_MID,
+  74:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_RIGHT_BOTTOM,
+  75:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** };
+  76:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef uint8_t lv_align_t;
+  77:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  78:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** enum {
+  79:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_NONE     = 0x00,
+  80:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_LEFT     = (1 << 0),
+  81:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_RIGHT    = (1 << 1),
+  82:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_TOP      = (1 << 2),
+  83:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_BOTTOM   = (1 << 3),
+  84:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_HOR      = LV_DIR_LEFT | LV_DIR_RIGHT,
+  85:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_VER      = LV_DIR_TOP | LV_DIR_BOTTOM,
+  86:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_ALL      = LV_DIR_HOR | LV_DIR_VER,
+  87:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** };
+  88:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  89:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef uint8_t lv_dir_t;
+  90:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  91:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**********************
+  92:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * GLOBAL PROTOTYPES
+  93:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  **********************/
+  94:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  95:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+  96:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Initialize an area
+ARM GAS  /tmp/ccowqxLj.s 			page 43
+
+
+  97:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param area_p pointer to an area
+  98:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param x1 left coordinate of the area
+  99:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param y1 top coordinate of the area
+ 100:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param x2 right coordinate of the area
+ 101:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param y2 bottom coordinate of the area
+ 102:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+ 103:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** void lv_area_set(lv_area_t * area_p, lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2);
+ 104:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+ 105:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+ 106:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Copy an area
+ 107:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param dest pointer to the destination area
+ 108:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param src pointer to the source area
+ 109:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+ 110:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** inline static void lv_area_copy(lv_area_t * dest, const lv_area_t * src)
+ 111:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 112:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->x1 = src->x1;
+ 113:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y1 = src->y1;
+ 114:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->x2 = src->x2;
+ 115:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y2 = src->y2;
+ 116:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 117:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+ 118:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+ 119:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Get the width of an area
+ 120:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param area_p pointer to an area
+ 121:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @return the width of the area (if x1 == x2 -> width = 1)
+ 122:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+ 123:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** static inline lv_coord_t lv_area_get_width(const lv_area_t * area_p)
+ 124:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 125:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     return (lv_coord_t)(area_p->x2 - area_p->x1 + 1);
+ 1595              		.loc 2 125 0
+ 1596 00b8 1B1A     		subs	r3, r3, r0
+ 1597 00ba 9BB2     		uxth	r3, r3
+ 1598 00bc 0133     		adds	r3, r3, #1
+ 1599 00be 1BB2     		sxth	r3, r3
+ 1600              	.LVL131:
+ 1601              	.LBE30:
+ 1602              	.LBE29:
+ 101:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_draw_mask_radius_init(&mask_in_param, &area_in, LV_RADIUS_CIRCLE, true);
+ 1603              		.loc 1 101 0
+ 1604 00c0 002B     		cmp	r3, #0
+ 1605 00c2 20DD     		ble	.L94
+ 1606              	.LVL132:
+ 1607              	.LBB31:
+ 1608              	.LBB32:
+ 126:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 127:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+ 128:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+ 129:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Get the height of an area
+ 130:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param area_p pointer to an area
+ 131:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @return the height of the area (if y1 == y2 -> height = 1)
+ 132:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+ 133:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** static inline lv_coord_t lv_area_get_height(const lv_area_t * area_p)
+ 134:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 135:Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_area.h ****     return (lv_coord_t)(area_p->y2 - area_p->y1 + 1);
+ 1609              		.loc 2 135 0
+ 1610 00c4 8B1A     		subs	r3, r1, r2
+ 1611 00c6 9BB2     		uxth	r3, r3
+ARM GAS  /tmp/ccowqxLj.s 			page 44
+
+
+ 1612 00c8 0133     		adds	r3, r3, #1
+ 1613 00ca 1BB2     		sxth	r3, r3
+ 1614              	.LVL133:
+ 1615              	.LBE32:
+ 1616              	.LBE31:
+ 101:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_draw_mask_radius_init(&mask_in_param, &area_in, LV_RADIUS_CIRCLE, true);
+ 1617              		.loc 1 101 0
+ 1618 00cc 002B     		cmp	r3, #0
+ 1619 00ce 0BDC     		bgt	.L98
+ 100:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(lv_area_get_width(&area_in) > 0 && lv_area_get_height(&area_in) > 0) {
+ 1620              		.loc 1 100 0
+ 1621 00d0 4FF00009 		mov	r9, #0
+  98:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_mask_radius_param_t mask_in_param;
+ 1622              		.loc 1 98 0
+ 1623 00d4 4FF0FF3B 		mov	fp, #-1
+ 1624 00d8 19E0     		b	.L77
+ 1625              	.LVL134:
+ 1626              	.L75:
+  80:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_dsc.bg_color = dsc->color;
+ 1627              		.loc 1 80 0
+ 1628 00da 337B     		ldrb	r3, [r6, #12]	@ zero_extendqisi2
+ 1629 00dc 8DF8FB30 		strb	r3, [sp, #251]
+  81:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 1630              		.loc 1 81 0
+ 1631 00e0 3388     		ldrh	r3, [r6]
+ 1632 00e2 ADF8FC30 		strh	r3, [sp, #252]	@ movhi
+ 1633 00e6 B9E7     		b	.L76
+ 1634              	.LVL135:
+ 1635              	.L98:
+ 102:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         mask_in_param_valid = true;
+ 1636              		.loc 1 102 0
+ 1637 00e8 0123     		movs	r3, #1
+ 1638 00ea 47F6FF72 		movw	r2, #32767
+ 1639 00ee 3AA9     		add	r1, sp, #232
+ 1640 00f0 34A8     		add	r0, sp, #208
+ 1641 00f2 FFF7FEFF 		bl	lv_draw_mask_radius_init
+ 1642              	.LVL136:
+ 104:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 1643              		.loc 1 104 0
+ 1644 00f6 0021     		movs	r1, #0
+ 1645 00f8 34A8     		add	r0, sp, #208
+ 1646 00fa FFF7FEFF 		bl	lv_draw_mask_add
+ 1647              	.LVL137:
+ 1648 00fe 8346     		mov	fp, r0
+ 1649              	.LVL138:
+ 103:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         mask_in_id = lv_draw_mask_add(&mask_in_param, NULL);
+ 1650              		.loc 1 103 0
+ 1651 0100 4FF00109 		mov	r9, #1
+ 1652 0104 03E0     		b	.L77
+ 1653              	.LVL139:
+ 1654              	.L94:
+ 100:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(lv_area_get_width(&area_in) > 0 && lv_area_get_height(&area_in) > 0) {
+ 1655              		.loc 1 100 0
+ 1656 0106 4FF00009 		mov	r9, #0
+  98:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_mask_radius_param_t mask_in_param;
+ 1657              		.loc 1 98 0
+ 1658 010a 4FF0FF3B 		mov	fp, #-1
+ARM GAS  /tmp/ccowqxLj.s 			page 45
+
+
+ 1659              	.LVL140:
+ 1660              	.L77:
+ 108:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     int16_t mask_out_id = lv_draw_mask_add(&mask_out_param, NULL);
+ 1661              		.loc 1 108 0
+ 1662 010e 0023     		movs	r3, #0
+ 1663 0110 47F6FF72 		movw	r2, #32767
+ 1664 0114 3CA9     		add	r1, sp, #240
+ 1665 0116 2EA8     		add	r0, sp, #184
+ 1666 0118 FFF7FEFF 		bl	lv_draw_mask_radius_init
+ 1667              	.LVL141:
+ 109:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1668              		.loc 1 109 0
+ 1669 011c 0021     		movs	r1, #0
+ 1670 011e 2EA8     		add	r0, sp, #184
+ 1671 0120 FFF7FEFF 		bl	lv_draw_mask_add
+ 1672              	.LVL142:
+ 1673 0124 0390     		str	r0, [sp, #12]
+ 1674              	.LVL143:
+ 112:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_dsc.radius = LV_RADIUS_CIRCLE;
+ 1675              		.loc 1 112 0
+ 1676 0126 05F5B473 		add	r3, r5, #360
+ 1677 012a A342     		cmp	r3, r4
+ 1678 012c 03D0     		beq	.L78
+ 112:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         cir_dsc.radius = LV_RADIUS_CIRCLE;
+ 1679              		.loc 1 112 0 is_stmt 0 discriminator 1
+ 1680 012e 04F5B473 		add	r3, r4, #360
+ 1681 0132 9D42     		cmp	r5, r3
+ 1682 0134 1FD1     		bne	.L79
+ 1683              	.L78:
+ 113:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_draw_rect(draw_ctx, &cir_dsc, &area_out);
+ 1684              		.loc 1 113 0 is_stmt 1
+ 1685 0136 47F6FF73 		movw	r3, #32767
+ 1686 013a ADF8F830 		strh	r3, [sp, #248]	@ movhi
+ 114:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1687              		.loc 1 114 0
+ 1688 013e 3CAA     		add	r2, sp, #240
+ 1689 0140 3EA9     		add	r1, sp, #248
+ 1690 0142 0298     		ldr	r0, [sp, #8]
+ 1691 0144 FFF7FEFF 		bl	lv_draw_rect
+ 1692              	.LVL144:
+ 116:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(mask_in_id != LV_MASK_ID_INV) lv_draw_mask_remove_id(mask_in_id);
+ 1693              		.loc 1 116 0
+ 1694 0148 0398     		ldr	r0, [sp, #12]
+ 1695 014a FFF7FEFF 		bl	lv_draw_mask_remove_id
+ 1696              	.LVL145:
+ 117:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1697              		.loc 1 117 0
+ 1698 014e BBF1FF3F 		cmp	fp, #-1
+ 1699 0152 09D1     		bne	.L99
+ 1700              	.L80:
+ 119:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(mask_in_param_valid) {
+ 1701              		.loc 1 119 0
+ 1702 0154 2EA8     		add	r0, sp, #184
+ 1703 0156 FFF7FEFF 		bl	lv_draw_mask_free_param
+ 1704              	.LVL146:
+ 120:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_free_param(&mask_in_param);
+ 1705              		.loc 1 120 0
+ARM GAS  /tmp/ccowqxLj.s 			page 46
+
+
+ 1706 015a B9F1000F 		cmp	r9, #0
+ 1707 015e 77D0     		beq	.L72
+ 121:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 1708              		.loc 1 121 0
+ 1709 0160 34A8     		add	r0, sp, #208
+ 1710 0162 FFF7FEFF 		bl	lv_draw_mask_free_param
+ 1711              	.LVL147:
+ 1712 0166 73E0     		b	.L72
+ 1713              	.L99:
+ 117:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1714              		.loc 1 117 0 discriminator 1
+ 1715 0168 5846     		mov	r0, fp
+ 1716 016a FFF7FEFF 		bl	lv_draw_mask_remove_id
+ 1717              	.LVL148:
+ 1718 016e F1E7     		b	.L80
+ 1719              	.LVL149:
+ 1720              	.L81:
+ 127:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     while(end_angle >= 360) end_angle -= 360;
+ 1721              		.loc 1 127 0 discriminator 2
+ 1722 0170 A5F5B475 		sub	r5, r5, #360
+ 1723              	.LVL150:
+ 1724 0174 ADB2     		uxth	r5, r5
+ 1725              	.LVL151:
+ 1726              	.L79:
+ 127:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     while(end_angle >= 360) end_angle -= 360;
+ 1727              		.loc 1 127 0 is_stmt 0 discriminator 1
+ 1728 0176 B5F5B47F 		cmp	r5, #360
+ 1729 017a F9D2     		bcs	.L81
+ 1730 017c 02E0     		b	.L82
+ 1731              	.LVL152:
+ 1732              	.L83:
+ 128:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1733              		.loc 1 128 0 is_stmt 1 discriminator 2
+ 1734 017e A4F5B474 		sub	r4, r4, #360
+ 1735              	.LVL153:
+ 1736 0182 A4B2     		uxth	r4, r4
+ 1737              	.LVL154:
+ 1738              	.L82:
+ 128:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1739              		.loc 1 128 0 is_stmt 0 discriminator 1
+ 1740 0184 B4F5B47F 		cmp	r4, #360
+ 1741 0188 F9D2     		bcs	.L83
+ 131:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     int16_t mask_angle_id = lv_draw_mask_add(&mask_angle_param, NULL);
+ 1742              		.loc 1 131 0 is_stmt 1
+ 1743 018a 2BB2     		sxth	r3, r5
+ 1744 018c 0693     		str	r3, [sp, #24]
+ 1745 018e 22B2     		sxth	r2, r4
+ 1746 0190 1046     		mov	r0, r2
+ 1747 0192 0792     		str	r2, [sp, #28]
+ 1748 0194 B8F90220 		ldrsh	r2, [r8, #2]
+ 1749 0198 B8F90010 		ldrsh	r1, [r8]
+ 1750 019c 0090     		str	r0, [sp]
+ 1751 019e 13A8     		add	r0, sp, #76
+ 1752 01a0 FFF7FEFF 		bl	lv_draw_mask_angle_init
+ 1753              	.LVL155:
+ 132:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1754              		.loc 1 132 0
+ARM GAS  /tmp/ccowqxLj.s 			page 47
+
+
+ 1755 01a4 0021     		movs	r1, #0
+ 1756 01a6 13A8     		add	r0, sp, #76
+ 1757 01a8 FFF7FEFF 		bl	lv_draw_mask_add
+ 1758              	.LVL156:
+ 1759 01ac 0590     		str	r0, [sp, #20]
+ 1760              	.LVL157:
+ 135:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         angle_gap = 360 - (end_angle - start_angle);
+ 1761              		.loc 1 135 0
+ 1762 01ae A542     		cmp	r5, r4
+ 1763 01b0 51D2     		bcs	.L84
+ 136:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 1764              		.loc 1 136 0
+ 1765 01b2 631B     		subs	r3, r4, r5
+ 1766 01b4 C3F5B473 		rsb	r3, r3, #360
+ 1767              	.LVL158:
+ 1768              	.L85:
+ 142:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1769              		.loc 1 142 0
+ 1770 01b8 0298     		ldr	r0, [sp, #8]
+ 1771 01ba 8268     		ldr	r2, [r0, #8]
+ 1772 01bc 0492     		str	r2, [sp, #16]
+ 1773              	.LVL159:
+ 144:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         /*Handle each quarter individually and skip which is empty*/
+ 1774              		.loc 1 144 0
+ 1775 01be 3C2B     		cmp	r3, #60
+ 1776 01c0 D4BF     		ite	le
+ 1777 01c2 0022     		movle	r2, #0
+ 1778              	.LVL160:
+ 1779 01c4 0122     		movgt	r2, #1
+ 1780 01c6 0A2F     		cmp	r7, #10
+ 1781 01c8 98BF     		it	ls
+ 1782 01ca 0022     		movls	r2, #0
+ 1783 01cc 002A     		cmp	r2, #0
+ 1784 01ce 44D0     		beq	.L86
+ 1785              	.LBB33:
+ 147:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.radius = radius;
+ 1786              		.loc 1 147 0
+ 1787 01d0 CDF83080 		str	r8, [sp, #48]
+ 1788              	.LVL161:
+ 148:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.start_angle = start_angle;
+ 1789              		.loc 1 148 0
+ 1790 01d4 ADF83470 		strh	r7, [sp, #52]	@ movhi
+ 149:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.end_angle = end_angle;
+ 1791              		.loc 1 149 0
+ 1792 01d8 ADF83650 		strh	r5, [sp, #54]	@ movhi
+ 150:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.start_quarter = (start_angle / 90) & 0x3;
+ 1793              		.loc 1 150 0
+ 1794 01dc ADF83840 		strh	r4, [sp, #56]	@ movhi
+ 151:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.end_quarter = (end_angle / 90) & 0x3;
+ 1795              		.loc 1 151 0
+ 1796 01e0 6A08     		lsrs	r2, r5, #1
+ 1797 01e2 6749     		ldr	r1, .L105
+ 1798 01e4 A1FB0232 		umull	r3, r2, r1, r2
+ 1799              	.LVL162:
+ 1800 01e8 C2F34112 		ubfx	r2, r2, #5, #2
+ 1801 01ec ADF83A20 		strh	r2, [sp, #58]	@ movhi
+ 152:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.width = width;
+ARM GAS  /tmp/ccowqxLj.s 			page 48
+
+
+ 1802              		.loc 1 152 0
+ 1803 01f0 6308     		lsrs	r3, r4, #1
+ 1804 01f2 A1FB0323 		umull	r2, r3, r1, r3
+ 1805 01f6 C3F34113 		ubfx	r3, r3, #5, #2
+ 1806 01fa ADF83C30 		strh	r3, [sp, #60]	@ movhi
+ 153:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.draw_dsc = &cir_dsc;
+ 1807              		.loc 1 153 0
+ 1808 01fe ADF83EA0 		strh	r10, [sp, #62]	@ movhi
+ 154:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.draw_area = &area_out;
+ 1809              		.loc 1 154 0
+ 1810 0202 3EAB     		add	r3, sp, #248
+ 1811 0204 1093     		str	r3, [sp, #64]
+ 155:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         q_dsc.draw_ctx = draw_ctx;
+ 1812              		.loc 1 155 0
+ 1813 0206 3CAB     		add	r3, sp, #240
+ 1814 0208 1193     		str	r3, [sp, #68]
+ 156:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1815              		.loc 1 156 0
+ 1816 020a 1290     		str	r0, [sp, #72]
+ 158:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         draw_quarter_1(&q_dsc);
+ 1817              		.loc 1 158 0
+ 1818 020c 0CA8     		add	r0, sp, #48
+ 1819 020e FFF7FEFF 		bl	draw_quarter_0
+ 1820              	.LVL163:
+ 159:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         draw_quarter_2(&q_dsc);
+ 1821              		.loc 1 159 0
+ 1822 0212 0CA8     		add	r0, sp, #48
+ 1823 0214 FFF7FEFF 		bl	draw_quarter_1
+ 1824              	.LVL164:
+ 160:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         draw_quarter_3(&q_dsc);
+ 1825              		.loc 1 160 0
+ 1826 0218 0CA8     		add	r0, sp, #48
+ 1827 021a FFF7FEFF 		bl	draw_quarter_2
+ 1828              	.LVL165:
+ 161:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 1829              		.loc 1 161 0
+ 1830 021e 0CA8     		add	r0, sp, #48
+ 1831 0220 FFF7FEFF 		bl	draw_quarter_3
+ 1832              	.LVL166:
+ 1833              	.L87:
+ 1834              	.LBE33:
+ 167:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_mask_free_param(&mask_out_param);
+ 1835              		.loc 1 167 0
+ 1836 0224 13A8     		add	r0, sp, #76
+ 1837 0226 FFF7FEFF 		bl	lv_draw_mask_free_param
+ 1838              	.LVL167:
+ 168:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(mask_in_param_valid) {
+ 1839              		.loc 1 168 0
+ 1840 022a 2EA8     		add	r0, sp, #184
+ 1841 022c FFF7FEFF 		bl	lv_draw_mask_free_param
+ 1842              	.LVL168:
+ 169:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_draw_mask_free_param(&mask_in_param);
+ 1843              		.loc 1 169 0
+ 1844 0230 B9F1000F 		cmp	r9, #0
+ 1845 0234 17D1     		bne	.L100
+ 1846              	.L88:
+ 173:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     lv_draw_mask_remove_id(mask_out_id);
+ARM GAS  /tmp/ccowqxLj.s 			page 49
+
+
+ 1847              		.loc 1 173 0
+ 1848 0236 0598     		ldr	r0, [sp, #20]
+ 1849 0238 FFF7FEFF 		bl	lv_draw_mask_remove_id
+ 1850              	.LVL169:
+ 174:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     if(mask_in_id != LV_MASK_ID_INV) lv_draw_mask_remove_id(mask_in_id);
+ 1851              		.loc 1 174 0
+ 1852 023c 0398     		ldr	r0, [sp, #12]
+ 1853 023e FFF7FEFF 		bl	lv_draw_mask_remove_id
+ 1854              	.LVL170:
+ 175:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1855              		.loc 1 175 0
+ 1856 0242 BBF1FF3F 		cmp	fp, #-1
+ 1857 0246 12D1     		bne	.L101
+ 1858              	.L89:
+ 177:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1859              		.loc 1 177 0
+ 1860 0248 737B     		ldrb	r3, [r6, #13]	@ zero_extendqisi2
+ 1861 024a 13F0040F 		tst	r3, #4
+ 1862 024e 12D1     		bne	.L102
+ 1863              	.LVL171:
+ 1864              	.L72:
+ 223:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1865              		.loc 1 223 0
+ 1866 0250 4DB0     		add	sp, sp, #308
+ 1867              	.LCFI19:
+ 1868              		.cfi_remember_state
+ 1869              		.cfi_def_cfa_offset 36
+ 1870              		@ sp needed
+ 1871 0252 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 1872              	.LVL172:
+ 1873              	.L84:
+ 1874              	.LCFI20:
+ 1875              		.cfi_restore_state
+ 139:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 1876              		.loc 1 139 0
+ 1877 0256 2B1B     		subs	r3, r5, r4
+ 1878              	.LVL173:
+ 1879 0258 AEE7     		b	.L85
+ 1880              	.LVL174:
+ 1881              	.L86:
+ 164:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 1882              		.loc 1 164 0
+ 1883 025a 3CAA     		add	r2, sp, #240
+ 1884 025c 3EA9     		add	r1, sp, #248
+ 1885 025e 0298     		ldr	r0, [sp, #8]
+ 1886              	.LVL175:
+ 1887 0260 FFF7FEFF 		bl	lv_draw_rect
+ 1888              	.LVL176:
+ 1889 0264 DEE7     		b	.L87
+ 1890              	.L100:
+ 170:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 1891              		.loc 1 170 0
+ 1892 0266 34A8     		add	r0, sp, #208
+ 1893 0268 FFF7FEFF 		bl	lv_draw_mask_free_param
+ 1894              	.LVL177:
+ 1895 026c E3E7     		b	.L88
+ 1896              	.L101:
+ARM GAS  /tmp/ccowqxLj.s 			page 50
+
+
+ 175:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1897              		.loc 1 175 0 discriminator 1
+ 1898 026e 5846     		mov	r0, fp
+ 1899 0270 FFF7FEFF 		bl	lv_draw_mask_remove_id
+ 1900              	.LVL178:
+ 1901 0274 E8E7     		b	.L89
+ 1902              	.L102:
+ 1903              	.LBB34:
+ 182:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.x1 += center->x;
+ 1904              		.loc 1 182 0
+ 1905 0276 3FB2     		sxth	r7, r7
+ 1906 0278 5FFA8AFA 		uxtb	r10, r10
+ 1907              	.LVL179:
+ 1908 027c 08AB     		add	r3, sp, #32
+ 1909 027e 5246     		mov	r2, r10
+ 1910 0280 3946     		mov	r1, r7
+ 1911 0282 0698     		ldr	r0, [sp, #24]
+ 1912 0284 FFF7FEFF 		bl	get_rounded_area
+ 1913              	.LVL180:
+ 183:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.x2 += center->x;
+ 1914              		.loc 1 183 0
+ 1915 0288 B8F80030 		ldrh	r3, [r8]
+ 1916 028c BDF82020 		ldrh	r2, [sp, #32]
+ 1917 0290 1A44     		add	r2, r2, r3
+ 1918 0292 ADF82020 		strh	r2, [sp, #32]	@ movhi
+ 184:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.y1 += center->y;
+ 1919              		.loc 1 184 0
+ 1920 0296 BDF82420 		ldrh	r2, [sp, #36]
+ 1921 029a 1344     		add	r3, r3, r2
+ 1922 029c ADF82430 		strh	r3, [sp, #36]	@ movhi
+ 185:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.y2 += center->y;
+ 1923              		.loc 1 185 0
+ 1924 02a0 B8F80230 		ldrh	r3, [r8, #2]
+ 1925 02a4 BDF82220 		ldrh	r2, [sp, #34]
+ 1926 02a8 1A44     		add	r2, r2, r3
+ 1927 02aa ADF82220 		strh	r2, [sp, #34]	@ movhi
+ 186:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         lv_area_t clip_area2;
+ 1928              		.loc 1 186 0
+ 1929 02ae BDF82620 		ldrh	r2, [sp, #38]
+ 1930 02b2 1344     		add	r3, r3, r2
+ 1931 02b4 ADF82630 		strh	r3, [sp, #38]	@ movhi
+ 188:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_radius_init(&mask_end_param, &round_area, LV_RADIUS_CIRCLE, false);
+ 1932              		.loc 1 188 0
+ 1933 02b8 08AA     		add	r2, sp, #32
+ 1934 02ba 0499     		ldr	r1, [sp, #16]
+ 1935 02bc 0AA8     		add	r0, sp, #40
+ 1936 02be FFF7FEFF 		bl	_lv_area_intersect
+ 1937              	.LVL181:
+ 1938 02c2 40BB     		cbnz	r0, .L103
+ 1939              	.LVL182:
+ 1940              	.L91:
+ 198:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.x1 += center->x;
+ 1941              		.loc 1 198 0
+ 1942 02c4 08AB     		add	r3, sp, #32
+ 1943 02c6 5246     		mov	r2, r10
+ 1944 02c8 3946     		mov	r1, r7
+ 1945 02ca 0798     		ldr	r0, [sp, #28]
+ARM GAS  /tmp/ccowqxLj.s 			page 51
+
+
+ 1946 02cc FFF7FEFF 		bl	get_rounded_area
+ 1947              	.LVL183:
+ 199:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.x2 += center->x;
+ 1948              		.loc 1 199 0
+ 1949 02d0 B8F80030 		ldrh	r3, [r8]
+ 1950 02d4 BDF82020 		ldrh	r2, [sp, #32]
+ 1951 02d8 1A44     		add	r2, r2, r3
+ 1952 02da ADF82020 		strh	r2, [sp, #32]	@ movhi
+ 200:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.y1 += center->y;
+ 1953              		.loc 1 200 0
+ 1954 02de BDF82420 		ldrh	r2, [sp, #36]
+ 1955 02e2 1344     		add	r3, r3, r2
+ 1956 02e4 ADF82430 		strh	r3, [sp, #36]	@ movhi
+ 201:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         round_area.y2 += center->y;
+ 1957              		.loc 1 201 0
+ 1958 02e8 B8F80230 		ldrh	r3, [r8, #2]
+ 1959 02ec BDF82220 		ldrh	r2, [sp, #34]
+ 1960 02f0 1A44     		add	r2, r2, r3
+ 1961 02f2 ADF82220 		strh	r2, [sp, #34]	@ movhi
+ 202:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         if(_lv_area_intersect(&clip_area2, clip_area_ori, &round_area)) {
+ 1962              		.loc 1 202 0
+ 1963 02f6 BDF82620 		ldrh	r2, [sp, #38]
+ 1964 02fa 1344     		add	r3, r3, r2
+ 1965 02fc ADF82630 		strh	r3, [sp, #38]	@ movhi
+ 203:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_radius_init(&mask_end_param, &round_area, LV_RADIUS_CIRCLE, false);
+ 1966              		.loc 1 203 0
+ 1967 0300 08AA     		add	r2, sp, #32
+ 1968 0302 0499     		ldr	r1, [sp, #16]
+ 1969 0304 0AA8     		add	r0, sp, #40
+ 1970 0306 FFF7FEFF 		bl	_lv_area_intersect
+ 1971              	.LVL184:
+ 1972 030a F0B9     		cbnz	r0, .L104
+ 1973              	.L92:
+ 212:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****     }
+ 1974              		.loc 1 212 0
+ 1975 030c 029B     		ldr	r3, [sp, #8]
+ 1976 030e 1A46     		mov	r2, r3
+ 1977 0310 049B     		ldr	r3, [sp, #16]
+ 1978 0312 9360     		str	r3, [r2, #8]
+ 1979 0314 9CE7     		b	.L72
+ 1980              	.LVL185:
+ 1981              	.L103:
+ 1982              	.LBB35:
+ 189:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             int16_t mask_end_id = lv_draw_mask_add(&mask_end_param, NULL);
+ 1983              		.loc 1 189 0
+ 1984 0316 0023     		movs	r3, #0
+ 1985 0318 47F6FF72 		movw	r2, #32767
+ 1986 031c 08A9     		add	r1, sp, #32
+ 1987 031e 0CA8     		add	r0, sp, #48
+ 1988 0320 FFF7FEFF 		bl	lv_draw_mask_radius_init
+ 1989              	.LVL186:
+ 190:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 1990              		.loc 1 190 0
+ 1991 0324 0021     		movs	r1, #0
+ 1992 0326 0CA8     		add	r0, sp, #48
+ 1993 0328 FFF7FEFF 		bl	lv_draw_mask_add
+ 1994              	.LVL187:
+ARM GAS  /tmp/ccowqxLj.s 			page 52
+
+
+ 1995 032c 0446     		mov	r4, r0
+ 1996              	.LVL188:
+ 192:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(draw_ctx, &cir_dsc, &area_out);
+ 1997              		.loc 1 192 0
+ 1998 032e 0AAB     		add	r3, sp, #40
+ 1999 0330 0298     		ldr	r0, [sp, #8]
+ 2000 0332 8360     		str	r3, [r0, #8]
+ 193:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_remove_id(mask_end_id);
+ 2001              		.loc 1 193 0
+ 2002 0334 3CAA     		add	r2, sp, #240
+ 2003 0336 3EA9     		add	r1, sp, #248
+ 2004 0338 FFF7FEFF 		bl	lv_draw_rect
+ 2005              	.LVL189:
+ 194:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_free_param(&mask_end_param);
+ 2006              		.loc 1 194 0
+ 2007 033c 2046     		mov	r0, r4
+ 2008 033e FFF7FEFF 		bl	lv_draw_mask_remove_id
+ 2009              	.LVL190:
+ 195:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 2010              		.loc 1 195 0
+ 2011 0342 0CA8     		add	r0, sp, #48
+ 2012 0344 FFF7FEFF 		bl	lv_draw_mask_free_param
+ 2013              	.LVL191:
+ 2014 0348 BCE7     		b	.L91
+ 2015              	.LVL192:
+ 2016              	.L104:
+ 2017              	.LBE35:
+ 2018              	.LBB36:
+ 204:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             int16_t mask_end_id = lv_draw_mask_add(&mask_end_param, NULL);
+ 2019              		.loc 1 204 0
+ 2020 034a 0023     		movs	r3, #0
+ 2021 034c 47F6FF72 		movw	r2, #32767
+ 2022 0350 08A9     		add	r1, sp, #32
+ 2023 0352 0CA8     		add	r0, sp, #48
+ 2024 0354 FFF7FEFF 		bl	lv_draw_mask_radius_init
+ 2025              	.LVL193:
+ 205:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c **** 
+ 2026              		.loc 1 205 0
+ 2027 0358 0021     		movs	r1, #0
+ 2028 035a 0CA8     		add	r0, sp, #48
+ 2029 035c FFF7FEFF 		bl	lv_draw_mask_add
+ 2030              	.LVL194:
+ 2031 0360 0446     		mov	r4, r0
+ 2032              	.LVL195:
+ 207:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_rect(draw_ctx, &cir_dsc, &area_out);
+ 2033              		.loc 1 207 0
+ 2034 0362 0AAB     		add	r3, sp, #40
+ 2035 0364 0298     		ldr	r0, [sp, #8]
+ 2036 0366 8360     		str	r3, [r0, #8]
+ 208:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_remove_id(mask_end_id);
+ 2037              		.loc 1 208 0
+ 2038 0368 3CAA     		add	r2, sp, #240
+ 2039 036a 3EA9     		add	r1, sp, #248
+ 2040 036c FFF7FEFF 		bl	lv_draw_rect
+ 2041              	.LVL196:
+ 209:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****             lv_draw_mask_free_param(&mask_end_param);
+ 2042              		.loc 1 209 0
+ARM GAS  /tmp/ccowqxLj.s 			page 53
+
+
+ 2043 0370 2046     		mov	r0, r4
+ 2044 0372 FFF7FEFF 		bl	lv_draw_mask_remove_id
+ 2045              	.LVL197:
+ 210:Drivers/lvgl/lvgl/src/draw/sw/lv_draw_sw_arc.c ****         }
+ 2046              		.loc 1 210 0
+ 2047 0376 0CA8     		add	r0, sp, #48
+ 2048 0378 FFF7FEFF 		bl	lv_draw_mask_free_param
+ 2049              	.LVL198:
+ 2050 037c C6E7     		b	.L92
+ 2051              	.L106:
+ 2052 037e 00BF     		.align	2
+ 2053              	.L105:
+ 2054 0380 B7600BB6 		.word	-1240768329
+ 2055              	.LBE36:
+ 2056              	.LBE34:
+ 2057              		.cfi_endproc
+ 2058              	.LFE56:
+ 2060              		.text
+ 2061              	.Letext0:
+ 2062              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 2063              		.file 4 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ 2064              		.file 5 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_types.h"
+ 2065              		.file 6 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 2066              		.file 7 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+ 2067              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+ 2068              		.file 9 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+ 2069              		.file 10 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_color.h"
+ 2070              		.file 11 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/../font/lv_font.h"
+ 2071              		.file 12 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_txt.h"
+ 2072              		.file 13 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_bidi.h"
+ 2073              		.file 14 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_style.h"
+ 2074              		.file 15 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw_mask.h"
+ 2075              		.file 16 "Drivers/lvgl/lvgl/src/draw/sw/../lv_img_buf.h"
+ 2076              		.file 17 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw_rect.h"
+ 2077              		.file 18 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw_label.h"
+ 2078              		.file 19 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw_img.h"
+ 2079              		.file 20 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw_line.h"
+ 2080              		.file 21 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw_arc.h"
+ 2081              		.file 22 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw_layer.h"
+ 2082              		.file 23 "Drivers/lvgl/lvgl/src/draw/sw/../lv_draw.h"
+ 2083              		.file 24 "Drivers/lvgl/lvgl/src/draw/sw/../../misc/lv_math.h"
+ARM GAS  /tmp/ccowqxLj.s 			page 54
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_draw_sw_arc.c
+     /tmp/ccowqxLj.s:17     .text.draw_quarter_0:0000000000000000 $t
+     /tmp/ccowqxLj.s:23     .text.draw_quarter_0:0000000000000000 draw_quarter_0
+     /tmp/ccowqxLj.s:348    .text.draw_quarter_1:0000000000000000 $t
+     /tmp/ccowqxLj.s:354    .text.draw_quarter_1:0000000000000000 draw_quarter_1
+     /tmp/ccowqxLj.s:677    .text.draw_quarter_2:0000000000000000 $t
+     /tmp/ccowqxLj.s:683    .text.draw_quarter_2:0000000000000000 draw_quarter_2
+     /tmp/ccowqxLj.s:1012   .text.draw_quarter_3:0000000000000000 $t
+     /tmp/ccowqxLj.s:1018   .text.draw_quarter_3:0000000000000000 draw_quarter_3
+     /tmp/ccowqxLj.s:1346   .text.get_rounded_area:0000000000000000 $t
+     /tmp/ccowqxLj.s:1352   .text.get_rounded_area:0000000000000000 get_rounded_area
+     /tmp/ccowqxLj.s:1476   .text.lv_draw_sw_arc:0000000000000000 $t
+     /tmp/ccowqxLj.s:1483   .text.lv_draw_sw_arc:0000000000000000 lv_draw_sw_arc
+     /tmp/ccowqxLj.s:2054   .text.lv_draw_sw_arc:0000000000000380 $d
+
+UNDEFINED SYMBOLS
+lv_trigo_sin
+_lv_area_intersect
+lv_draw_rect
+lv_draw_rect_dsc_init
+lv_draw_mask_radius_init
+lv_draw_mask_add
+lv_draw_mask_remove_id
+lv_draw_mask_free_param
+lv_draw_mask_angle_init

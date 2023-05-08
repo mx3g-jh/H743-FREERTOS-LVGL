@@ -1,0 +1,741 @@
+ARM GAS  /tmp/ccqClSIG.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"lv_hal_indev.c"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text.lv_indev_drv_init,"ax",%progbits
+  17              		.align	1
+  18              		.global	lv_indev_drv_init
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu fpv5-d16
+  24              	lv_indev_drv_init:
+  25              	.LFB159:
+  26              		.file 1 "Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c"
+   1:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /**
+   2:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * @file lv_hal_indev.c
+   3:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  *
+   4:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * @description Input device HAL interface
+   5:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  *
+   6:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  */
+   7:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+   8:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /*********************
+   9:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  *      INCLUDES
+  10:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  *********************/
+  11:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** #include "../misc/lv_assert.h"
+  12:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** #include "../hal/lv_hal_indev.h"
+  13:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** #include "../core/lv_indev.h"
+  14:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** #include "../misc/lv_mem.h"
+  15:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** #include "../misc/lv_gc.h"
+  16:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** #include "lv_hal_disp.h"
+  17:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  18:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /*********************
+  19:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  *      DEFINES
+  20:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  *********************/
+  21:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  22:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /**********************
+  23:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  *      TYPEDEFS
+  24:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  **********************/
+  25:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  26:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /**********************
+  27:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  *  GLOBAL PROTOTYPES
+  28:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  **********************/
+  29:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  30:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /**********************
+  31:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  *  STATIC PROTOTYPES
+  32:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  **********************/
+ARM GAS  /tmp/ccqClSIG.s 			page 2
+
+
+  33:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  34:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /**********************
+  35:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  *  STATIC VARIABLES
+  36:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  **********************/
+  37:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  38:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /**********************
+  39:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  *      MACROS
+  40:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  **********************/
+  41:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** #if LV_LOG_TRACE_INDEV
+  42:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     #define INDEV_TRACE(...) LV_LOG_TRACE(__VA_ARGS__)
+  43:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** #else
+  44:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     #define INDEV_TRACE(...)
+  45:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** #endif
+  46:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  47:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /**********************
+  48:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  *   GLOBAL FUNCTIONS
+  49:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  **********************/
+  50:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  51:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /**
+  52:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * Initialize an input device driver with default values.
+  53:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * It is used to surly have known values in the fields ant not memory junk.
+  54:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * After it you can set the fields.
+  55:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * @param driver pointer to driver variable to initialize
+  56:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  */
+  57:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** void lv_indev_drv_init(lv_indev_drv_t * driver)
+  58:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** {
+  27              		.loc 1 58 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              	.LVL0:
+  32 0000 10B5     		push	{r4, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 8
+  35              		.cfi_offset 4, -8
+  36              		.cfi_offset 14, -4
+  37 0002 0446     		mov	r4, r0
+  59:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     lv_memset_00(driver, sizeof(lv_indev_drv_t));
+  38              		.loc 1 59 0
+  39 0004 2021     		movs	r1, #32
+  40 0006 FFF7FEFF 		bl	lv_memset_00
+  41              	.LVL1:
+  60:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  61:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     driver->type                 = LV_INDEV_TYPE_NONE;
+  42              		.loc 1 61 0
+  43 000a 0023     		movs	r3, #0
+  44 000c 2370     		strb	r3, [r4]
+  62:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     driver->scroll_limit         = LV_INDEV_DEF_SCROLL_LIMIT;
+  45              		.loc 1 62 0
+  46 000e 0A23     		movs	r3, #10
+  47 0010 2376     		strb	r3, [r4, #24]
+  63:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     driver->scroll_throw         = LV_INDEV_DEF_SCROLL_THROW;
+  48              		.loc 1 63 0
+  49 0012 6376     		strb	r3, [r4, #25]
+  64:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     driver->long_press_time      = LV_INDEV_DEF_LONG_PRESS_TIME;
+  50              		.loc 1 64 0
+  51 0014 4FF4C873 		mov	r3, #400
+ARM GAS  /tmp/ccqClSIG.s 			page 3
+
+
+  52 0018 A383     		strh	r3, [r4, #28]	@ movhi
+  65:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     driver->long_press_repeat_time  = LV_INDEV_DEF_LONG_PRESS_REP_TIME;
+  53              		.loc 1 65 0
+  54 001a 6423     		movs	r3, #100
+  55 001c E383     		strh	r3, [r4, #30]	@ movhi
+  66:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     driver->gesture_limit        = LV_INDEV_DEF_GESTURE_LIMIT;
+  56              		.loc 1 66 0
+  57 001e 3223     		movs	r3, #50
+  58 0020 E376     		strb	r3, [r4, #27]
+  67:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     driver->gesture_min_velocity = LV_INDEV_DEF_GESTURE_MIN_VELOCITY;
+  59              		.loc 1 67 0
+  60 0022 0323     		movs	r3, #3
+  61 0024 A376     		strb	r3, [r4, #26]
+  68:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** }
+  62              		.loc 1 68 0
+  63 0026 10BD     		pop	{r4, pc}
+  64              		.cfi_endproc
+  65              	.LFE159:
+  67              		.section	.text.lv_indev_drv_register,"ax",%progbits
+  68              		.align	1
+  69              		.global	lv_indev_drv_register
+  70              		.syntax unified
+  71              		.thumb
+  72              		.thumb_func
+  73              		.fpu fpv5-d16
+  75              	lv_indev_drv_register:
+  76              	.LFB160:
+  69:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  70:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /**
+  71:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * Register an initialized input device driver.
+  72:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * @param driver pointer to an initialized 'lv_indev_drv_t' variable.
+  73:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * Only pointer is saved, so the driver should be static or dynamically allocated.
+  74:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * @return pointer to the new input device or NULL on error
+  75:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  */
+  76:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** lv_indev_t * lv_indev_drv_register(lv_indev_drv_t * driver)
+  77:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** {
+  77              		.loc 1 77 0
+  78              		.cfi_startproc
+  79              		@ args = 0, pretend = 0, frame = 0
+  80              		@ frame_needed = 0, uses_anonymous_args = 0
+  81              	.LVL2:
+  82 0000 38B5     		push	{r3, r4, r5, lr}
+  83              	.LCFI1:
+  84              		.cfi_def_cfa_offset 16
+  85              		.cfi_offset 3, -16
+  86              		.cfi_offset 4, -12
+  87              		.cfi_offset 5, -8
+  88              		.cfi_offset 14, -4
+  89 0002 0546     		mov	r5, r0
+  78:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     if(driver->disp == NULL) driver->disp = lv_disp_get_default();
+  90              		.loc 1 78 0
+  91 0004 0369     		ldr	r3, [r0, #16]
+  92 0006 3BB1     		cbz	r3, .L10
+  93              	.LVL3:
+  94              	.L4:
+  79:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  80:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     if(driver->disp == NULL) {
+ARM GAS  /tmp/ccqClSIG.s 			page 4
+
+
+  95              		.loc 1 80 0
+  96 0008 2B69     		ldr	r3, [r5, #16]
+  97 000a CBB1     		cbz	r3, .L8
+  81:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         LV_LOG_WARN("lv_indev_drv_register: no display registered hence can't attach the indev to "
+  82:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****                     "a display");
+  83:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         return NULL;
+  84:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     }
+  85:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  86:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     lv_indev_t * indev = _lv_ll_ins_head(&LV_GC_ROOT(_lv_indev_ll));
+  98              		.loc 1 86 0
+  99 000c 0D48     		ldr	r0, .L11
+ 100 000e FFF7FEFF 		bl	_lv_ll_ins_head
+ 101              	.LVL4:
+  87:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     LV_ASSERT_MALLOC(indev);
+ 102              		.loc 1 87 0
+ 103 0012 0446     		mov	r4, r0
+ 104 0014 20B9     		cbnz	r0, .L6
+ 105              	.L7:
+ 106 0016 FEE7     		b	.L7
+ 107              	.LVL5:
+ 108              	.L10:
+  78:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+ 109              		.loc 1 78 0 discriminator 1
+ 110 0018 FFF7FEFF 		bl	lv_disp_get_default
+ 111              	.LVL6:
+ 112 001c 2861     		str	r0, [r5, #16]
+ 113 001e F3E7     		b	.L4
+ 114              	.LVL7:
+ 115              	.L6:
+  88:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     if(!indev) {
+  89:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         return NULL;
+  90:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     }
+  91:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  92:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     lv_memset_00(indev, sizeof(lv_indev_t));
+ 116              		.loc 1 92 0
+ 117 0020 5C21     		movs	r1, #92
+ 118 0022 FFF7FEFF 		bl	lv_memset_00
+ 119              	.LVL8:
+  93:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     indev->driver = driver;
+ 120              		.loc 1 93 0
+ 121 0026 2560     		str	r5, [r4]
+  94:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  95:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     indev->proc.reset_query  = 1;
+ 122              		.loc 1 95 0
+ 123 0028 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+ 124 002a 43F00203 		orr	r3, r3, #2
+ 125 002e 6371     		strb	r3, [r4, #5]
+  96:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     indev->driver->read_timer = lv_timer_create(lv_indev_read_timer_cb, LV_INDEV_DEF_READ_PERIOD, i
+ 126              		.loc 1 96 0
+ 127 0030 2246     		mov	r2, r4
+ 128 0032 1E21     		movs	r1, #30
+ 129 0034 0448     		ldr	r0, .L11+4
+ 130 0036 FFF7FEFF 		bl	lv_timer_create
+ 131              	.LVL9:
+ 132 003a 6861     		str	r0, [r5, #20]
+ 133              	.LVL10:
+ 134              	.L3:
+ARM GAS  /tmp/ccqClSIG.s 			page 5
+
+
+  97:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+  98:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     return indev;
+  99:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** }
+ 135              		.loc 1 99 0
+ 136 003c 2046     		mov	r0, r4
+ 137 003e 38BD     		pop	{r3, r4, r5, pc}
+ 138              	.LVL11:
+ 139              	.L8:
+  83:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     }
+ 140              		.loc 1 83 0
+ 141 0040 0024     		movs	r4, #0
+ 142 0042 FBE7     		b	.L3
+ 143              	.L12:
+ 144              		.align	2
+ 145              	.L11:
+ 146 0044 00000000 		.word	_lv_indev_ll
+ 147 0048 00000000 		.word	lv_indev_read_timer_cb
+ 148              		.cfi_endproc
+ 149              	.LFE160:
+ 151              		.section	.text.lv_indev_drv_update,"ax",%progbits
+ 152              		.align	1
+ 153              		.global	lv_indev_drv_update
+ 154              		.syntax unified
+ 155              		.thumb
+ 156              		.thumb_func
+ 157              		.fpu fpv5-d16
+ 159              	lv_indev_drv_update:
+ 160              	.LFB161:
+ 100:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+ 101:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /**
+ 102:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * Update the driver in run time.
+ 103:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * @param indev pointer to a input device. (return value of `lv_indev_drv_register`)
+ 104:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * @param new_drv pointer to the new driver
+ 105:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  */
+ 106:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** void lv_indev_drv_update(lv_indev_t * indev, lv_indev_drv_t * new_drv)
+ 107:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** {
+ 161              		.loc 1 107 0
+ 162              		.cfi_startproc
+ 163              		@ args = 0, pretend = 0, frame = 0
+ 164              		@ frame_needed = 0, uses_anonymous_args = 0
+ 165              	.LVL12:
+ 108:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     LV_ASSERT_NULL(indev);
+ 166              		.loc 1 108 0
+ 167 0000 20B1     		cbz	r0, .L15
+ 107:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     LV_ASSERT_NULL(indev);
+ 168              		.loc 1 107 0
+ 169 0002 38B5     		push	{r3, r4, r5, lr}
+ 170              	.LCFI2:
+ 171              		.cfi_def_cfa_offset 16
+ 172              		.cfi_offset 3, -16
+ 173              		.cfi_offset 4, -12
+ 174              		.cfi_offset 5, -8
+ 175              		.cfi_offset 14, -4
+ 176 0004 0446     		mov	r4, r0
+ 109:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     LV_ASSERT_NULL(indev->driver);
+ 177              		.loc 1 109 0
+ 178 0006 0368     		ldr	r3, [r0]
+ARM GAS  /tmp/ccqClSIG.s 			page 6
+
+
+ 179 0008 0BB9     		cbnz	r3, .L16
+ 180              	.L17:
+ 181 000a FEE7     		b	.L17
+ 182              	.L15:
+ 183              	.LCFI3:
+ 184              		.cfi_def_cfa_offset 0
+ 185              		.cfi_restore 3
+ 186              		.cfi_restore 4
+ 187              		.cfi_restore 5
+ 188              		.cfi_restore 14
+ 189 000c FEE7     		b	.L15
+ 190              	.L16:
+ 191              	.LCFI4:
+ 192              		.cfi_def_cfa_offset 16
+ 193              		.cfi_offset 3, -16
+ 194              		.cfi_offset 4, -12
+ 195              		.cfi_offset 5, -8
+ 196              		.cfi_offset 14, -4
+ 110:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     LV_ASSERT_NULL(indev->driver->read_timer);
+ 197              		.loc 1 110 0
+ 198 000e 5869     		ldr	r0, [r3, #20]
+ 199              	.LVL13:
+ 200 0010 00B9     		cbnz	r0, .L18
+ 201              	.L19:
+ 202 0012 FEE7     		b	.L19
+ 203              	.L18:
+ 204 0014 0D46     		mov	r5, r1
+ 111:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     lv_timer_del(indev->driver->read_timer);
+ 205              		.loc 1 111 0
+ 206 0016 FFF7FEFF 		bl	lv_timer_del
+ 207              	.LVL14:
+ 112:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+ 113:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     LV_ASSERT_NULL(new_drv);
+ 208              		.loc 1 113 0
+ 209 001a 7DB1     		cbz	r5, .L21
+ 114:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     if(new_drv->disp == NULL) {
+ 210              		.loc 1 114 0
+ 211 001c 2B69     		ldr	r3, [r5, #16]
+ 212 001e 73B1     		cbz	r3, .L27
+ 213              	.L22:
+ 115:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         new_drv->disp = lv_disp_get_default();
+ 116:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     }
+ 117:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     if(new_drv->disp == NULL) {
+ 214              		.loc 1 117 0
+ 215 0020 2B69     		ldr	r3, [r5, #16]
+ 216 0022 83B1     		cbz	r3, .L28
+ 118:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         LV_LOG_WARN("lv_indev_drv_register: no display registered hence can't attach the indev to "
+ 119:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****                     "a display");
+ 120:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         indev->proc.disabled = true;
+ 121:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         return;
+ 122:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     }
+ 123:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+ 124:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     indev->driver = new_drv;
+ 217              		.loc 1 124 0
+ 218 0024 2560     		str	r5, [r4]
+ 125:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     indev->driver->read_timer = lv_timer_create(lv_indev_read_timer_cb, LV_INDEV_DEF_READ_PERIOD, i
+ 219              		.loc 1 125 0
+ARM GAS  /tmp/ccqClSIG.s 			page 7
+
+
+ 220 0026 2246     		mov	r2, r4
+ 221 0028 1E21     		movs	r1, #30
+ 222 002a 0948     		ldr	r0, .L29
+ 223 002c FFF7FEFF 		bl	lv_timer_create
+ 224              	.LVL15:
+ 225 0030 6861     		str	r0, [r5, #20]
+ 126:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     indev->proc.reset_query   = 1;
+ 226              		.loc 1 126 0
+ 227 0032 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+ 228 0034 43F00203 		orr	r3, r3, #2
+ 229 0038 6371     		strb	r3, [r4, #5]
+ 230 003a 08E0     		b	.L13
+ 231              	.L21:
+ 232 003c FEE7     		b	.L21
+ 233              	.L27:
+ 115:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     }
+ 234              		.loc 1 115 0
+ 235 003e FFF7FEFF 		bl	lv_disp_get_default
+ 236              	.LVL16:
+ 237 0042 2861     		str	r0, [r5, #16]
+ 238 0044 ECE7     		b	.L22
+ 239              	.L28:
+ 120:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         return;
+ 240              		.loc 1 120 0
+ 241 0046 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+ 242 0048 43F00403 		orr	r3, r3, #4
+ 243 004c 6371     		strb	r3, [r4, #5]
+ 244              	.L13:
+ 127:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** }
+ 245              		.loc 1 127 0
+ 246 004e 38BD     		pop	{r3, r4, r5, pc}
+ 247              	.LVL17:
+ 248              	.L30:
+ 249              		.align	2
+ 250              	.L29:
+ 251 0050 00000000 		.word	lv_indev_read_timer_cb
+ 252              		.cfi_endproc
+ 253              	.LFE161:
+ 255              		.section	.text.lv_indev_delete,"ax",%progbits
+ 256              		.align	1
+ 257              		.global	lv_indev_delete
+ 258              		.syntax unified
+ 259              		.thumb
+ 260              		.thumb_func
+ 261              		.fpu fpv5-d16
+ 263              	lv_indev_delete:
+ 264              	.LFB162:
+ 128:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+ 129:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /**
+ 130:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** * Remove the provided input device. Make sure not to use the provided input device afterwards anymo
+ 131:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** * @param indev pointer to delete
+ 132:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** */
+ 133:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** void lv_indev_delete(lv_indev_t * indev)
+ 134:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** {
+ 265              		.loc 1 134 0
+ 266              		.cfi_startproc
+ 267              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  /tmp/ccqClSIG.s 			page 8
+
+
+ 268              		@ frame_needed = 0, uses_anonymous_args = 0
+ 269              	.LVL18:
+ 135:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     LV_ASSERT_NULL(indev);
+ 270              		.loc 1 135 0
+ 271 0000 20B1     		cbz	r0, .L33
+ 134:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     LV_ASSERT_NULL(indev);
+ 272              		.loc 1 134 0
+ 273 0002 10B5     		push	{r4, lr}
+ 274              	.LCFI5:
+ 275              		.cfi_def_cfa_offset 8
+ 276              		.cfi_offset 4, -8
+ 277              		.cfi_offset 14, -4
+ 278 0004 0446     		mov	r4, r0
+ 136:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     LV_ASSERT_NULL(indev->driver);
+ 279              		.loc 1 136 0
+ 280 0006 0368     		ldr	r3, [r0]
+ 281 0008 0BB9     		cbnz	r3, .L34
+ 282              	.L35:
+ 283 000a FEE7     		b	.L35
+ 284              	.L33:
+ 285              	.LCFI6:
+ 286              		.cfi_def_cfa_offset 0
+ 287              		.cfi_restore 4
+ 288              		.cfi_restore 14
+ 289 000c FEE7     		b	.L33
+ 290              	.L34:
+ 291              	.LCFI7:
+ 292              		.cfi_def_cfa_offset 8
+ 293              		.cfi_offset 4, -8
+ 294              		.cfi_offset 14, -4
+ 137:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     LV_ASSERT_NULL(indev->driver->read_timer);
+ 295              		.loc 1 137 0
+ 296 000e 5869     		ldr	r0, [r3, #20]
+ 297              	.LVL19:
+ 298 0010 00B9     		cbnz	r0, .L36
+ 299              	.L37:
+ 300 0012 FEE7     		b	.L37
+ 301              	.L36:
+ 138:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     /*Clean up the read timer first*/
+ 139:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     lv_timer_del(indev->driver->read_timer);
+ 302              		.loc 1 139 0
+ 303 0014 FFF7FEFF 		bl	lv_timer_del
+ 304              	.LVL20:
+ 140:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     /*Remove the input device from the list*/
+ 141:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     _lv_ll_remove(&LV_GC_ROOT(_lv_indev_ll), indev);
+ 305              		.loc 1 141 0
+ 306 0018 2146     		mov	r1, r4
+ 307 001a 0348     		ldr	r0, .L40
+ 308 001c FFF7FEFF 		bl	_lv_ll_remove
+ 309              	.LVL21:
+ 142:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     /*Free the memory of the input device*/
+ 143:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     lv_mem_free(indev);
+ 310              		.loc 1 143 0
+ 311 0020 2046     		mov	r0, r4
+ 312 0022 FFF7FEFF 		bl	lv_mem_free
+ 313              	.LVL22:
+ 144:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** }
+ARM GAS  /tmp/ccqClSIG.s 			page 9
+
+
+ 314              		.loc 1 144 0
+ 315 0026 10BD     		pop	{r4, pc}
+ 316              	.LVL23:
+ 317              	.L41:
+ 318              		.align	2
+ 319              	.L40:
+ 320 0028 00000000 		.word	_lv_indev_ll
+ 321              		.cfi_endproc
+ 322              	.LFE162:
+ 324              		.section	.text.lv_indev_get_next,"ax",%progbits
+ 325              		.align	1
+ 326              		.global	lv_indev_get_next
+ 327              		.syntax unified
+ 328              		.thumb
+ 329              		.thumb_func
+ 330              		.fpu fpv5-d16
+ 332              	lv_indev_get_next:
+ 333              	.LFB163:
+ 145:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+ 146:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /**
+ 147:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * Get the next input device.
+ 148:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * @param indev pointer to the current input device. NULL to initialize.
+ 149:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * @return the next input devise or NULL if no more. Give the first input device when the parameter
+ 150:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * is NULL
+ 151:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  */
+ 152:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** lv_indev_t * lv_indev_get_next(lv_indev_t * indev)
+ 153:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** {
+ 334              		.loc 1 153 0
+ 335              		.cfi_startproc
+ 336              		@ args = 0, pretend = 0, frame = 0
+ 337              		@ frame_needed = 0, uses_anonymous_args = 0
+ 338              	.LVL24:
+ 339 0000 08B5     		push	{r3, lr}
+ 340              	.LCFI8:
+ 341              		.cfi_def_cfa_offset 8
+ 342              		.cfi_offset 3, -8
+ 343              		.cfi_offset 14, -4
+ 154:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     if(indev == NULL)
+ 344              		.loc 1 154 0
+ 345 0002 20B1     		cbz	r0, .L46
+ 346 0004 0146     		mov	r1, r0
+ 155:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         return _lv_ll_get_head(&LV_GC_ROOT(_lv_indev_ll));
+ 156:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     else
+ 157:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         return _lv_ll_get_next(&LV_GC_ROOT(_lv_indev_ll), indev);
+ 347              		.loc 1 157 0
+ 348 0006 0448     		ldr	r0, .L47
+ 349              	.LVL25:
+ 350 0008 FFF7FEFF 		bl	_lv_ll_get_next
+ 351              	.LVL26:
+ 352              	.L42:
+ 158:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** }
+ 353              		.loc 1 158 0
+ 354 000c 08BD     		pop	{r3, pc}
+ 355              	.LVL27:
+ 356              	.L46:
+ 155:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         return _lv_ll_get_head(&LV_GC_ROOT(_lv_indev_ll));
+ 357              		.loc 1 155 0
+ARM GAS  /tmp/ccqClSIG.s 			page 10
+
+
+ 358 000e 0248     		ldr	r0, .L47
+ 359              	.LVL28:
+ 360 0010 FFF7FEFF 		bl	_lv_ll_get_head
+ 361              	.LVL29:
+ 362 0014 FAE7     		b	.L42
+ 363              	.L48:
+ 364 0016 00BF     		.align	2
+ 365              	.L47:
+ 366 0018 00000000 		.word	_lv_indev_ll
+ 367              		.cfi_endproc
+ 368              	.LFE163:
+ 370              		.section	.text._lv_indev_read,"ax",%progbits
+ 371              		.align	1
+ 372              		.global	_lv_indev_read
+ 373              		.syntax unified
+ 374              		.thumb
+ 375              		.thumb_func
+ 376              		.fpu fpv5-d16
+ 378              	_lv_indev_read:
+ 379              	.LFB164:
+ 159:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+ 160:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** /**
+ 161:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * Read data from an input device.
+ 162:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * @param indev pointer to an input device
+ 163:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  * @param data input device will write its data here
+ 164:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****  */
+ 165:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** void _lv_indev_read(lv_indev_t * indev, lv_indev_data_t * data)
+ 166:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** {
+ 380              		.loc 1 166 0
+ 381              		.cfi_startproc
+ 382              		@ args = 0, pretend = 0, frame = 0
+ 383              		@ frame_needed = 0, uses_anonymous_args = 0
+ 384              	.LVL30:
+ 385 0000 38B5     		push	{r3, r4, r5, lr}
+ 386              	.LCFI9:
+ 387              		.cfi_def_cfa_offset 16
+ 388              		.cfi_offset 3, -16
+ 389              		.cfi_offset 4, -12
+ 390              		.cfi_offset 5, -8
+ 391              		.cfi_offset 14, -4
+ 392 0002 0546     		mov	r5, r0
+ 393 0004 0C46     		mov	r4, r1
+ 167:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     lv_memset_00(data, sizeof(lv_indev_data_t));
+ 394              		.loc 1 167 0
+ 395 0006 1021     		movs	r1, #16
+ 396              	.LVL31:
+ 397 0008 2046     		mov	r0, r4
+ 398              	.LVL32:
+ 399 000a FFF7FEFF 		bl	lv_memset_00
+ 400              	.LVL33:
+ 168:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+ 169:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     /* For touchpad sometimes users don't set the last pressed coordinate on release.
+ 170:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****      * So be sure a coordinates are initialized to the last point */
+ 171:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     if(indev->driver->type == LV_INDEV_TYPE_POINTER) {
+ 401              		.loc 1 171 0
+ 402 000e 2B68     		ldr	r3, [r5]
+ 403 0010 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ARM GAS  /tmp/ccqClSIG.s 			page 11
+
+
+ 404 0012 012B     		cmp	r3, #1
+ 405 0014 06D0     		beq	.L55
+ 172:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         data->point.x = indev->proc.types.pointer.last_raw_point.x;
+ 173:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         data->point.y = indev->proc.types.pointer.last_raw_point.y;
+ 174:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     }
+ 175:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     /*Similarly set at least the last key in case of the user doesn't set it on release*/
+ 176:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     else if(indev->driver->type == LV_INDEV_TYPE_KEYPAD) {
+ 406              		.loc 1 176 0
+ 407 0016 022B     		cmp	r3, #2
+ 408 0018 10D0     		beq	.L56
+ 177:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         data->key = indev->proc.types.keypad.last_key;
+ 178:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     }
+ 179:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     /*For compatibility assume that used button was enter (encoder push)*/
+ 180:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     else if(indev->driver->type == LV_INDEV_TYPE_ENCODER) {
+ 409              		.loc 1 180 0
+ 410 001a 042B     		cmp	r3, #4
+ 411 001c 08D1     		bne	.L51
+ 181:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         data->key = LV_KEY_ENTER;
+ 412              		.loc 1 181 0
+ 413 001e 0A23     		movs	r3, #10
+ 414 0020 6360     		str	r3, [r4, #4]
+ 415 0022 05E0     		b	.L51
+ 416              	.L55:
+ 172:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         data->point.x = indev->proc.types.pointer.last_raw_point.x;
+ 417              		.loc 1 172 0
+ 418 0024 B5F91430 		ldrsh	r3, [r5, #20]
+ 419 0028 2380     		strh	r3, [r4]	@ movhi
+ 173:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     }
+ 420              		.loc 1 173 0
+ 421 002a B5F91630 		ldrsh	r3, [r5, #22]
+ 422 002e 6380     		strh	r3, [r4, #2]	@ movhi
+ 423              	.L51:
+ 182:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     }
+ 183:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** 
+ 184:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     if(indev->driver->read_cb) {
+ 424              		.loc 1 184 0
+ 425 0030 2868     		ldr	r0, [r5]
+ 426 0032 4368     		ldr	r3, [r0, #4]
+ 427 0034 0BB1     		cbz	r3, .L49
+ 185:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         INDEV_TRACE("calling indev_read_cb");
+ 186:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         indev->driver->read_cb(indev->driver, data);
+ 428              		.loc 1 186 0
+ 429 0036 2146     		mov	r1, r4
+ 430 0038 9847     		blx	r3
+ 431              	.LVL34:
+ 432              	.L49:
+ 187:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     }
+ 188:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     else {
+ 189:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****         LV_LOG_WARN("indev_read_cb is not registered");
+ 190:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     }
+ 191:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c **** }
+ 433              		.loc 1 191 0
+ 434 003a 38BD     		pop	{r3, r4, r5, pc}
+ 435              	.LVL35:
+ 436              	.L56:
+ 177:Drivers/lvgl/lvgl/src/hal/lv_hal_indev.c ****     }
+ 437              		.loc 1 177 0
+ARM GAS  /tmp/ccqClSIG.s 			page 12
+
+
+ 438 003c EB68     		ldr	r3, [r5, #12]
+ 439 003e 6360     		str	r3, [r4, #4]
+ 440 0040 F6E7     		b	.L51
+ 441              		.cfi_endproc
+ 442              	.LFE164:
+ 444              		.text
+ 445              	.Letext0:
+ 446              		.file 2 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/machine/_default_types.h"
+ 447              		.file 3 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_stdint.h"
+ 448              		.file 4 "Drivers/lvgl/lvgl/src/hal/../misc/lv_types.h"
+ 449              		.file 5 "/opt/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1/include/stddef.h"
+ 450              		.file 6 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/lock.h"
+ 451              		.file 7 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/_types.h"
+ 452              		.file 8 "/opt/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include/sys/reent.h"
+ 453              		.file 9 "Drivers/lvgl/lvgl/src/hal/../misc/lv_mem.h"
+ 454              		.file 10 "Drivers/lvgl/lvgl/src/hal/../hal/../misc/lv_area.h"
+ 455              		.file 11 "Drivers/lvgl/lvgl/src/hal/../hal/../misc/lv_timer.h"
+ 456              		.file 12 "Drivers/lvgl/lvgl/src/hal/../hal/lv_hal_indev.h"
+ 457              		.file 13 "Drivers/lvgl/lvgl/src/hal/../core/../hal/lv_hal_disp.h"
+ 458              		.file 14 "Drivers/lvgl/lvgl/src/hal/../core/lv_obj.h"
+ 459              		.file 15 "Drivers/lvgl/lvgl/src/hal/../core/lv_group.h"
+ 460              		.file 16 "Drivers/lvgl/lvgl/src/hal/../core/../misc/../font/lv_font.h"
+ 461              		.file 17 "Drivers/lvgl/lvgl/src/hal/../core/../misc/lv_color.h"
+ 462              		.file 18 "Drivers/lvgl/lvgl/src/hal/../core/../misc/lv_txt.h"
+ 463              		.file 19 "Drivers/lvgl/lvgl/src/hal/../core/../misc/lv_bidi.h"
+ 464              		.file 20 "Drivers/lvgl/lvgl/src/hal/../core/../misc/lv_style.h"
+ 465              		.file 21 "Drivers/lvgl/lvgl/src/hal/../core/../hal/../draw/lv_img_buf.h"
+ 466              		.file 22 "Drivers/lvgl/lvgl/src/hal/../core/../hal/../draw/lv_img_decoder.h"
+ 467              		.file 23 "Drivers/lvgl/lvgl/src/hal/../core/../hal/../draw/lv_img_cache.h"
+ 468              		.file 24 "Drivers/lvgl/lvgl/src/hal/../core/../hal/../draw/sw/../../core/lv_obj_pos.h"
+ 469              		.file 25 "Drivers/lvgl/lvgl/src/hal/../core/../hal/../draw/lv_draw_rect.h"
+ 470              		.file 26 "Drivers/lvgl/lvgl/src/hal/../core/../hal/../draw/lv_draw_label.h"
+ 471              		.file 27 "Drivers/lvgl/lvgl/src/hal/../core/../hal/../draw/lv_draw_img.h"
+ 472              		.file 28 "Drivers/lvgl/lvgl/src/hal/../core/../hal/../draw/lv_draw_line.h"
+ 473              		.file 29 "Drivers/lvgl/lvgl/src/hal/../core/../hal/../draw/lv_draw_arc.h"
+ 474              		.file 30 "Drivers/lvgl/lvgl/src/hal/../core/../hal/../draw/lv_draw_mask.h"
+ 475              		.file 31 "Drivers/lvgl/lvgl/src/hal/../core/../hal/../draw/lv_draw_layer.h"
+ 476              		.file 32 "Drivers/lvgl/lvgl/src/hal/../core/../hal/../draw/lv_draw.h"
+ 477              		.file 33 "Drivers/lvgl/lvgl/src/hal/../core/../hal/../misc/lv_ll.h"
+ 478              		.file 34 "Drivers/lvgl/lvgl/src/hal/../core/lv_obj_scroll.h"
+ 479              		.file 35 "Drivers/lvgl/lvgl/src/hal/../core/lv_obj_style.h"
+ 480              		.file 36 "Drivers/lvgl/lvgl/src/hal/../core/lv_obj_class.h"
+ 481              		.file 37 "Drivers/lvgl/lvgl/src/hal/../core/lv_event.h"
+ 482              		.file 38 "Drivers/lvgl/lvgl/src/hal/../misc/lv_gc.h"
+ARM GAS  /tmp/ccqClSIG.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_hal_indev.c
+     /tmp/ccqClSIG.s:17     .text.lv_indev_drv_init:0000000000000000 $t
+     /tmp/ccqClSIG.s:24     .text.lv_indev_drv_init:0000000000000000 lv_indev_drv_init
+     /tmp/ccqClSIG.s:68     .text.lv_indev_drv_register:0000000000000000 $t
+     /tmp/ccqClSIG.s:75     .text.lv_indev_drv_register:0000000000000000 lv_indev_drv_register
+     /tmp/ccqClSIG.s:146    .text.lv_indev_drv_register:0000000000000044 $d
+     /tmp/ccqClSIG.s:152    .text.lv_indev_drv_update:0000000000000000 $t
+     /tmp/ccqClSIG.s:159    .text.lv_indev_drv_update:0000000000000000 lv_indev_drv_update
+     /tmp/ccqClSIG.s:251    .text.lv_indev_drv_update:0000000000000050 $d
+     /tmp/ccqClSIG.s:256    .text.lv_indev_delete:0000000000000000 $t
+     /tmp/ccqClSIG.s:263    .text.lv_indev_delete:0000000000000000 lv_indev_delete
+     /tmp/ccqClSIG.s:320    .text.lv_indev_delete:0000000000000028 $d
+     /tmp/ccqClSIG.s:325    .text.lv_indev_get_next:0000000000000000 $t
+     /tmp/ccqClSIG.s:332    .text.lv_indev_get_next:0000000000000000 lv_indev_get_next
+     /tmp/ccqClSIG.s:366    .text.lv_indev_get_next:0000000000000018 $d
+     /tmp/ccqClSIG.s:371    .text._lv_indev_read:0000000000000000 $t
+     /tmp/ccqClSIG.s:378    .text._lv_indev_read:0000000000000000 _lv_indev_read
+
+UNDEFINED SYMBOLS
+lv_memset_00
+_lv_ll_ins_head
+lv_disp_get_default
+lv_timer_create
+_lv_indev_ll
+lv_indev_read_timer_cb
+lv_timer_del
+_lv_ll_remove
+lv_mem_free
+_lv_ll_get_next
+_lv_ll_get_head
